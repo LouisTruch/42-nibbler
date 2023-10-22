@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <vector>
 #include "../inc/Game.hpp"
-#include "../inc/IGraphicHandler.hpp"
 
 #define MIN_WIDTH 5
 #define MAX_WIDTH 50
@@ -37,9 +36,6 @@ static void checkArgs(int argc, char **argv)
     }
 }
 
-#include <dlfcn.h>
-#include <memory>
-
 int main(int argc, char **argv)
 {
     try
@@ -51,31 +47,21 @@ int main(int argc, char **argv)
         std::cerr << "In main.cpp: Parsing error: " << e.what() << std::endl;
         exit(1);
     }
-    // Game game(atoi(argv[1]), atoi(argv[2]));
-    auto closeLib = [](void *lib)
+    try
     {
-        dlclose(lib);
-    };
-    typedef void *(*FuncPtr)(int, int);
-    using handlePtr = std::unique_ptr<void, decltype(closeLib)>;
-
-    handlePtr lib(dlopen("libs/sdl/libsdl.so", RTLD_LAZY), closeLib);
-    // void *lib = dlopen("libs/sdl/libsdl.so", RTLD_NOW);
-    // handlePtr(lib, closeLib);
-    if (!lib)
-    {
-        std::cout << "ff\n"
-                  << dlerror();
+        Game game(atoi(argv[1]), atoi(argv[2]));
     }
-    else
+    catch (const std::exception &e)
     {
-        std::cout << "no ff\n";
-        FuncPtr func = (FuncPtr)dlsym(lib.get(), "makeGraphicHandler");
-        if (func)
-        {
-            std::cout << "oui\n";
-            void *ptr = func(100, 100);
-        }
+        std::cerr << "In main(): " << e.what() << std::endl;
     }
     return 0;
 }
+// auto closeLib = [](void *lib)
+// {
+//     dlclose(lib);
+// };
+// typedef void *(*FuncPtr)(int, int);
+// using handlePtr = std::unique_ptr<void, decltype(closeLib)>;
+// handlePtr lib(dlopen("libs/sdl/libsdl.so", RTLD_LAZY), closeLib);
+// handlePtr(lib, closeLib);

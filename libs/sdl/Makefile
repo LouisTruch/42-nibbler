@@ -1,7 +1,7 @@
 CC = g++
-CFLAGS = -Wall -Wall -Wextra -fPIC 
+CFLAGS = -Wall -Wall -Wextra -fPIC -g
 INCLUDES = -Iinc
-SRCS = src/GraphicHandler.cpp 
+SRCS = src/SDLGraphicHandler.cpp 
 OBJS = $(SRCS:.c=.o)
 TARGET = libsdl.so
 

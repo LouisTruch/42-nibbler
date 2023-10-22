@@ -13,6 +13,10 @@ Game::Game(int width, int height)
         _map[i] = line;
     }
 
+    _libHandler = std::make_unique<LibHandler>();
+    _gHandler = _libHandler.get()->makeGraphicLib(width, height);
+    _libHandler.get()->destroyGraphicLib(_gHandler);
+    // _gHandler = _libHandler.get()->makeGraphicHandler(width, height);
     // for (auto i : std::views::iota(0, (int)_map.size()))
     // {
     //     for (auto j : std::views::iota(0, (int)_map[i].size()))
@@ -21,6 +25,13 @@ Game::Game(int width, int height)
     //     }
     //     std::cout << '\n';
     // }
+}
+
+void Game::loop(void)
+{
+    while (1)
+    {
+    }
 }
 
 Game::Game()

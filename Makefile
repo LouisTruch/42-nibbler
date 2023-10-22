@@ -1,12 +1,13 @@
 NAME = nibbler
 
 SRCS =	src/main.cpp \
-		src/Game.cpp
+		src/Game.cpp \
+		src/LibHandler.cpp \
 
 OBJS	=	${SRCS:.cpp=.o}
 
 CXX			= 	g++
-CXXFLAGS	=	-Wall -Wextra  -std=c++20
+CXXFLAGS	=	-Wall -Wextra  -std=c++20 -g
 RM			= 	rm -f
 
 .cpp.o	:	

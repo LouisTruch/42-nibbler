@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+#include <memory>
+#include "GraphicHandler.hpp"
+#include "LibHandler.hpp"
 
 class Game
 {
@@ -9,7 +12,11 @@ public:
     Game(const Game &);
     Game &operator=(const Game &);
 
-    // IGraphicHandler *GraphicHandler;
+    void loop();
+
+public:
+    std::unique_ptr<IGraphicLib> _gHandler;
+    std::unique_ptr<LibHandler> _libHandler;
 
 private:
     Game();
