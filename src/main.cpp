@@ -4,10 +4,11 @@
 #include <vector>
 #include "../inc/Game.hpp"
 
+// Change with constexpr ??
 #define MIN_WIDTH 5
-#define MAX_WIDTH 50
+#define MAX_WIDTH 100
 #define MIN_HEIGHT 5
-#define MAX_HEIGHT 50
+#define MAX_HEIGHT 100
 
 static bool checkSize(const char *str)
 {
@@ -32,7 +33,7 @@ static void checkArgs(int argc, char **argv)
         if (!checkOnlyPosInt(str))
             throw std::logic_error("Arguments must be positive integers");
         if (!checkSize(str.data()))
-            throw std::logic_error("Width [5-50] Height [5-50]");
+            throw std::logic_error("Width [5-100] Height [5-100]");
     }
 }
 

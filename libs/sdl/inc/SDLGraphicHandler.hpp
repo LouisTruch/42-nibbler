@@ -6,6 +6,8 @@
 
 #include "../../../inc/IGraphicLib.hpp"
 
+constexpr int TILE_SIZE = 5;
+
 class SDLGraphicLib : public IGraphicLib
 {
 public:
@@ -18,9 +20,12 @@ public:
 
 private:
     SDLGraphicLib();
+
+private:
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     SDL_Event _event;
+    SDL_Rect _rect = {0, 0, TILE_SIZE, TILE_SIZE};
 };
 
 extern "C"

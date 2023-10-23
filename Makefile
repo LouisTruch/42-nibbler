@@ -3,6 +3,7 @@ NAME = nibbler
 SRCS =	src/main.cpp \
 		src/Game.cpp \
 		src/LibHandler.cpp \
+		src/Player.cpp \
 
 OBJS	=	${SRCS:.cpp=.o}
 
@@ -28,5 +29,8 @@ fclean	:	clean
 			${RM} ${NAME}
 
 re		:	fclean all
+
+lib		:
+			make -C libs/sdl/
 
 .PHONY : all clean fclean re

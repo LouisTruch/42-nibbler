@@ -68,6 +68,7 @@ LibHandler &LibHandler::operator=(const LibHandler &other)
     _lib = other._lib;
     _numCurrentLib = other._numCurrentLib;
     _makerFunc = other._makerFunc;
+    _deleterFunc = other._deleterFunc;
     return *this;
 }
 

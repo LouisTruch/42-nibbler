@@ -5,7 +5,7 @@ SDLGraphicLib::SDLGraphicLib(int width, int height)
 {
     _window = SDL_CreateWindow("nibbler", SDL_WINDOWPOS_CENTERED,
                                SDL_WINDOWPOS_CENTERED,
-                               width, height, 0);
+                               width * TILE_SIZE + (TILE_SIZE * 2), height * TILE_SIZE + (TILE_SIZE * 2), 0);
 
     if (!_window)
         throw std::runtime_error("Error creating SDL Window");
@@ -17,15 +17,30 @@ SDLGraphicLib::SDLGraphicLib(int width, int height)
 
 void SDLGraphicLib::drawMap(const map_t &map)
 {
-    for (auto &&row : map)
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(_renderer);
+    for (auto itMap = map.begin(); itMap != map.end(); ++itMap)
     {
-        for (auto &&col : row)
+        int i = std::distance(map.begin(), itMap);
+        for (auto itLine = map[i].begin(); itLine != map[i].end(); ++itLine)
         {
-            std::cout << col;
+            int j = std::distance(map[i].begin(), itLine);
+            switch (map[i][j])
+            {
+            case OBJ_PLAYER:
+                _rect.x = i * TILE_SIZE;
+                _rect.y = j * TILE_SIZE;
+                SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
+                SDL_RenderFillRect(_renderer, &_rect);
+                /* code */
+                break;
+
+            default:
+                break;
+            }
         }
-        std::cout << std::endl;
     }
-    std::cout << std::endl;
+    SDL_RenderPresent(_renderer);
 }
 
 void SDLGraphicLib::getPlayerInput()
