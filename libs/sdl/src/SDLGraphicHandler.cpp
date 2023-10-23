@@ -13,33 +13,51 @@ SDLGraphicLib::SDLGraphicLib(int width, int height)
     _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
     if (!_renderer)
         throw std::runtime_error("Error creating SDL Renderer");
+
+    _borders[HORIZONTAL_TOP].h = TILE_SIZE;
+    _borders[HORIZONTAL_TOP].w = width * TILE_SIZE + (TILE_SIZE * 2);
+    _borders[HORIZONTAL_TOP].x = 0;
+    _borders[HORIZONTAL_TOP].y = 0;
+    _borders[HORIZONTAL_BOTTOM].h = TILE_SIZE;
+    _borders[HORIZONTAL_BOTTOM].w = width * TILE_SIZE + (TILE_SIZE * 2);
+    _borders[HORIZONTAL_BOTTOM].x = 0;
+    _borders[HORIZONTAL_BOTTOM].y = height * TILE_SIZE + TILE_SIZE;
+    _borders[VERTICAL_RIGHT].h = height * TILE_SIZE + TILE_SIZE;
+    _borders[VERTICAL_RIGHT].w = TILE_SIZE;
+    _borders[VERTICAL_RIGHT].x = 0;
+    _borders[VERTICAL_RIGHT].y = 0;
+    _borders[VERTICAL_LEFT].h = height * TILE_SIZE + TILE_SIZE;
+    _borders[VERTICAL_LEFT].w = TILE_SIZE;
+    _borders[VERTICAL_LEFT].x = width * TILE_SIZE + TILE_SIZE;
+    _borders[VERTICAL_LEFT].y = 0;
 }
 
-void SDLGraphicLib::drawMap(const map_t &map)
+void SDLGraphicLib::drawPlayer(const body_t &body)
 {
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
-    for (auto itMap = map.begin(); itMap != map.end(); ++itMap)
-    {
-        int i = std::distance(map.begin(), itMap);
-        for (auto itLine = map[i].begin(); itLine != map[i].end(); ++itLine)
-        {
-            int j = std::distance(map[i].begin(), itLine);
-            switch (map[i][j])
-            {
-            case OBJ_PLAYER:
-                _rect.x = i * TILE_SIZE;
-                _rect.y = j * TILE_SIZE;
-                SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
-                SDL_RenderFillRect(_renderer, &_rect);
-                /* code */
-                break;
 
-            default:
-                break;
-            }
-        }
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 0);
+    SDL_RenderFillRect(_renderer, &_borders[HORIZONTAL_TOP]);
+    SDL_RenderFillRect(_renderer, &_borders[HORIZONTAL_BOTTOM]);
+    SDL_RenderFillRect(_renderer, &_borders[VERTICAL_RIGHT]);
+    SDL_RenderFillRect(_renderer, &_borders[VERTICAL_LEFT]);
+
+    SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
+    for (auto &point : body)
+    {
+        _rect.x = point.x * TILE_SIZE;
+        _rect.y = point.y * TILE_SIZE;
+        SDL_RenderFillRect(_renderer, &_rect);
     }
+}
+
+void SDLGraphicLib::drawFood(const point_t &point)
+{
+    SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 0);
+    _rect.x = point.x * TILE_SIZE;
+    _rect.y = point.y * TILE_SIZE;
+    SDL_RenderFillRect(_renderer, &_rect);
     SDL_RenderPresent(_renderer);
 }
 

@@ -4,6 +4,7 @@ SRCS =	src/main.cpp \
 		src/Game.cpp \
 		src/LibHandler.cpp \
 		src/Player.cpp \
+		src/Food.cpp \
 
 OBJS	=	${SRCS:.cpp=.o}
 

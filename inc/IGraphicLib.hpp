@@ -1,8 +1,8 @@
 #pragma once
 
-#include <iostream>
-#include <vector>
+#include <memory>
 #include "types.hpp"
+#include "Player.hpp"
 
 class IGraphicLib
 {
@@ -11,6 +11,7 @@ public:
 
 public:
     virtual ~IGraphicLib() = default;
-    virtual void drawMap(const map_t &) = 0;
+    virtual void drawPlayer(const body_t &) = 0;
+    virtual void drawFood(const point_t &) = 0;
     virtual void getPlayerInput() = 0;
 };

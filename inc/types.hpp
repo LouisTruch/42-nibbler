@@ -1,10 +1,6 @@
 #pragma once
 #include <vector>
-
-// Each Graphic Lib needs a map to draw on its window from
-typedef u_int8_t tile_t;
-typedef std::vector<tile_t> line_t;
-typedef std::vector<std::vector<tile_t>> map_t;
+#include <deque>
 
 // Each Lib needs to be able to take at least these player's input
 typedef enum
@@ -14,7 +10,6 @@ typedef enum
     LEFT,
     RIGHT,
     QUIT,
-    DEFAULT,
 } player_input_t;
 
 enum map_objects
@@ -24,3 +19,23 @@ enum map_objects
     OBJ_FOOD,
     OBJ_WALL,
 };
+
+struct point
+{
+    int x;
+    int y;
+    // point &operator=(const point &other)
+    // {
+    //     x = other.x;
+    //     y = other.y;
+    //     return *this;
+    // }
+
+    bool operator==(const point a) const
+    {
+        return (x == a.x && y == a.y);
+    }
+};
+typedef struct point point_t;
+
+typedef std::deque<point_t> body_t;

@@ -9,27 +9,16 @@ public:
     ~Player();
     Player(const Player &);
     Player &operator=(const Player &);
-    void setDir(player_input_t);
+    void setDirection(player_input_t);
     void move(player_input_t);
+    void grow();
 
 public:
-    typedef struct
-    {
-        int x;
-        int y;
-    } point_t;
-    std::deque<point_t> body;
+    body_t body;
 
 private:
     Player();
 
 private:
     int _currentDir;
-    // enum direction
-    // {
-    //     UP,
-    //     DOWN,
-    //     LEFT,
-    //     RIGHT,
-    // };
 };

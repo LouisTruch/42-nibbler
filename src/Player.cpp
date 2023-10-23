@@ -1,6 +1,6 @@
 #include "../inc/Player.hpp"
 
-void Player::setDir(player_input_t input)
+void Player::setDirection(player_input_t input)
 {
     if (input == UP && _currentDir != DOWN)
         _currentDir = UP;
@@ -14,7 +14,7 @@ void Player::setDir(player_input_t input)
 
 void Player::move(player_input_t input)
 {
-    setDir(input);
+    setDirection(input);
     switch (_currentDir)
     {
     case UP:
@@ -33,9 +33,12 @@ void Player::move(player_input_t input)
         body.push_front({body.front().x + 1, body.front().y});
         body.pop_back();
         break;
-    default:
-        break;
     }
+}
+
+void Player::grow()
+{
+    body.push_back({body.back().x, body.back().y});
 }
 
 Player::Player(int mapWidth, int mapHeight, int size)
