@@ -58,7 +58,7 @@ std::unique_ptr<IGraphicLib> LibHandler::makeGraphicLib(int width, int height)
 
 void LibHandler::destroyGraphicLib(std::unique_ptr<IGraphicLib> gLib)
 {
-    _destroyU(gLib);
+    _destroyU(std::move(gLib));
 }
 
 LibHandler::LibHandler(const LibHandler &other)

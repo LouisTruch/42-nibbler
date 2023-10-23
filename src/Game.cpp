@@ -15,7 +15,8 @@ Game::Game(int width, int height)
 
     _libHandler = std::make_unique<LibHandler>();
     _gHandler = _libHandler.get()->makeGraphicLib(width, height);
-    _libHandler.get()->destroyGraphicLib(_gHandler);
+    _libHandler.get()->destroyGraphicLib(std::move(_gHandler));
+
     // _gHandler = _libHandler.get()->makeGraphicHandler(width, height);
     // for (auto i : std::views::iota(0, (int)_map.size()))
     // {
