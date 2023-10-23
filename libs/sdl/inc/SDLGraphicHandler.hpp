@@ -13,17 +13,20 @@ public:
     ~SDLGraphicLib();
     SDLGraphicLib(const SDLGraphicLib &);
     SDLGraphicLib &operator=(const SDLGraphicLib &);
+    void drawMap(const map_t &map);
+    void getPlayerInput();
 
 private:
     SDLGraphicLib();
     SDL_Window *_window;
     SDL_Renderer *_renderer;
+    SDL_Event _event;
 };
 
 extern "C"
 {
-    SDLGraphicLib *makeGraphicHandler(int width, int height);
     std::unique_ptr<SDLGraphicLib> makeGraphicLib(int width, int height);
     void destroyGraphicLib(std::unique_ptr<SDLGraphicLib> gLib);
+    // SDLGraphicLib *makeGraphicHandler(int width, int height);
     // void destroyGraphicHandler();
 }

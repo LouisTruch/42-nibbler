@@ -50,6 +50,7 @@ int main(int argc, char **argv)
     try
     {
         Game game(atoi(argv[1]), atoi(argv[2]));
+        game.loop();
     }
     catch (const std::exception &e)
     {

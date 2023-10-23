@@ -18,15 +18,13 @@ public:
     LibHandler();
     void switchLib(lib_name_e);
 
-    std::unique_ptr<IGraphicLib> makeGraphicHandler(int, int);
-
     std::unique_ptr<IGraphicLib> makeGraphicLib(int, int);
-
     void destroyGraphicLib(std::unique_ptr<IGraphicLib>);
 
     ~LibHandler();
     LibHandler(const LibHandler &);
     LibHandler &operator=(const LibHandler &);
+    // std::unique_ptr<IGraphicLib> makeGraphicHandler(int, int);
 
 private:
     void loadSymbols();
@@ -35,14 +33,14 @@ private:
     void *_lib;
 
     typedef u_int8_t current_lib_t;
-    current_lib_t _currentLib;
+    current_lib_t _numCurrentLib;
     typedef std::unique_ptr<IGraphicLib> (*makeGraphicLibFunc)(int, int);
-    makeGraphicLibFunc _makerU;
+    makeGraphicLibFunc _makerFunc;
     typedef void (*destroyGraphicLibFunc)(std::unique_ptr<IGraphicLib>);
-    destroyGraphicLibFunc _destroyU;
+    destroyGraphicLibFunc _deleterFunc;
 
-    typedef void *(*makeGraphicHandlerFunc)(int, int);
-    makeGraphicHandlerFunc _maker;
+    // typedef void *(*makeGraphicHandlerFunc)(int, int);
+    // makeGraphicHandlerFunc _maker;
 
     static constexpr std::string_view _libPaths[3] = {"libs/sdl/libsdl.so", "a", "b"};
 };
