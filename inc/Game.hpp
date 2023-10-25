@@ -1,19 +1,19 @@
 #pragma once
-#include <memory>
-#include <vector>
-#include <random>
-#include "types.hpp"
-#include "LibHandler.hpp"
-#include "IGraphicLib.hpp"
-#include "Player.hpp"
 #include "Food.hpp"
+#include "IGraphicLib.hpp"
+#include "LibHandler.hpp"
+#include "Player.hpp"
+#include "types.hpp"
+#include <memory>
+#include <random>
+#include <vector>
 
 constexpr int DEFAULT_PLAYER_SIZE = 5;
-constexpr int DEFAULT_GAME_SPEED = 50000;
+constexpr int DEFAULT_GAME_SPEED = 100000;
 
 class Game
 {
-public:
+  public:
     Game(int, int);
     ~Game();
     Game(const Game &);
@@ -24,11 +24,11 @@ public:
     point_t chooseRandomFoodPos();
     bool isTileFree(int);
 
-private:
+  private:
     Game();
 
-private:
-    LibHandler _libHandler;
+  private:
+    std::unique_ptr<LibHandler> _libHandler;
     std::unique_ptr<IGraphicLib> _gHandler;
     std::unique_ptr<Player> _player;
     std::unique_ptr<Food> _food;

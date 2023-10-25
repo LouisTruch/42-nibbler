@@ -1,14 +1,26 @@
 #include "../inc/LibHandler.hpp"
 #include <dlfcn.h>
+#include <iostream>
 #include <stdexcept>
 
-LibHandler::LibHandler()
+LibHandler::LibHandler(int width, int height) : _width(width), _height(height), _currentLib(-1)
 {
-    _lib = dlopen(_libPaths[LIBSDL].data(), RTLD_LAZY);
+    openLib(LIBSDL);
+    loadSymbols();
+}
+
+void LibHandler::openLib(int libChoice)
+{
+    _currentLib = libChoice;
+    _lib = dlopen(_libPaths[_currentLib].data(), RTLD_LAZY);
     if (!_lib)
         throw std::runtime_error("Error LibHandler(): couldnt load .so object");
-    _numCurrentLib = LIBSDL;
-    loadSymbols();
+}
+
+void LibHandler::closeLib()
+{
+    if (dlclose(_lib))
+        throw std::runtime_error("Error LibHandler->closeLib(): Couldnt close lib");
 }
 
 LibHandler::~LibHandler()
@@ -16,23 +28,25 @@ LibHandler::~LibHandler()
     dlclose(_lib);
 }
 
-void LibHandler::switchLib(lib_name_e libChoice)
+std::unique_ptr<IGraphicLib> LibHandler::switchLib(lib_name_e libChoice, std::unique_ptr<IGraphicLib> gLib)
 {
-    if (libChoice == _numCurrentLib)
-        throw std::runtime_error("Error LibHandler->SwitchLib(): This lib is already loaded");
+    if (libChoice == _currentLib)
+    {
+        std::cerr << "Error LibHandler->SwitchLib(): This lib is already loaded\n";
+        return gLib;
+    }
 
     if (0 < libChoice && libChoice >= NB_LIBS)
-        throw std::runtime_error("Error LibHandler->SwitchLib(): Library does not exist");
+    {
+        std::cerr << "Error LibHandler->SwitchLib(): Library does not exist\n";
+        return gLib;
+    }
 
-    if (dlclose(_lib))
-        throw std::runtime_error("Error LibHandler->SwitchLib(): Error closing library");
-
-    _lib = dlopen(_libPaths[libChoice].data(), RTLD_LAZY);
-    if (!_lib)
-        throw std::runtime_error("Error LibHandler->SwitchLib(): couldnt load .so object");
-
-    _numCurrentLib = libChoice;
+    _deleterFunc(std::move(gLib));
+    closeLib();
+    openLib(libChoice);
     loadSymbols();
+    return _makerFunc(_width, _height);
 }
 
 void LibHandler::loadSymbols(void)
@@ -66,10 +80,14 @@ LibHandler &LibHandler::operator=(const LibHandler &other)
     if (&other == this)
         return *this;
     _lib = other._lib;
-    _numCurrentLib = other._numCurrentLib;
+    _currentLib = other._currentLib;
     _makerFunc = other._makerFunc;
     _deleterFunc = other._deleterFunc;
     return *this;
+}
+
+LibHandler::LibHandler()
+{
 }
 
 // std::unique_ptr<IGraphicLib> LibHandler::makeGraphicHandler(int width, int height)

@@ -1,14 +1,17 @@
 #include "../inc/Game.hpp"
 #include <ranges>
+#include <unistd.h>
 
 Game::Game(int width, int height) : _width(width), _height(height), _totalSpace(width * height)
 {
     _rng.seed(getpid());
-    _gHandler = _libHandler.makeGraphicLib(_width + 2, _height + 2);
+    _libHandler = std::make_unique<LibHandler>(_width, _height);
+    _gHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
     _player = std::make_unique<Player>(_width, _height, DEFAULT_PLAYER_SIZE);
     _food = std::make_unique<Food>(chooseRandomFoodPos());
 }
 
+#include <iostream>
 void Game::loop(void)
 {
     while (1)
@@ -16,12 +19,16 @@ void Game::loop(void)
         _gHandler->getPlayerInput();
         if (_gHandler->playerInput == QUIT)
             break;
+        if (_gHandler->playerInput == SWAP_LIBNCURSES)
+            _gHandler = _libHandler->switchLib(LibHandler::LIBNCURSES, std::move(_gHandler));
+        else if (_gHandler->playerInput == SWAP_LIBSDL)
+            _gHandler = _libHandler->switchLib(LibHandler::LIBSDL, std::move(_gHandler));
+
         _player->move(_gHandler->playerInput);
         if (checkCollision() == DEATH)
             break;
         _gHandler->drawPlayer(_player.get()->body);
-        if (_food != nullptr)
-            _gHandler->drawFood(_food.get()->pos);
+        _gHandler->drawFood(_food.get()->pos);
         usleep(DEFAULT_GAME_SPEED);
     }
 }
@@ -29,12 +36,13 @@ void Game::loop(void)
 int Game::checkCollision()
 {
     auto playerHeadPoint = _player.get()->body.front();
-    if (0 == playerHeadPoint.x || playerHeadPoint.x == _width + 3 || 0 == playerHeadPoint.y || playerHeadPoint.y == _height + 3)
+    if (0 == playerHeadPoint.x || playerHeadPoint.x == _width + 3 || 0 == playerHeadPoint.y ||
+        playerHeadPoint.y == _height + 3)
         return DEATH;
 
     if (playerHeadPoint == _food.get()->pos)
     {
-        _player.get()->grow();
+        _player.get()->growBody();
         _food.reset(new Food(chooseRandomFoodPos()));
         return BUFF;
     }
@@ -57,12 +65,10 @@ bool Game::isTileFree(int i)
     return true;
 }
 
-#include <iostream>
 point_t Game::chooseRandomFoodPos()
 {
     std::uniform_int_distribution<int> int_dist(0, _totalSpace - _player.get()->body.size());
     int freeTileNb = int_dist(_rng);
-    std::cout << freeTileNb << "\n";
     point_t point = {-1, -1};
     for (auto i : std::views::iota(freeTileNb, _totalSpace))
     {
@@ -84,7 +90,7 @@ Game::Game()
 
 Game::~Game()
 {
-    _libHandler.destroyGraphicLib(std::move(_gHandler));
+    _libHandler->destroyGraphicLib(std::move(_gHandler));
 }
 
 Game::Game(const Game &other)

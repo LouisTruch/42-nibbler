@@ -1,8 +1,8 @@
+#include "../inc/Game.hpp"
+#include <algorithm>
 #include <iostream>
 #include <string>
-#include <algorithm>
 #include <vector>
-#include "../inc/Game.hpp"
 
 // Change with constexpr ??
 #define MIN_WIDTH 5
@@ -19,9 +19,7 @@ static bool checkSize(const char *str)
 
 static bool checkOnlyPosInt(std::string_view sv)
 {
-    return std::find_if(sv.begin(),
-                        sv.end(), [](unsigned char c)
-                        { return !std::isdigit(c); }) == sv.end();
+    return std::find_if(sv.begin(), sv.end(), [](unsigned char c) { return !std::isdigit(c); }) == sv.end();
 }
 
 static void checkArgs(int argc, char **argv)

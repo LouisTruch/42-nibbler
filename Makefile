@@ -33,5 +33,6 @@ re		:	fclean all
 
 lib		:
 			make -C libs/sdl/
+			make -C libs/ncurses/
 
 .PHONY : all clean fclean re

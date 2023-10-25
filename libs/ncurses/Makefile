@@ -1,9 +1,9 @@
 CC = g++
 CFLAGS = -Wall -Wall -Wextra -fPIC
 INCLUDES = -Iinc
-SRCS = src/SDLGraphicLib.cpp 
+SRCS = src/NcursesGraphicLib.cpp 
 OBJS = $(SRCS:.c=.o)
-TARGET = libsdl.so
+TARGET = libncurses.so
 
 .PHONY: clean fclean re
     
@@ -11,10 +11,10 @@ all:    $(TARGET)
 	@echo  Successfully compiled a .so library.
 
 $(TARGET): $(OBJS) 
-	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -lSDL2
+	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -lncurses
 
 .c.o:
-	$(CC) $(CFLAGS) -I/usr/include/SDL2 $(INCLUDES) -cpp $<  -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -cpp $<  -o $@
 
 clean:
 	$(RM) *.o 

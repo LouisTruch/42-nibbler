@@ -2,19 +2,14 @@
 
 void Player::setDirection(player_input_t input)
 {
-    if (input == UP && _currentDir != DOWN)
-        _currentDir = UP;
-    else if (input == DOWN && _currentDir != UP)
-        _currentDir = DOWN;
-    else if (input == LEFT && _currentDir != RIGHT)
-        _currentDir = LEFT;
-    else if (input == RIGHT && _currentDir != LEFT)
-        _currentDir = RIGHT;
+    if (_currentDir + input != 0)
+        _currentDir = input;
 }
 
 void Player::move(player_input_t input)
 {
-    setDirection(input);
+    if (input >= LEFT && input <= RIGHT)
+        setDirection(input);
     switch (_currentDir)
     {
     case UP:
@@ -36,7 +31,7 @@ void Player::move(player_input_t input)
     }
 }
 
-void Player::grow()
+void Player::growBody()
 {
     body.push_back({body.back().x, body.back().y});
 }

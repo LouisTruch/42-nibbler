@@ -1,16 +1,15 @@
 #pragma once
 
-#include <stddef.h>
+#include "../../../inc/IGraphicLib.hpp"
 #include <SDL2/SDL.h>
 #include <memory>
-
-#include "../../../inc/IGraphicLib.hpp"
+#include <stddef.h>
 
 constexpr int TILE_SIZE = 10;
 
 class SDLGraphicLib : public IGraphicLib
 {
-public:
+  public:
     SDLGraphicLib(int, int);
     ~SDLGraphicLib();
     SDLGraphicLib(const SDLGraphicLib &);
@@ -19,10 +18,10 @@ public:
     void drawPlayer(const body_t &);
     void drawFood(const point_t &);
 
-private:
+  private:
     SDLGraphicLib();
 
-private:
+  private:
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     SDL_Event _event;

@@ -1,24 +1,24 @@
 #pragma once
-#include <deque>
 #include "types.hpp"
+#include <deque>
 
 class Player
 {
-public:
+  public:
     Player(int, int, int);
     ~Player();
     Player(const Player &);
     Player &operator=(const Player &);
     void setDirection(player_input_t);
     void move(player_input_t);
-    void grow();
+    void growBody();
 
-public:
+  public:
     body_t body;
 
-private:
+  private:
     Player();
 
-private:
+  private:
     int _currentDir;
 };

@@ -1,10 +1,10 @@
-#include "../inc/SDLGraphicHandler.hpp"
+#include "../inc/SDLGraphicLib.hpp"
 #include <stdexcept>
 
 SDLGraphicLib::SDLGraphicLib(int width, int height)
 {
-    _window = SDL_CreateWindow("nibbler", SDL_WINDOWPOS_CENTERED,
-                               SDL_WINDOWPOS_CENTERED,
+    // Set up SDL
+    _window = SDL_CreateWindow("nibbler", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                width * TILE_SIZE + (TILE_SIZE * 2), height * TILE_SIZE + (TILE_SIZE * 2), 0);
 
     if (!_window)
@@ -14,6 +14,7 @@ SDLGraphicLib::SDLGraphicLib(int width, int height)
     if (!_renderer)
         throw std::runtime_error("Error creating SDL Renderer");
 
+    // Set up border walls rectangle
     _borders[HORIZONTAL_TOP].h = TILE_SIZE;
     _borders[HORIZONTAL_TOP].w = width * TILE_SIZE + (TILE_SIZE * 2);
     _borders[HORIZONTAL_TOP].x = 0;
@@ -34,15 +35,16 @@ SDLGraphicLib::SDLGraphicLib(int width, int height)
 
 void SDLGraphicLib::drawPlayer(const body_t &body)
 {
+    // Clear screen and render border walls
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
-
     SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 0);
     SDL_RenderFillRect(_renderer, &_borders[HORIZONTAL_TOP]);
     SDL_RenderFillRect(_renderer, &_borders[HORIZONTAL_BOTTOM]);
     SDL_RenderFillRect(_renderer, &_borders[VERTICAL_RIGHT]);
     SDL_RenderFillRect(_renderer, &_borders[VERTICAL_LEFT]);
 
+    // Render Player
     SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
     for (auto &point : body)
     {
@@ -76,6 +78,10 @@ void SDLGraphicLib::getPlayerInput()
                 playerInput = LEFT;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_D)
                 playerInput = RIGHT;
+            else if (_event.key.keysym.scancode == SDL_SCANCODE_1)
+                playerInput = SWAP_LIBNCURSES;
+            else if (_event.key.keysym.scancode == SDL_SCANCODE_2)
+                playerInput = SWAP_LIBSDL;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                 playerInput = QUIT;
             break;
@@ -96,12 +102,18 @@ SDLGraphicLib::~SDLGraphicLib()
 
 SDLGraphicLib::SDLGraphicLib(const SDLGraphicLib &other)
 {
-    (void)other;
+    *this = other;
 }
 
 SDLGraphicLib &SDLGraphicLib::operator=(const SDLGraphicLib &other)
 {
-    (void)other;
+    if (&other == this)
+        return *this;
+    _window = other._window;
+    _renderer = other._renderer;
+    _event = other._event;
+    // _rect = other._rect();
+    // _borders = other._borders;
     return *this;
 }
 

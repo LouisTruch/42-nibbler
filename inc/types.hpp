@@ -1,14 +1,16 @@
 #pragma once
-#include <vector>
 #include <deque>
+#include <vector>
 
-// Each Lib needs to be able to take at least these player's input
 typedef enum
 {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
+    UP = -1,
+    DOWN = 1,
+    LEFT = -2,
+    RIGHT = 2,
+    SWAP_LIBNCURSES,
+    SWAP_LIBSDL,
+    SWAP_LIB2,
     QUIT,
 } player_input_t;
 
