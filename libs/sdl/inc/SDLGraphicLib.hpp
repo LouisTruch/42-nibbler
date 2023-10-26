@@ -14,7 +14,9 @@ class SDLGraphicLib : public IGraphicLib
     ~SDLGraphicLib();
     SDLGraphicLib(const SDLGraphicLib &);
     SDLGraphicLib &operator=(const SDLGraphicLib &);
-    void getPlayerInput();
+    player_input_t getPlayerInput() const;
+    void resetPlayerInput();
+    void registerPlayerInput();
     void drawPlayer(const body_t &);
     void drawFood(const point_t &);
 

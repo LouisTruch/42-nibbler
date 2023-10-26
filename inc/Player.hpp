@@ -12,13 +12,15 @@ class Player
     void setDirection(player_input_t);
     void move(player_input_t);
     void growBody();
-
-  public:
-    body_t body;
+    body_t getBody() const;
+    typedef body_t::const_iterator it_body;
+    it_body getHead() const;
+    it_body getTail() const;
 
   private:
     Player();
 
   private:
+    body_t _body;
     int _currentDir;
 };

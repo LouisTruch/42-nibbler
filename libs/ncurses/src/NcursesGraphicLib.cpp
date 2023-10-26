@@ -1,4 +1,6 @@
 #include "../inc/NcursesGraphicLib.hpp"
+// #include <sys/ioctl.h>
+// #include <unistd.h>
 
 NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width + 2), _height(height + 2)
 {
@@ -6,40 +8,46 @@ NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width + 2),
     refresh();   // Clear Screen
     noecho();    // Prevent keypress being printed on screen
     curs_set(0); // Remove cursor from screen
-    _board = newwin(_height, _width, 0, 0);
-    wtimeout(_board, 0); // Set non blocking call of user input
     timeout(0);
+
+    // struct winsize w;
+    // if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w))
+    _board = newwin(_height, _width, 0, 0);
+    // else
+    // _board = newwin(_height, _width, w.ws_row / 2 - (_height / 2), w.ws_col / 2 - (_width / 2));
+
+    wtimeout(_board, 0); // Set non blocking call of user input
     box(_board, 0, 0);
     wrefresh(_board);
     keypad(_board, true);
 }
 
-void NcursesGraphicLib::getPlayerInput()
+void NcursesGraphicLib::registerPlayerInput()
 {
     chtype input = wgetch(_board);
 
     switch (input)
     {
     case 'w':
-        playerInput = UP;
+        _playerInput = UP;
         break;
     case 's':
-        playerInput = DOWN;
+        _playerInput = DOWN;
         break;
     case 'a':
-        playerInput = LEFT;
+        _playerInput = LEFT;
         break;
     case 'd':
-        playerInput = RIGHT;
+        _playerInput = RIGHT;
         break;
     case '1':
-        playerInput = SWAP_LIBNCURSES;
+        _playerInput = SWAP_LIBNCURSES;
         break;
     case '2':
-        playerInput = SWAP_LIBSDL;
+        _playerInput = SWAP_LIBSDL;
         break;
     case 27:
-        playerInput = QUIT;
+        _playerInput = QUIT;
         break;
     }
 }
@@ -55,6 +63,16 @@ void NcursesGraphicLib::drawPlayer(const body_t &body)
 void NcursesGraphicLib::drawFood(const point_t &point)
 {
     mvwaddch(_board, point.y, point.x, foodIcon);
+}
+
+player_input_t NcursesGraphicLib::getPlayerInput() const
+{
+    return _playerInput;
+}
+
+void NcursesGraphicLib::resetPlayerInput()
+{
+    _playerInput = DEFAULT;
 }
 
 NcursesGraphicLib::~NcursesGraphicLib()

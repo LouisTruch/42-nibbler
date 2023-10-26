@@ -1,4 +1,5 @@
 #include "../inc/SDLGraphicLib.hpp"
+#include <ranges>
 #include <stdexcept>
 
 SDLGraphicLib::SDLGraphicLib(int width, int height)
@@ -39,10 +40,8 @@ void SDLGraphicLib::drawPlayer(const body_t &body)
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
     SDL_RenderClear(_renderer);
     SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 0);
-    SDL_RenderFillRect(_renderer, &_borders[HORIZONTAL_TOP]);
-    SDL_RenderFillRect(_renderer, &_borders[HORIZONTAL_BOTTOM]);
-    SDL_RenderFillRect(_renderer, &_borders[VERTICAL_RIGHT]);
-    SDL_RenderFillRect(_renderer, &_borders[VERTICAL_LEFT]);
+    for (auto &border : _borders)
+        SDL_RenderFillRect(_renderer, &border);
 
     // Render Player
     SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
@@ -63,7 +62,7 @@ void SDLGraphicLib::drawFood(const point_t &point)
     SDL_RenderPresent(_renderer);
 }
 
-void SDLGraphicLib::getPlayerInput()
+void SDLGraphicLib::registerPlayerInput()
 {
     while (SDL_PollEvent(&_event) > 0)
     {
@@ -71,22 +70,32 @@ void SDLGraphicLib::getPlayerInput()
         {
         case SDL_KEYDOWN:
             if (_event.key.keysym.scancode == SDL_SCANCODE_W)
-                playerInput = UP;
+                _playerInput = UP;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_S)
-                playerInput = DOWN;
+                _playerInput = DOWN;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_A)
-                playerInput = LEFT;
+                _playerInput = LEFT;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_D)
-                playerInput = RIGHT;
+                _playerInput = RIGHT;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_1)
-                playerInput = SWAP_LIBNCURSES;
+                _playerInput = SWAP_LIBNCURSES;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_2)
-                playerInput = SWAP_LIBSDL;
+                _playerInput = SWAP_LIBSDL;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                playerInput = QUIT;
+                _playerInput = QUIT;
             break;
         }
     }
+}
+
+player_input_t SDLGraphicLib::getPlayerInput() const
+{
+    return _playerInput;
+}
+
+void SDLGraphicLib::resetPlayerInput()
+{
+    _playerInput = DEFAULT;
 }
 
 SDLGraphicLib::SDLGraphicLib()
@@ -112,8 +121,9 @@ SDLGraphicLib &SDLGraphicLib::operator=(const SDLGraphicLib &other)
     _window = other._window;
     _renderer = other._renderer;
     _event = other._event;
-    // _rect = other._rect();
-    // _borders = other._borders;
+    _rect = other._rect;
+    for (int i = 0; auto &border : other._borders)
+        _borders[i++] = border;
     return *this;
 }
 
@@ -126,15 +136,3 @@ void destroyGraphicLib(std::unique_ptr<SDLGraphicLib> gLib)
 {
     gLib.reset();
 }
-
-// SDLGraphicLib *makeGraphicHandler(int width, int height)
-// {
-//     return new SDLGraphicLib(width, height);
-// }
-
-// void deleteGraphicHandler(void *ptr)
-// {
-//     SDL_DestroyWindow((SDL_WINDOW *)ptr);
-//     // Needed ?
-//     // SDL_Quit();
-// }

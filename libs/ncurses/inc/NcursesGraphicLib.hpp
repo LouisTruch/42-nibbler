@@ -14,9 +14,11 @@ class NcursesGraphicLib : public IGraphicLib
     ~NcursesGraphicLib();
     NcursesGraphicLib(const NcursesGraphicLib &);
     NcursesGraphicLib &operator=(const NcursesGraphicLib &);
+    player_input_t getPlayerInput() const;
+    void resetPlayerInput();
+    void registerPlayerInput();
     void drawPlayer(const body_t &);
     void drawFood(const point_t &);
-    void getPlayerInput();
 
   private:
     NcursesGraphicLib();

@@ -11,44 +11,50 @@ Game::Game(int width, int height) : _width(width), _height(height), _totalSpace(
     _food = std::make_unique<Food>(chooseRandomFoodPos());
 }
 
-#include <iostream>
 void Game::loop(void)
 {
     while (1)
     {
-        _gHandler->getPlayerInput();
-        if (_gHandler->playerInput == QUIT)
+        _gHandler->registerPlayerInput();
+        if (_gHandler->getPlayerInput() == QUIT)
             break;
-        if (_gHandler->playerInput == SWAP_LIBNCURSES)
-            _gHandler = _libHandler->switchLib(LibHandler::LIBNCURSES, std::move(_gHandler));
-        else if (_gHandler->playerInput == SWAP_LIBSDL)
-            _gHandler = _libHandler->switchLib(LibHandler::LIBSDL, std::move(_gHandler));
 
-        _player->move(_gHandler->playerInput);
+        if (_gHandler->getPlayerInput() == SWAP_LIBNCURSES)
+        {
+            _gHandler = _libHandler->switchLib(LibHandler::LIBNCURSES, std::move(_gHandler));
+            _gHandler->resetPlayerInput();
+        }
+        else if (_gHandler->getPlayerInput() == SWAP_LIBSDL)
+        {
+            _gHandler = _libHandler->switchLib(LibHandler::LIBSDL, std::move(_gHandler));
+            _gHandler->resetPlayerInput();
+        }
+
+        _player->move(_gHandler->getPlayerInput());
         if (checkCollision() == DEATH)
             break;
-        _gHandler->drawPlayer(_player.get()->body);
-        _gHandler->drawFood(_food.get()->pos);
+        _gHandler->drawPlayer(_player->getBody());
+        _gHandler->drawFood(_food->getPos());
         usleep(DEFAULT_GAME_SPEED);
     }
 }
 
 int Game::checkCollision()
 {
-    auto playerHeadPoint = _player.get()->body.front();
-    if (0 == playerHeadPoint.x || playerHeadPoint.x == _width + 3 || 0 == playerHeadPoint.y ||
-        playerHeadPoint.y == _height + 3)
+    auto playerHeadPoint = _player->getHead();
+    if (0 == playerHeadPoint->x || playerHeadPoint->x == _width + 3 || 0 == playerHeadPoint->y ||
+        playerHeadPoint->y == _height + 3)
         return DEATH;
 
-    if (playerHeadPoint == _food.get()->pos)
+    if (*playerHeadPoint == _food->getPos())
     {
-        _player.get()->growBody();
+        _player->growBody();
         _food.reset(new Food(chooseRandomFoodPos()));
         return BUFF;
     }
 
-    for (auto playerBodyIt = _player.get()->body.begin() + 1; playerBodyIt != _player.get()->body.end(); ++playerBodyIt)
-        if (*playerBodyIt == playerHeadPoint)
+    for (auto playerBodyIt = _player->getHead() + 1; playerBodyIt != _player->getTail(); ++playerBodyIt)
+        if (*playerBodyIt == *playerHeadPoint)
             return DEATH;
 
     return NOTHING;
@@ -56,7 +62,7 @@ int Game::checkCollision()
 
 bool Game::isTileFree(int i)
 {
-    for (auto &point : _player.get()->body)
+    for (auto &point : _player->getBody())
     {
         int playerTileNb = point.x * _width + point.y;
         if (i == playerTileNb)
@@ -67,7 +73,7 @@ bool Game::isTileFree(int i)
 
 point_t Game::chooseRandomFoodPos()
 {
-    std::uniform_int_distribution<int> int_dist(0, _totalSpace - _player.get()->body.size());
+    std::uniform_int_distribution<int> int_dist(0, _totalSpace - _player->getBody().size());
     int freeTileNb = int_dist(_rng);
     point_t point = {-1, -1};
     for (auto i : std::views::iota(freeTileNb, _totalSpace))
@@ -106,6 +112,7 @@ Game &Game::operator=(const Game &other)
     _height = other._height;
     _totalSpace = other._totalSpace;
     _rng = other._rng;
-    // Have to add copy of _libH and _gHandler
+    _libHandler = std::make_unique<LibHandler>(_width, _height);
+    // Have to add copy _gHandler
     return *this;
 }

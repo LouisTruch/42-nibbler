@@ -31,16 +31,10 @@ LibHandler::~LibHandler()
 std::unique_ptr<IGraphicLib> LibHandler::switchLib(lib_name_e libChoice, std::unique_ptr<IGraphicLib> gLib)
 {
     if (libChoice == _currentLib)
-    {
-        std::cerr << "Error LibHandler->SwitchLib(): This lib is already loaded\n";
         return gLib;
-    }
 
     if (0 < libChoice && libChoice >= NB_LIBS)
-    {
-        std::cerr << "Error LibHandler->SwitchLib(): Library does not exist\n";
         return gLib;
-    }
 
     _deleterFunc(std::move(gLib));
     closeLib();
@@ -55,9 +49,6 @@ void LibHandler::loadSymbols(void)
     _deleterFunc = (destroyGraphicLibFunc)dlsym(_lib, "destroyGraphicLib");
     if (!_makerFunc || !_deleterFunc)
         throw std::runtime_error("Error LibHandler loadSymbols: couldnt load lib functions");
-    // _maker = (makeGraphicHandlerFunc)dlsym(_lib, "makeGraphicHandler");
-    // if (!_maker)
-    // throw std::runtime_error("Error LibHandler loadSymbols: couldnt load makeGraphicHandler");
 }
 
 std::unique_ptr<IGraphicLib> LibHandler::makeGraphicLib(int width, int height)
@@ -89,8 +80,3 @@ LibHandler &LibHandler::operator=(const LibHandler &other)
 LibHandler::LibHandler()
 {
 }
-
-// std::unique_ptr<IGraphicLib> LibHandler::makeGraphicHandler(int width, int height)
-// {
-//     return std::unique_ptr<IGraphicLib>(reinterpret_cast<IGraphicLib *>(_maker(width, height)));
-// }

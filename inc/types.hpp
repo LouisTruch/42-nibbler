@@ -11,6 +11,7 @@ typedef enum
     SWAP_LIBNCURSES,
     SWAP_LIBSDL,
     SWAP_LIB2,
+    DEFAULT,
     QUIT,
 } player_input_t;
 

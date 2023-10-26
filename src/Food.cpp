@@ -1,10 +1,12 @@
 #include "../inc/Food.hpp"
 
-#include <iostream>
-Food::Food(point_t point)
+Food::Food(point_t point) : _pos(point)
 {
-    pos = point;
-    std::cout << pos.x << " " << pos.y << std::endl;
+}
+
+point_t Food::getPos() const
+{
+    return _pos;
 }
 
 Food::Food()
@@ -24,6 +26,6 @@ Food &Food::operator=(const Food &other)
 {
     if (&other == this)
         return *this;
-    pos = other.pos;
+    _pos = other._pos;
     return *this;
 }

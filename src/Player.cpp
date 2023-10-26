@@ -13,27 +13,42 @@ void Player::move(player_input_t input)
     switch (_currentDir)
     {
     case UP:
-        body.push_front({body.front().x, body.front().y - 1});
-        body.pop_back();
+        _body.push_front({_body.front().x, _body.front().y - 1});
+        _body.pop_back();
         break;
     case DOWN:
-        body.push_front({body.front().x, body.front().y + 1});
-        body.pop_back();
+        _body.push_front({_body.front().x, _body.front().y + 1});
+        _body.pop_back();
         break;
     case LEFT:
-        body.push_front({body.front().x - 1, body.front().y});
-        body.pop_back();
+        _body.push_front({_body.front().x - 1, _body.front().y});
+        _body.pop_back();
         break;
     case RIGHT:
-        body.push_front({body.front().x + 1, body.front().y});
-        body.pop_back();
+        _body.push_front({_body.front().x + 1, _body.front().y});
+        _body.pop_back();
         break;
     }
 }
 
 void Player::growBody()
 {
-    body.push_back({body.back().x, body.back().y});
+    _body.push_back({_body.back().x, _body.back().y});
+}
+
+body_t Player::getBody() const
+{
+    return _body;
+}
+
+Player::it_body Player::getHead() const
+{
+    return _body.begin();
+}
+
+Player::it_body Player::getTail() const
+{
+    return _body.end();
 }
 
 Player::Player(int mapWidth, int mapHeight, int size)
@@ -41,7 +56,7 @@ Player::Player(int mapWidth, int mapHeight, int size)
     _currentDir = UP;
     (void)mapWidth;
     for (; size; size--)
-        body.push_back({1, mapHeight - 1});
+        _body.push_back({1, mapHeight - 1});
 }
 
 Player::~Player()
@@ -57,6 +72,6 @@ Player &Player::operator=(const Player &other)
 {
     if (&other == this)
         return *this;
-    body = other.body;
+    _body = other._body;
     return *this;
 }
