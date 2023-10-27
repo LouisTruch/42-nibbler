@@ -1,6 +1,6 @@
 CC = g++
 CFLAGS = -Wall      -Wextra -fPIC -std=c++20 -g
-INCLUDES = -Ilib/include
+INCLUDES = -Ilib/include -Iinc
 SRCS = src/SfmlGraphicLib.cpp 
 OBJS = $(SRCS:.c=.o)
 TARGET = libsfml.so
