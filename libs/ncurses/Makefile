@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -Wall -Wall -Wextra -fPIC -std=c++20
+CFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
 INCLUDES = -Iinc
 SRCS = src/NcursesGraphicLib.cpp 
 OBJS = $(SRCS:.c=.o)

@@ -1,6 +1,6 @@
 CC = g++
-CFLAGS = -Wall -Wall -Wextra -fPIC -std=c++20
-INCLUDES = -Iinc
+CFLAGS = -Wall      -Wextra -fPIC -std=c++20 -g
+INCLUDES = -Ilib/include
 SRCS = src/SfmlGraphicLib.cpp 
 OBJS = $(SRCS:.c=.o)
 TARGET = libsfml.so
@@ -14,7 +14,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -Llib/lib -lsfml-graphics -lsfml-window -lsfml-system
 
 .c.o:
-	$(CC) $(CFLAGS) -Ilib/include $(INCLUDES) -cpp $<  -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -cpp $<  -o $@
 
 clean:
 	$(RM) *.o 

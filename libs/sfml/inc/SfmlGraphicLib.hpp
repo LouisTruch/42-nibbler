@@ -5,6 +5,8 @@
 #include <memory>
 #include <stddef.h>
 
+constexpr int SFML_TILE_SIZE = 5;
+
 class SfmlGraphicLib : public IGraphicLib
 {
   public:
@@ -20,6 +22,10 @@ class SfmlGraphicLib : public IGraphicLib
 
   private:
     SfmlGraphicLib();
+
+  private:
+    sf::RenderWindow *_window;
+    sf::VideoMode *_video;
 };
 
 extern "C"
@@ -30,7 +36,7 @@ extern "C"
 
 // int main()
 // {
-//     sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+// sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
 //     sf::CircleShape shape(100.f);
 //     shape.setFillColor(sf::Color::Green);
 //     sf::RectangleShape rec(sf::Vector2f(50, 50));

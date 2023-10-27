@@ -81,6 +81,8 @@ void SDLGraphicLib::registerPlayerInput()
                 _playerInput = SWAP_LIBNCURSES;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_2)
                 _playerInput = SWAP_LIBSDL;
+            else if (_event.key.keysym.scancode == SDL_SCANCODE_3)
+                _playerInput = SWAP_LIBMLX;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                 _playerInput = QUIT;
             break;

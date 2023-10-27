@@ -1,23 +1,26 @@
 #include "../inc/SfmlGraphicLib.hpp"
 
+#include <iostream>
 SfmlGraphicLib::SfmlGraphicLib(int width, int height)
 {
-
+    std::cout << "ici\n";
+    // sf::RenderWindow window(sf::VideoMode(200, 200), "SFML Nibbler");
+    // _window.create(sf::VideoMode(220, 200), "tg");
+    sf::VideoMode(200, 200);
 }
 
 void SfmlGraphicLib::drawPlayer(const body_t &body)
 {
-  
+    (void)body;
 }
 
 void SfmlGraphicLib::drawFood(const point_t &point)
 {
-    
+    (void)point;
 }
 
 void SfmlGraphicLib::registerPlayerInput()
 {
-   
 }
 
 player_input_t SfmlGraphicLib::getPlayerInput() const

@@ -12,7 +12,7 @@ class LibHandler
     {
         LIBNCURSES,
         LIBSDL,
-        LIB2,
+        LIBMLX,
     } lib_name_e;
 
     LibHandler(int, int);
@@ -46,5 +46,6 @@ class LibHandler
     // typedef void *(*makeGraphicHandlerFunc)(int, int);
     // makeGraphicHandlerFunc _maker;
 
-    static constexpr std::string_view _libPaths[3] = {"libs/ncurses/libncurses.so", "libs/sdl/libsdl.so", "b"};
+    static constexpr std::string_view _libPaths[3] = {"./libs/ncurses/libncurses.so", "./libs/sdl/libsdl.so",
+                                                      "./libs/mlx/libmlx.so"};
 };

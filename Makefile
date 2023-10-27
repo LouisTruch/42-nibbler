@@ -23,20 +23,29 @@ ${NAME}	:	${OBJS}
 clean	:	
 			make -C libs/sdl/ clean
 			make -C libs/ncurses/ clean
-			make -C libs/sfml/ clean
+			make -C libs/mlx/ clean
 			${RM} ${OBJS}
 
 fclean	:	clean
 			make -C libs/sdl/ fclean
 			make -C libs/ncurses/ fclean
-			make -C libs/sfml/ fclean
+			make -C libs/mlx/ clean
 			${RM} ${NAME}
 
-re		:	fclean all
+re		:	fclean all lib
 
 lib		:
 			make -C libs/sdl/
 			make -C libs/ncurses/
-			make -C libs/sfml/
+			make -C libs/mlx/
+
+mlxinstall:
+		bash ./script.sh
+
+mlxclean:
+		rm -rf libs/mlx/lib/build/*
+
+mlxdelete:
+		rm -rf libs/mlx/lib/
 
 .PHONY : all clean fclean re

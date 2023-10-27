@@ -29,6 +29,11 @@ void Game::loop(void)
             _gHandler = _libHandler->switchLib(LibHandler::LIBSDL, std::move(_gHandler));
             _gHandler->resetPlayerInput();
         }
+        else if (_gHandler->getPlayerInput() == SWAP_LIBMLX)
+        {
+            _gHandler = _libHandler->switchLib(LibHandler::LIBMLX, std::move(_gHandler));
+            _gHandler->resetPlayerInput();
+        }
 
         _player->move(_gHandler->getPlayerInput());
         if (checkCollision() == DEATH)

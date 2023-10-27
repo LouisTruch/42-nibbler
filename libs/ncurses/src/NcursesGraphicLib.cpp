@@ -46,6 +46,9 @@ void NcursesGraphicLib::registerPlayerInput()
     case '2':
         _playerInput = SWAP_LIBSDL;
         break;
+    case '3':
+        _playerInput = SWAP_LIBMLX;
+        break;
     case 27:
         _playerInput = QUIT;
         break;

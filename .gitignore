@@ -32,3 +32,5 @@
 *.app
 
 nibbler
+libs/sfml/lib/
+libs/mlx/lib/
