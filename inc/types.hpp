@@ -10,7 +10,7 @@ typedef enum
     RIGHT = 2,
     SWAP_LIBNCURSES,
     SWAP_LIBSDL,
-    SWAP_LIBSFML,
+    SWAP_LIBRAYLIB,
     DEFAULT,
     QUIT,
 } player_input_t;

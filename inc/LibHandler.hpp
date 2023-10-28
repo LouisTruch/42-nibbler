@@ -12,7 +12,7 @@ class LibHandler
     {
         LIBNCURSES,
         LIBSDL,
-        LIBSFML,
+        LIBRAYLIB,
     } lib_name_e;
 
     LibHandler(int, int);
@@ -26,7 +26,6 @@ class LibHandler
     ~LibHandler();
     LibHandler(const LibHandler &);
     LibHandler &operator=(const LibHandler &);
-    // std::unique_ptr<IGraphicLib> makeGraphicHandler(int, int);
 
   private:
     LibHandler();
@@ -43,9 +42,6 @@ class LibHandler
     typedef void (*destroyGraphicLibFunc)(std::unique_ptr<IGraphicLib>);
     destroyGraphicLibFunc _deleterFunc;
 
-    // typedef void *(*makeGraphicHandlerFunc)(int, int);
-    // makeGraphicHandlerFunc _maker;
-
     static constexpr std::string_view _libPaths[3] = {"./libs/ncurses/libncurses.so", "./libs/sdl/libsdl.so",
-                                                      "./libs/sfml/libsfml.so"};
+                                                      "./libs/raylib/libraylib.so"};
 };

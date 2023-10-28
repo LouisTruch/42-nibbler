@@ -32,5 +32,4 @@
 *.app
 
 nibbler
-libs/sfml/lib/
-libs/mlx/lib/
+libs/raylib/raylib/

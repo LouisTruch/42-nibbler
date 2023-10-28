@@ -11,7 +11,8 @@ class IGraphicLib
     virtual player_input_t getPlayerInput() const = 0;
     virtual void resetPlayerInput() = 0;
     virtual void registerPlayerInput() = 0;
-    virtual void drawPlayer(const body_t &) = 0;
+    // Can't pass unique_ptr to .so functions (data corruption)
+    virtual void drawPlayer(const Player &) = 0;
     virtual void drawFood(const point_t &) = 0;
 
   protected:

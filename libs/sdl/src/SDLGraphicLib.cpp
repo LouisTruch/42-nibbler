@@ -34,7 +34,7 @@ SDLGraphicLib::SDLGraphicLib(int width, int height)
     _borders[VERTICAL_LEFT].y = 0;
 }
 
-void SDLGraphicLib::drawPlayer(const body_t &body)
+void SDLGraphicLib::drawPlayer(const Player &player)
 {
     // Clear screen and render border walls
     SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
@@ -45,7 +45,7 @@ void SDLGraphicLib::drawPlayer(const body_t &body)
 
     // Render Player
     SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
-    for (auto &point : body)
+    for (auto &point : player._body)
     {
         _rect.x = point.x * TILE_SIZE;
         _rect.y = point.y * TILE_SIZE;
@@ -79,10 +79,8 @@ void SDLGraphicLib::registerPlayerInput()
                 _playerInput = RIGHT;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_1)
                 _playerInput = SWAP_LIBNCURSES;
-            else if (_event.key.keysym.scancode == SDL_SCANCODE_2)
-                _playerInput = SWAP_LIBSDL;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_3)
-                _playerInput = SWAP_LIBSFML;
+                _playerInput = SWAP_LIBRAYLIB;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
                 _playerInput = QUIT;
             break;

@@ -40,14 +40,11 @@ void NcursesGraphicLib::registerPlayerInput()
     case 'd':
         _playerInput = RIGHT;
         break;
-    case '1':
-        _playerInput = SWAP_LIBNCURSES;
-        break;
     case '2':
         _playerInput = SWAP_LIBSDL;
         break;
     case '3':
-        _playerInput = SWAP_LIBSFML;
+        _playerInput = SWAP_LIBRAYLIB;
         break;
     case 27:
         _playerInput = QUIT;
@@ -55,11 +52,11 @@ void NcursesGraphicLib::registerPlayerInput()
     }
 }
 
-void NcursesGraphicLib::drawPlayer(const body_t &body)
+void NcursesGraphicLib::drawPlayer(const Player &player)
 {
     wclear(_board);
     box(_board, 0, 0);
-    for (auto &point : body)
+    for (auto &point : player._body)
         mvwaddch(_board, point.y, point.x, playerIcon);
 }
 

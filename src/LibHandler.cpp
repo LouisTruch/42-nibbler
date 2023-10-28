@@ -5,7 +5,7 @@
 
 LibHandler::LibHandler(int width, int height) : _width(width), _height(height), _currentLib(-1)
 {
-    openLib(LIBSDL);
+    openLib(LIBRAYLIB);
     loadSymbols();
 }
 

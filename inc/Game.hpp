@@ -9,7 +9,7 @@
 #include <vector>
 
 constexpr int DEFAULT_PLAYER_SIZE = 5;
-constexpr int DEFAULT_GAME_SPEED = 100000;
+constexpr int DEFAULT_GAME_SPEED = 1000000;
 
 class Game
 {

@@ -29,16 +29,16 @@ void Game::loop(void)
             _gHandler = _libHandler->switchLib(LibHandler::LIBSDL, std::move(_gHandler));
             _gHandler->resetPlayerInput();
         }
-        else if (_gHandler->getPlayerInput() == SWAP_LIBSFML)
+        else if (_gHandler->getPlayerInput() == SWAP_LIBRAYLIB)
         {
-            _gHandler = _libHandler->switchLib(LibHandler::LIBSFML, std::move(_gHandler));
+            _gHandler = _libHandler->switchLib(LibHandler::LIBRAYLIB, std::move(_gHandler));
             _gHandler->resetPlayerInput();
         }
 
         _player->move(_gHandler->getPlayerInput());
         if (checkCollision() == DEATH)
             break;
-        _gHandler->drawPlayer(_player->getBody());
+        _gHandler->drawPlayer(*_player);
         _gHandler->drawFood(_food->getPos());
         usleep(DEFAULT_GAME_SPEED);
     }

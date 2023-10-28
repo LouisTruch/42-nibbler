@@ -16,11 +16,11 @@ class Player
     typedef body_t::const_iterator it_body;
     it_body getHead() const;
     it_body getTail() const;
-
-  private:
-    Player();
-
-  private:
-    body_t _body;
     int _currentDir;
+    body_t _body;
+
+  private:
+    Player() = delete;
+
+  private:
 };
