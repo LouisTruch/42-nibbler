@@ -12,42 +12,142 @@ RaylibGraphicLib::RaylibGraphicLib(int width, int height) : _width(width * TILE_
 
 void RaylibGraphicLib::drawPlayer(const Player &player)
 {
-    ClearBackground(BLACK);
+    // for (int i = 0; i < _width; i++)
+    // {
+    //     if (i % 2)
+    //         for (int j = 0; j < _height; j++)
+    //         {
+    //             if (j % 2)
+    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, GREEN);
+    //             else
+    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, LIME);
+    //         }
+    //     else
+    //         for (int j = 0; j < _height; j++)
+    //         {
+    //             if (j % 2)
+    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, LIME);
+    //             else
+    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, GREEN);
+    //         }
+    // }
+
     BeginDrawing();
-    switch (player._currentDir)
+    ClearBackground(BLACK);
+    for (auto current = player._body.begin(); current != player._body.end(); current++)
     {
-    case UP:
-        DrawTexture(_vecTexture[RaylibTexture::HEAD_UP].getTexture(), player._body.front().x * TILE_SIZE,
-                    player._body.front().y * TILE_SIZE, WHITE);
-        break;
-    case DOWN:
-        DrawTexture(_vecTexture[RaylibTexture::HEAD_DOWN].getTexture(), player._body.front().x * TILE_SIZE,
-                    player._body.front().y * TILE_SIZE, WHITE);
-        break;
-    case LEFT:
-        DrawTexture(_vecTexture[RaylibTexture::HEAD_LEFT].getTexture(), player._body.front().x * TILE_SIZE,
-                    player._body.front().y * TILE_SIZE, WHITE);
-        break;
-    case RIGHT:
-        DrawTexture(_vecTexture[RaylibTexture::HEAD_RIGHT].getTexture(), player._body.front().x * TILE_SIZE,
-                    player._body.front().y * TILE_SIZE, WHITE);
-        break;
-    default:
-        assert(!"Invalid direction ");
-        break;
-    }
-    for (auto &point : player._body)
-    {
-        if (point == player._body.front())
+        if (current == player._body.begin())
+        {
+            switch (player._currentDir)
+            {
+            case UP:
+                DrawTexture(_vecTexture[RaylibTexture::HEAD_UP].getTexture(), player._body.front().x * TILE_SIZE,
+                            player._body.front().y * TILE_SIZE, WHITE);
+                break;
+            case DOWN:
+                DrawTexture(_vecTexture[RaylibTexture::HEAD_DOWN].getTexture(), player._body.front().x * TILE_SIZE,
+                            player._body.front().y * TILE_SIZE, WHITE);
+                break;
+            case LEFT:
+                DrawTexture(_vecTexture[RaylibTexture::HEAD_LEFT].getTexture(), player._body.front().x * TILE_SIZE,
+                            player._body.front().y * TILE_SIZE, WHITE);
+                break;
+            case RIGHT:
+                DrawTexture(_vecTexture[RaylibTexture::HEAD_RIGHT].getTexture(), player._body.front().x * TILE_SIZE,
+                            player._body.front().y * TILE_SIZE, WHITE);
+                break;
+            default:
+                assert(!"Invalid direction ");
+                break;
+            }
             continue;
-            
+        }
+        else if (current == player._body.end() - 1)
+        {
+            // Fix on spawning + eating
+            if (current->x == (current - 1)->x)
+            {
+                if (current->y > (current - 1)->y)
+                    DrawTexture(_vecTexture[RaylibTexture::TAIL_DOWN].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else
+                    DrawTexture(_vecTexture[RaylibTexture::TAIL_UP].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+            }
+            else
+            {
+                if (current->x > (current - 1)->x)
+                    DrawTexture(_vecTexture[RaylibTexture::TAIL_RIGHT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else
+                    DrawTexture(_vecTexture[RaylibTexture::TAIL_LEFT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+            }
+        }
+        else
+        {
+            auto prev = current - 1;
+            auto next = current + 1;
+            if (current->x == next->x && prev->y == current->y)
+            {
+                if (prev->x > current->x && current->y < next->y)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else if (prev->x < current->x && current->y < next->y)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else if (prev->x > current->x && current->y > next->y)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else if (prev->x < current->x && current->y > next->y)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+            }
+            else if (current->y == next->y && prev->x == current->x)
+            {
+                if (prev->y > current->y && current->x < next->x)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else if (prev->y < current->y && current->x < next->x)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else if (prev->y > current->y && current->x > next->x)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+                else if (prev->y < current->y && current->x > next->x)
+                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), current->x * TILE_SIZE,
+                                current->y * TILE_SIZE, WHITE);
+            }
+            else if ((current - 1)->x == current->x)
+                DrawTexture(_vecTexture[RaylibTexture::BODY_VERTICAL].getTexture(), current->x * TILE_SIZE,
+                            current->y * TILE_SIZE, WHITE);
+            else if ((current - 1)->y == current->y)
+                DrawTexture(_vecTexture[RaylibTexture::BODY_HORIZONTAL].getTexture(), current->x * TILE_SIZE,
+                            current->y * TILE_SIZE, WHITE);
+        }
     }
-    EndDrawing();
 }
+
+// void    draw_eeeeeeeeee(?? a b c d eeee)
+// {
+//     if (a > b && b < c)
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), it_body->x * TILE_SIZE,
+//                     it_body->y * TILE_SIZE, WHITE);
+//     else if (a < b && b > c)
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), it_body->x * TILE_SIZE,
+//                     it_body->y * TILE_SIZE, WHITE);
+//     else if (a < b && b < c || a > b && b > c && eeee = 0)
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), it_body->x * TILE_SIZE,
+//                     it_body->y * TILE_SIZE, WHITE);
+//     else
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), it_body->x * TILE_SIZE,
+//                     it_body->y * TILE_SIZE, WHITE);
+// }
 
 void RaylibGraphicLib::drawFood(const point_t &point)
 {
     DrawTexture(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x * TILE_SIZE, point.y * TILE_SIZE, WHITE);
+    EndDrawing();
 }
 
 void RaylibGraphicLib::registerPlayerInput()
