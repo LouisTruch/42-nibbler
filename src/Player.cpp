@@ -54,9 +54,8 @@ Player::it_body Player::getTail() const
 Player::Player(int mapWidth, int mapHeight, int size)
 {
     _currentDir = UP;
-    (void)mapWidth;
     for (; size; size--)
-        _body.push_back({1, mapHeight - 1});
+        _body.push_back({mapWidth, mapHeight});
 }
 
 Player::~Player()

@@ -1,25 +1,20 @@
 #include "../inc/NcursesGraphicLib.hpp"
-// #include <sys/ioctl.h>
-// #include <unistd.h>
+#include <curses.h>
 
-NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width + 2), _height(height + 2)
+NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _height(height)
 {
     initscr();
-    refresh();   // Clear Screen
-    noecho();    // Prevent keypress being printed on screen
+    refresh(); // Clear Screen
+    noecho();  // Prevent keypress being printed on screen
     curs_set(0); // Remove cursor from screen
     timeout(0);
 
-    // struct winsize w;
-    // if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w))
     _board = newwin(_height, _width, 0, 0);
-    // else
-    // _board = newwin(_height, _width, w.ws_row / 2 - (_height / 2), w.ws_col / 2 - (_width / 2));
-
+    // keypad(_board, true);
+    // nodelay(_board, TRUE);
     wtimeout(_board, 0); // Set non blocking call of user input
-    box(_board, 0, 0);
+    box(_board, boxIcon, boxIcon);
     wrefresh(_board);
-    keypad(_board, true);
 }
 
 void NcursesGraphicLib::registerPlayerInput()
@@ -55,14 +50,14 @@ void NcursesGraphicLib::registerPlayerInput()
 void NcursesGraphicLib::drawPlayer(const Player &player)
 {
     wclear(_board);
-    box(_board, 0, 0);
+    box(_board, boxIcon, boxIcon);
     for (auto &point : player._body)
-        mvwaddch(_board, point.y, point.x, playerIcon);
+        mvwaddch(_board, point.y + 1, point.x + 1, playerIcon);
 }
 
 void NcursesGraphicLib::drawFood(const point_t &point)
 {
-    mvwaddch(_board, point.y, point.x, foodIcon);
+    mvwaddch(_board, point.y + 1, point.x + 1, foodIcon);
 }
 
 player_input_t NcursesGraphicLib::getPlayerInput() const

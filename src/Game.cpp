@@ -1,4 +1,6 @@
 #include "../inc/Game.hpp"
+#include <ctime>
+#include <iostream>
 #include <ranges>
 #include <unistd.h>
 
@@ -6,13 +8,15 @@ Game::Game(int width, int height) : _width(width), _height(height), _totalSpace(
 {
     _rng.seed(getpid());
     _libHandler = std::make_unique<LibHandler>(_width, _height);
+    // +2 to includes border walls
     _gHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
-    _player = std::make_unique<Player>(_width, _height, DEFAULT_PLAYER_SIZE);
+    _player = std::make_unique<Player>(width / 2, height / 2, DEFAULT_PLAYER_SIZE);
     _food = std::make_unique<Food>(chooseRandomFoodPos());
 }
 
 void Game::loop(void)
 {
+    _turnStart = clock();
     while (1)
     {
         _gHandler->registerPlayerInput();
@@ -23,32 +27,42 @@ void Game::loop(void)
         {
             _gHandler = _libHandler->switchLib(LibHandler::LIBNCURSES, std::move(_gHandler));
             _gHandler->resetPlayerInput();
+            _turnStart = clock();
         }
         else if (_gHandler->getPlayerInput() == SWAP_LIBSDL)
         {
             _gHandler = _libHandler->switchLib(LibHandler::LIBSDL, std::move(_gHandler));
             _gHandler->resetPlayerInput();
+            _turnStart = clock();
         }
         else if (_gHandler->getPlayerInput() == SWAP_LIBRAYLIB)
         {
             _gHandler = _libHandler->switchLib(LibHandler::LIBRAYLIB, std::move(_gHandler));
             _gHandler->resetPlayerInput();
+            _turnStart = clock();
         }
 
-        _player->move(_gHandler->getPlayerInput());
-        if (checkCollision() == DEATH)
-            break;
-        _gHandler->drawPlayer(*_player);
-        _gHandler->drawFood(_food->getPos());
-        usleep(DEFAULT_GAME_SPEED);
+        _turn = (clock() - _turnStart) / (double)CLOCKS_PER_SEC;
+        if (_turn > DEFAULT_GAME_SPEED)
+        {
+            _player->move(_gHandler->getPlayerInput());
+            if (checkCollision() == DEATH)
+                break;
+            _gHandler->drawPlayer(*_player);
+            _gHandler->drawFood(_food->getPos());
+            _turnStart = clock();
+            // Win
+            if (_totalSpace == (int)_player->getBody().size())
+                break;
+        }
     }
 }
 
 int Game::checkCollision()
 {
     auto playerHeadPoint = _player->getHead();
-    if (0 == playerHeadPoint->x || playerHeadPoint->x == _width + 3 || 0 == playerHeadPoint->y ||
-        playerHeadPoint->y == _height + 3)
+    if (0 > playerHeadPoint->x || playerHeadPoint->x >= _width || 0 > playerHeadPoint->y ||
+        playerHeadPoint->y >= _height)
         return DEATH;
 
     if (*playerHeadPoint == _food->getPos())
@@ -86,8 +100,8 @@ point_t Game::chooseRandomFoodPos()
         if (isTileFree(i))
         {
             // ?? Need to try more
-            point.x = i / _width;
-            point.y = i % _height;
+            point.x = i % _height;
+            point.y = i / _width;
             return point;
         }
     }

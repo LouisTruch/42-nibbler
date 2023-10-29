@@ -26,10 +26,12 @@ class RaylibTexture
         TAIL_RIGHT,
         TAIL_UP,
         TEXTURE_NB_ITEMS,
+        BACKGROUND,
     } texture_name_e;
 
   public:
     RaylibTexture(texture_name_e);
+    RaylibTexture(int, int, int, Color, Color);
     ~RaylibTexture();
     Texture2D getTexture();
     RaylibTexture(const RaylibTexture &);

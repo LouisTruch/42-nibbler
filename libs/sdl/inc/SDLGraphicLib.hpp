@@ -5,8 +5,6 @@
 #include <memory>
 #include <stddef.h>
 
-constexpr int TILE_SIZE = 10;
-
 class SDLGraphicLib : public IGraphicLib
 {
   public:
@@ -24,6 +22,8 @@ class SDLGraphicLib : public IGraphicLib
     SDLGraphicLib();
 
   private:
+    int _width;
+    int _height;
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     SDL_Event _event;
@@ -36,6 +36,7 @@ class SDLGraphicLib : public IGraphicLib
         VERTICAL_RIGHT,
     };
     SDL_Rect _borders[4];
+    static constexpr int TILE_SIZE = 10;
 };
 
 extern "C"

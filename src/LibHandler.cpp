@@ -40,7 +40,7 @@ std::unique_ptr<IGraphicLib> LibHandler::switchLib(lib_name_e libChoice, std::un
     closeLib();
     openLib(libChoice);
     loadSymbols();
-    return _makerFunc(_width, _height);
+    return _makerFunc(_width + 2, _height + 2);
 }
 
 void LibHandler::loadSymbols(void)

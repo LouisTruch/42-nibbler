@@ -4,8 +4,9 @@
 #include <memory>
 #include <ncurses.h>
 
-constexpr char playerIcon = '#';
+constexpr char playerIcon = '@';
 constexpr char foodIcon = 'o';
+constexpr char boxIcon = '#';
 
 class NcursesGraphicLib : public IGraphicLib
 {

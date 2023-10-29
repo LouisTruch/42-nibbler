@@ -1,131 +1,107 @@
 #include "../inc/RaylibGraphicLib.hpp"
-#include <cassert>
-#include <iostream>
-#include <ostream>
 
 RaylibGraphicLib::RaylibGraphicLib(int width, int height) : _width(width * TILE_SIZE), _height(height * TILE_SIZE)
 {
+    SetTraceLogLevel(LOG_ERROR);
     InitWindow(_width, _height, "Raylib Nibbler");
     for (int idx = RaylibTexture::BODY_BOTTOMLEFT; idx != RaylibTexture::TEXTURE_NB_ITEMS; idx++)
         _vecTexture.push_back(static_cast<RaylibTexture::texture_name_e>(idx));
+    _background = std::make_unique<RaylibTexture>(_width, _height, TILE_SIZE, _boardColor1, _boardColor2);
 }
 
 void RaylibGraphicLib::drawPlayer(const Player &player)
 {
-    // for (int i = 0; i < _width; i++)
-    // {
-    //     if (i % 2)
-    //         for (int j = 0; j < _height; j++)
-    //         {
-    //             if (j % 2)
-    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, GREEN);
-    //             else
-    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, LIME);
-    //         }
-    //     else
-    //         for (int j = 0; j < _height; j++)
-    //         {
-    //             if (j % 2)
-    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, LIME);
-    //             else
-    //                 DrawRectangle(i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, GREEN);
-    //         }
-    // }
-
     BeginDrawing();
     ClearBackground(BLACK);
+    drawTextureTileSize(_background->getTexture(), 0, 0, WHITE);
+
     for (auto current = player._body.begin(); current != player._body.end(); current++)
     {
         if (current == player._body.begin())
-        {
-            switch (player._currentDir)
-            {
-            case UP:
-                DrawTexture(_vecTexture[RaylibTexture::HEAD_UP].getTexture(), player._body.front().x * TILE_SIZE,
-                            player._body.front().y * TILE_SIZE, WHITE);
-                break;
-            case DOWN:
-                DrawTexture(_vecTexture[RaylibTexture::HEAD_DOWN].getTexture(), player._body.front().x * TILE_SIZE,
-                            player._body.front().y * TILE_SIZE, WHITE);
-                break;
-            case LEFT:
-                DrawTexture(_vecTexture[RaylibTexture::HEAD_LEFT].getTexture(), player._body.front().x * TILE_SIZE,
-                            player._body.front().y * TILE_SIZE, WHITE);
-                break;
-            case RIGHT:
-                DrawTexture(_vecTexture[RaylibTexture::HEAD_RIGHT].getTexture(), player._body.front().x * TILE_SIZE,
-                            player._body.front().y * TILE_SIZE, WHITE);
-                break;
-            default:
-                assert(!"Invalid direction ");
-                break;
-            }
-            continue;
-        }
+            drawHead(player._body.front().x, player._body.front().y, player._currentDir);
         else if (current == player._body.end() - 1)
-        {
-            // Fix on spawning + eating
-            if (current->x == (current - 1)->x)
-            {
-                if (current->y > (current - 1)->y)
-                    DrawTexture(_vecTexture[RaylibTexture::TAIL_DOWN].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else
-                    DrawTexture(_vecTexture[RaylibTexture::TAIL_UP].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-            }
-            else
-            {
-                if (current->x > (current - 1)->x)
-                    DrawTexture(_vecTexture[RaylibTexture::TAIL_RIGHT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else
-                    DrawTexture(_vecTexture[RaylibTexture::TAIL_LEFT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-            }
-        }
+            drawTail(current);
         else
-        {
-            auto prev = current - 1;
-            auto next = current + 1;
-            if (current->x == next->x && prev->y == current->y)
-            {
-                if (prev->x > current->x && current->y < next->y)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else if (prev->x < current->x && current->y < next->y)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else if (prev->x > current->x && current->y > next->y)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else if (prev->x < current->x && current->y > next->y)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-            }
-            else if (current->y == next->y && prev->x == current->x)
-            {
-                if (prev->y > current->y && current->x < next->x)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else if (prev->y < current->y && current->x < next->x)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else if (prev->y > current->y && current->x > next->x)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-                else if (prev->y < current->y && current->x > next->x)
-                    DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), current->x * TILE_SIZE,
-                                current->y * TILE_SIZE, WHITE);
-            }
-            else if ((current - 1)->x == current->x)
-                DrawTexture(_vecTexture[RaylibTexture::BODY_VERTICAL].getTexture(), current->x * TILE_SIZE,
-                            current->y * TILE_SIZE, WHITE);
-            else if ((current - 1)->y == current->y)
-                DrawTexture(_vecTexture[RaylibTexture::BODY_HORIZONTAL].getTexture(), current->x * TILE_SIZE,
-                            current->y * TILE_SIZE, WHITE);
-        }
+            drawBody(current);
     }
+}
+
+void RaylibGraphicLib::drawHead(int x, int y, int dir)
+{
+    switch (dir)
+    {
+    case UP:
+        drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_UP].getTexture(), x, y, WHITE);
+        break;
+    case DOWN:
+        drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_DOWN].getTexture(), x, y, WHITE);
+        break;
+    case LEFT:
+        drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_LEFT].getTexture(), x, y, WHITE);
+        break;
+    case RIGHT:
+        drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_RIGHT].getTexture(), x, y, WHITE);
+        break;
+    }
+}
+
+void RaylibGraphicLib::drawTail(std::deque<point_t>::const_iterator &current)
+{
+    // Useful when snake is spawning or eating to avoid printing wrong texture
+    auto last = current;
+    while (*last == *current)
+        last--;
+    last++;
+    if (last->x == (last - 1)->x)
+    {
+        if (last->y > (last - 1)->y)
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_DOWN].getTexture(), last->x, last->y, WHITE);
+        else
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_UP].getTexture(), last->x, last->y, WHITE);
+    }
+    else
+    {
+        if (last->x > (last - 1)->x)
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_RIGHT].getTexture(), last->x, last->y, WHITE);
+        else
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_LEFT].getTexture(), last->x, last->y, WHITE);
+    }
+}
+
+void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current)
+{
+    auto prev = current - 1;
+    auto next = current + 1;
+    if (current->x == next->x && prev->y == current->y)
+    {
+        if (prev->x > current->x && current->y < next->y)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), current->x, current->y,
+                                WHITE);
+        else if (prev->x < current->x && current->y < next->y)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), current->x, current->y,
+                                WHITE);
+        else if (prev->x > current->x && current->y > next->y)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), current->x, current->y, WHITE);
+        else if (prev->x < current->x && current->y > next->y)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), current->x, current->y, WHITE);
+    }
+    else if (current->y == next->y && prev->x == current->x)
+    {
+        if (prev->y > current->y && current->x < next->x)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), current->x, current->y,
+                                WHITE);
+        else if (prev->y < current->y && current->x < next->x)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), current->x, current->y, WHITE);
+        else if (prev->y > current->y && current->x > next->x)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), current->x, current->y,
+                                WHITE);
+        else if (prev->y < current->y && current->x > next->x)
+            drawTextureTileSize(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), current->x, current->y, WHITE);
+    }
+    else if ((current - 1)->x == current->x)
+        drawTextureTileSize(_vecTexture[RaylibTexture::BODY_VERTICAL].getTexture(), current->x, current->y, WHITE);
+    else if ((current - 1)->y == current->y)
+        drawTextureTileSize(_vecTexture[RaylibTexture::BODY_HORIZONTAL].getTexture(), current->x, current->y, WHITE);
 }
 
 // void    draw_eeeeeeeeee(?? a b c d eeee)
@@ -146,8 +122,13 @@ void RaylibGraphicLib::drawPlayer(const Player &player)
 
 void RaylibGraphicLib::drawFood(const point_t &point)
 {
-    DrawTexture(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x * TILE_SIZE, point.y * TILE_SIZE, WHITE);
+    drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x, point.y, WHITE);
     EndDrawing();
+}
+
+void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Color color)
+{
+    DrawTexture(texture, x * TILE_SIZE + TILE_SIZE, y * TILE_SIZE + TILE_SIZE, color);
 }
 
 void RaylibGraphicLib::registerPlayerInput()
@@ -181,6 +162,7 @@ void RaylibGraphicLib::resetPlayerInput()
 RaylibGraphicLib::~RaylibGraphicLib()
 {
     _vecTexture.clear();
+    _background.reset();
     CloseWindow();
 }
 

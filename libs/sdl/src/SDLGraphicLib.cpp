@@ -2,11 +2,9 @@
 #include <ranges>
 #include <stdexcept>
 
-SDLGraphicLib::SDLGraphicLib(int width, int height)
+SDLGraphicLib::SDLGraphicLib(int width, int height) : _width(width * TILE_SIZE), _height(height * TILE_SIZE)
 {
-    // Set up SDL
-    _window = SDL_CreateWindow("nibbler", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                               width * TILE_SIZE + (TILE_SIZE * 2), height * TILE_SIZE + (TILE_SIZE * 2), 0);
+    _window = SDL_CreateWindow("nibbler", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _width, _height, 0);
 
     if (!_window)
         throw std::runtime_error("Error creating SDL Window");
@@ -17,20 +15,20 @@ SDLGraphicLib::SDLGraphicLib(int width, int height)
 
     // Set up border walls rectangle
     _borders[HORIZONTAL_TOP].h = TILE_SIZE;
-    _borders[HORIZONTAL_TOP].w = width * TILE_SIZE + (TILE_SIZE * 2);
+    _borders[HORIZONTAL_TOP].w = _width;
     _borders[HORIZONTAL_TOP].x = 0;
     _borders[HORIZONTAL_TOP].y = 0;
     _borders[HORIZONTAL_BOTTOM].h = TILE_SIZE;
-    _borders[HORIZONTAL_BOTTOM].w = width * TILE_SIZE + (TILE_SIZE * 2);
+    _borders[HORIZONTAL_BOTTOM].w = _width;
     _borders[HORIZONTAL_BOTTOM].x = 0;
-    _borders[HORIZONTAL_BOTTOM].y = height * TILE_SIZE + TILE_SIZE;
-    _borders[VERTICAL_RIGHT].h = height * TILE_SIZE + TILE_SIZE;
+    _borders[HORIZONTAL_BOTTOM].y = _height - TILE_SIZE;
+    _borders[VERTICAL_RIGHT].h = _height;
     _borders[VERTICAL_RIGHT].w = TILE_SIZE;
     _borders[VERTICAL_RIGHT].x = 0;
     _borders[VERTICAL_RIGHT].y = 0;
-    _borders[VERTICAL_LEFT].h = height * TILE_SIZE + TILE_SIZE;
+    _borders[VERTICAL_LEFT].h = _height;
     _borders[VERTICAL_LEFT].w = TILE_SIZE;
-    _borders[VERTICAL_LEFT].x = width * TILE_SIZE + TILE_SIZE;
+    _borders[VERTICAL_LEFT].x = _width - TILE_SIZE;
     _borders[VERTICAL_LEFT].y = 0;
 }
 
@@ -47,17 +45,19 @@ void SDLGraphicLib::drawPlayer(const Player &player)
     SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
     for (auto &point : player._body)
     {
-        _rect.x = point.x * TILE_SIZE;
-        _rect.y = point.y * TILE_SIZE;
+        _rect.x = point.x * TILE_SIZE + TILE_SIZE;
+        _rect.y = point.y * TILE_SIZE + TILE_SIZE;
         SDL_RenderFillRect(_renderer, &_rect);
+        if (point == player._body.front())
+            SDL_SetRenderDrawColor(_renderer, 175, 0, 0, 0);
     }
 }
 
 void SDLGraphicLib::drawFood(const point_t &point)
 {
     SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 0);
-    _rect.x = point.x * TILE_SIZE;
-    _rect.y = point.y * TILE_SIZE;
+    _rect.x = point.x * TILE_SIZE + TILE_SIZE;
+    _rect.y = point.y * TILE_SIZE + TILE_SIZE;
     SDL_RenderFillRect(_renderer, &_rect);
     SDL_RenderPresent(_renderer);
 }

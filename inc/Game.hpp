@@ -4,12 +4,13 @@
 #include "LibHandler.hpp"
 #include "Player.hpp"
 #include "types.hpp"
+#include <bits/types/clock_t.h>
 #include <memory>
 #include <random>
 #include <vector>
 
-constexpr int DEFAULT_PLAYER_SIZE = 7;
-constexpr int DEFAULT_GAME_SPEED = 100000;
+constexpr int DEFAULT_PLAYER_SIZE = 4;
+constexpr double DEFAULT_GAME_SPEED = 0.25;
 
 class Game
 {
@@ -36,6 +37,8 @@ class Game
     int _width;
     int _height;
     int _totalSpace;
+    double _turn;
+    clock_t _turnStart;
 
     enum collision_type
     {
