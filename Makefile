@@ -3,6 +3,9 @@ NAME = nibbler
 SRCS =	src/main.cpp \
 		src/utils.cpp \
 		src/Game.cpp \
+		src/Menu/Menu.cpp \
+		src/Menu/MenuItem.cpp \
+		src/Menu/MenuCategory.cpp \
 		src/LibHandler.cpp \
 		src/Player.cpp \
 		src/Food.cpp \
@@ -19,7 +22,7 @@ RM			= 	rm -f
 all		:	${NAME}
 
 ${NAME}	:	${OBJS}
-			${CXX} ${CXXFLAGS} -o ${NAME} ${OBJS}
+			${CXX} ${CXXFLAGS} -o ${NAME} ${OBJS} -lncurses
 
 clean	:	
 			make -C libs/sdl/ clean

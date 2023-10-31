@@ -1,10 +1,13 @@
 #include "../inc/Game.hpp"
+#include "../inc/Menu/Menu.hpp"
 #include <iostream>
 #include <string>
 #include <vector>
 
 int main(int argc, char **argv)
 {
+    Menu Menu;
+    exit(1);
     try
     {
         checkArgs(argc, argv);

@@ -1,11 +1,10 @@
 #include "../inc/NcursesGraphicLib.hpp"
-#include <curses.h>
 
 NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _height(height)
 {
     initscr();
-    refresh(); // Clear Screen
-    noecho();  // Prevent keypress being printed on screen
+    refresh();   // Clear Screen
+    noecho();    // Prevent keypress being printed on screen
     curs_set(0); // Remove cursor from screen
     timeout(0);
 
