@@ -22,8 +22,10 @@ class Game
 
     void loop();
     int checkCollision();
+    void handleLibSwitch();
     point_t chooseRandomFoodPos();
-    bool isTileFree(int);
+    point_t generateRandomPoint();
+    bool isTileFree(point_t);
 
   private:
     Game();
