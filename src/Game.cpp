@@ -43,23 +43,13 @@ void Game::loop(void)
 void Game::handleLibSwitch()
 {
     if (_gHandler->getPlayerInput() == SWAP_LIBNCURSES)
-    {
         _gHandler = _libHandler->switchLib(LibHandler::LIBNCURSES, std::move(_gHandler));
-        _gHandler->resetPlayerInput();
-        _turnStart = clock();
-    }
     else if (_gHandler->getPlayerInput() == SWAP_LIBSDL)
-    {
         _gHandler = _libHandler->switchLib(LibHandler::LIBSDL, std::move(_gHandler));
-        _gHandler->resetPlayerInput();
-        _turnStart = clock();
-    }
     else if (_gHandler->getPlayerInput() == SWAP_LIBRAYLIB)
-    {
         _gHandler = _libHandler->switchLib(LibHandler::LIBRAYLIB, std::move(_gHandler));
-        _gHandler->resetPlayerInput();
-        _turnStart = clock();
-    }
+    _gHandler->resetPlayerInput();
+    _turnStart = clock();
 }
 
 int Game::checkCollision()

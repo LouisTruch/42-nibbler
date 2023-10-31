@@ -9,8 +9,12 @@
 #include <random>
 #include <vector>
 
+constexpr int MIN_WIDTH = 5;
+constexpr int MAX_WIDTH = 47;
+constexpr int MIN_HEIGHT = 5;
+constexpr int MAX_HEIGHT = 24;
 constexpr int DEFAULT_PLAYER_SIZE = 4;
-constexpr double DEFAULT_GAME_SPEED = 0.25;
+constexpr double DEFAULT_GAME_SPEED = 0.15;
 
 class Game
 {
@@ -49,3 +53,5 @@ class Game
         NOTHING,
     };
 };
+
+void checkArgs(int, char **);

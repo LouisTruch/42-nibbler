@@ -1,6 +1,7 @@
 NAME = nibbler
 
 SRCS =	src/main.cpp \
+		src/utils.cpp \
 		src/Game.cpp \
 		src/LibHandler.cpp \
 		src/Player.cpp \

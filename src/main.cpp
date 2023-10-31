@@ -1,39 +1,7 @@
 #include "../inc/Game.hpp"
-#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
-
-// Change with constexpr ??
-#define MIN_WIDTH 5
-#define MAX_WIDTH 100
-#define MIN_HEIGHT 5
-#define MAX_HEIGHT 100
-
-static bool checkSize(const char *str)
-{
-    errno = 0;
-    long int nb = strtol(str, NULL, 10);
-    return !(errno == ERANGE || nb < MIN_WIDTH || nb > MAX_WIDTH);
-}
-
-static bool checkOnlyPosInt(std::string_view sv)
-{
-    return std::find_if(sv.begin(), sv.end(), [](unsigned char c) { return !std::isdigit(c); }) == sv.end();
-}
-
-static void checkArgs(int argc, char **argv)
-{
-    if (argc != 3)
-        throw std::logic_error("Correct Format is: [./nibbler] [width] [height]");
-    for (auto &&str : std::vector<std::string_view>{argv + 1, argv + argc})
-    {
-        if (!checkOnlyPosInt(str))
-            throw std::logic_error("Arguments must be positive integers");
-        if (!checkSize(str.data()))
-            throw std::logic_error("Width [5-100] Height [5-100]");
-    }
-}
 
 int main(int argc, char **argv)
 {
@@ -44,7 +12,7 @@ int main(int argc, char **argv)
     catch (std::exception const &e)
     {
         std::cerr << "In main.cpp: Parsing error: " << e.what() << std::endl;
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     try
     {
@@ -55,8 +23,9 @@ int main(int argc, char **argv)
     {
         std::cerr << "In main(): " << e.what() << std::endl;
     }
-    return 0;
+    return EXIT_SUCCESS;
 }
+
 // auto closeLib = [](void *lib)
 // {
 //     dlclose(lib);
