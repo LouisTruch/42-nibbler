@@ -14,6 +14,7 @@ constexpr int MIN_WIDTH = 5;
 constexpr int MAX_WIDTH = 47;
 constexpr int MIN_HEIGHT = 5;
 constexpr int MAX_HEIGHT = 24;
+
 constexpr int DEFAULT_PLAYER_SIZE = 4;
 constexpr double DEFAULT_GAME_SPEED = 0.15;
 
@@ -34,10 +35,11 @@ class Game
 
     class GameOverException : public std::exception
     {
+      private:
         std::string _msg;
 
       public:
-        GameOverException(const char *, std::unique_ptr<Player> Player);
+        GameOverException(const char *);
         virtual const char *what() const throw();
         ~GameOverException() throw() = default;
     };

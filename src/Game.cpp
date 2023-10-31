@@ -30,11 +30,11 @@ void Game::loop(void)
         {
             _player->move(_gHandler->getPlayerInput());
             if (checkCollision() == DEATH)
-                throw Game::GameOverException("Game Over", std::move(_player));
+                throw Game::GameOverException("Game Over");
             _gHandler->drawPlayer(*_player);
             _gHandler->drawFood(_food->getPos());
             if (_totalSpace <= (int)_player->getBody().size())
-                throw Game::GameOverException("Game Win", std::move(_player));
+                throw Game::GameOverException("Game Win");
             _turnStart = clock();
         }
     }
@@ -120,7 +120,7 @@ Game &Game::operator=(const Game &other)
     return *this;
 }
 
-Game::GameOverException::GameOverException(const char *msg, std::unique_ptr<Player>)
+Game::GameOverException::GameOverException(const char *msg)
 {
     _msg = msg;
 }
