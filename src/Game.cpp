@@ -22,7 +22,7 @@ void Game::loop(void)
         _gHandler->registerPlayerInput();
         if (_gHandler->getPlayerInput() == QUIT)
             break;
-        if (_gHandler->getPlayerInput() >= SWAP_LIBNCURSES && _gHandler->getPlayerInput() <= SWAP_LIBRAYLIB)
+        else if (_gHandler->getPlayerInput() >= SWAP_LIBNCURSES && _gHandler->getPlayerInput() <= SWAP_LIBRAYLIB)
             handleLibSwitch();
 
         _turn = (clock() - _turnStart) / (double)CLOCKS_PER_SEC;
@@ -30,11 +30,11 @@ void Game::loop(void)
         {
             _player->move(_gHandler->getPlayerInput());
             if (checkCollision() == DEATH)
-                break;
+                throw Game::GameOverException("Game Over", std::move(_player));
             _gHandler->drawPlayer(*_player);
             _gHandler->drawFood(_food->getPos());
             if (_totalSpace <= (int)_player->getBody().size())
-                break;
+                throw Game::GameOverException("Game Win", std::move(_player));
             _turnStart = clock();
         }
     }
@@ -96,11 +96,6 @@ point_t Game::generateRandomPoint()
     return {rngWidth(_rng), (rngHeight(_rng))};
 }
 
-Game::Game()
-{
-    // ??
-}
-
 Game::~Game()
 {
     _libHandler->destroyGraphicLib(std::move(_gHandler));
@@ -120,6 +115,17 @@ Game &Game::operator=(const Game &other)
     _totalSpace = other._totalSpace;
     _rng = other._rng;
     _libHandler = std::make_unique<LibHandler>(_width, _height);
+    _gHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
     // Have to add copy _gHandler
     return *this;
+}
+
+Game::GameOverException::GameOverException(const char *msg, std::unique_ptr<Player>)
+{
+    _msg = msg;
+}
+
+const char *Game::GameOverException::what() const throw()
+{
+    return _msg.c_str();
 }

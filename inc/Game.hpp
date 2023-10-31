@@ -7,6 +7,7 @@
 #include <bits/types/clock_t.h>
 #include <memory>
 #include <random>
+#include <string>
 #include <vector>
 
 constexpr int MIN_WIDTH = 5;
@@ -31,8 +32,18 @@ class Game
     point_t generateRandomPoint();
     bool isTileFree(point_t);
 
+    class GameOverException : public std::exception
+    {
+        std::string _msg;
+
+      public:
+        GameOverException(const char *, std::unique_ptr<Player> Player);
+        virtual const char *what() const throw();
+        ~GameOverException() throw() = default;
+    };
+
   private:
-    Game();
+    Game() = delete;
 
   private:
     std::unique_ptr<LibHandler> _libHandler;

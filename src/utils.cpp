@@ -18,7 +18,6 @@ void checkArgs(int argc, char **argv)
 {
     if (argc != 3)
         throw std::logic_error("Correct Format is: [./nibbler] [width] [height]");
-
     if (!checkOnlyPosInt(argv[1]) || !checkOnlyPosInt(argv[2]))
         throw std::logic_error("Arguments must be positive integers");
     if (!checkSize(argv[1], MIN_WIDTH, MAX_WIDTH) || !checkSize(argv[2], MIN_HEIGHT, MAX_HEIGHT))

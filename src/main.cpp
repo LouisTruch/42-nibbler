@@ -19,18 +19,13 @@ int main(int argc, char **argv)
         Game game(atoi(argv[1]), atoi(argv[2]));
         game.loop();
     }
+    catch (const Game::GameOverException &e)
+    {
+        std::cerr << "Game: " << e.what() << std::endl;
+    }
     catch (const std::exception &e)
     {
         std::cerr << "In main(): " << e.what() << std::endl;
     }
     return EXIT_SUCCESS;
 }
-
-// auto closeLib = [](void *lib)
-// {
-//     dlclose(lib);
-// };
-// typedef void *(*FuncPtr)(int, int);
-// using handlePtr = std::unique_ptr<void, decltype(closeLib)>;
-// handlePtr lib(dlopen("libs/sdl/libsdl.so", RTLD_LAZY), closeLib);
-// handlePtr(lib, closeLib);
