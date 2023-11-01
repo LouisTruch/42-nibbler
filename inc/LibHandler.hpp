@@ -1,7 +1,7 @@
 #pragma once
 #include "../inc/IGraphicLib.hpp"
 #include <memory>
-#include <string> // std::string_view
+#include <string_view>
 
 #define NB_LIBS 3
 
@@ -28,7 +28,7 @@ class LibHandler
     LibHandler &operator=(const LibHandler &);
 
   private:
-    LibHandler();
+    LibHandler() = delete;
     void loadSymbols();
 
   private:

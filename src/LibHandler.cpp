@@ -76,7 +76,3 @@ LibHandler &LibHandler::operator=(const LibHandler &other)
     _deleterFunc = other._deleterFunc;
     return *this;
 }
-
-LibHandler::LibHandler()
-{
-}

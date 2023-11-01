@@ -1,6 +1,6 @@
 NAME = nibbler
 
-SRCS =	src/main.cpp \
+SRCS :=	src/main.cpp \
 		src/utils.cpp \
 		src/Game.cpp \
 		src/Menu/Menu.cpp \
@@ -9,26 +9,33 @@ SRCS =	src/main.cpp \
 		src/LibHandler.cpp \
 		src/Player.cpp \
 		src/Food.cpp \
+		src/ModesHandler.cpp \
 
-OBJS	=	${SRCS:.cpp=.o}
+OBJS := $(patsubst %.cpp, %.o, $(SRCS))
+DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))
 
 CXX			= 	g++
 CXXFLAGS	=	-Wall -Wextra  -std=c++20 -g
 RM			= 	rm -f
 
-.cpp.o	:	
-			${CXX} ${CXXFLAGS} -c $< -o ${<:.cpp=.o}
+%.o : %.cpp Makefile
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+
+# .cpp.o	:	
+# 			${CXX} ${CXXFLAGS} -c $< -o ${<:.cpp=.o}
 
 all		:	${NAME}
 
 ${NAME}	:	${OBJS}
-			${CXX} ${CXXFLAGS} -o ${NAME} ${OBJS} -lncurses
+			${CXX} ${CXXFLAGS} $^ -o $@ -lncurses
+
+-include $(DEPENDS)
 
 clean	:	
 			make -C libs/sdl/ clean
 			make -C libs/ncurses/ clean
 			make -C libs/raylib/ clean
-			${RM} ${OBJS}
+			${RM} ${OBJS} ${DEPENDS}
 
 fclean	:	clean
 			make -C libs/sdl/ fclean

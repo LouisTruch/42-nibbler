@@ -40,7 +40,7 @@ void MenuCategory::printCategory(int y, WINDOW *win, int highlight)
 
 void MenuCategory::selectItem(int hightlight)
 {
-    if (hightlight >= _vecMenuItem.size())
+    if (hightlight >= (int)_vecMenuItem.size())
         return;
     if ((!_vecMenuItem[hightlight]->getSelected()))
     {
@@ -55,4 +55,14 @@ void MenuCategory::selectItem(int hightlight)
         _vecMenuItem[hightlight]->setSelected();
         _nbSelected--;
     }
+}
+
+bool MenuCategory::getMultiChoice() const
+{
+    return _isMultiChoice;
+}
+
+const MenuCategory::VectorMenuItem &MenuCategory::getVecMenuItem() const
+{
+    return _vecMenuItem;
 }

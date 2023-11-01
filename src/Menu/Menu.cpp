@@ -1,9 +1,6 @@
 #include "../../inc/Menu/Menu.hpp"
-#include <cmath>
-#include <cstdlib>
 #include <curses.h>
 #include <iostream>
-#include <memory>
 
 Menu::Menu() : _highlight(0)
 {
@@ -13,14 +10,13 @@ Menu::Menu() : _highlight(0)
 
     _windowMenu = newwin(MENU_HEIGHT, MENU_WIDTH, 0, 0);
     box(_windowMenu, 0, 0);
-    refresh();
+    // refresh();
     wrefresh(_windowMenu);
 
     keypad(_windowMenu, true);
     MenuCategory::VectorMenuItem vecGameMode;
-    vecGameMode.push_back(std::make_unique<MenuItem>("OPTION", false));
-    vecGameMode.push_back(std::make_unique<MenuItem>("PLACEHOLDER", false));
-    vecGameMode.push_back(std::make_unique<MenuItem>("FF", false));
+    vecGameMode.push_back(std::make_unique<MenuItem>("CHANGING_SPEED", false));
+    vecGameMode.push_back(std::make_unique<MenuItem>("DISAPPEARING_FOOD", false));
     _vecMenuCategory.push_back(std::make_unique<MenuCategory>("GAME MODE", true, std::move(vecGameMode)));
 
     MenuCategory::VectorMenuItem vecMultiplayer;
@@ -43,6 +39,7 @@ Menu::Menu() : _highlight(0)
 
 Menu::~Menu()
 {
+    delwin(_windowMenu);
     endwin();
 }
 
@@ -101,4 +98,32 @@ void Menu::printMenu()
             break;
         }
     }
+}
+
+int_gameConfig_t Menu::exportGameConfig()
+{
+    int_gameConfig_t config = 0;
+    for (int i = 0; auto &&category : _vecMenuCategory)
+    {
+        if (category->getMultiChoice())
+        {
+            for (auto &&item : category->getVecMenuItem())
+            {
+                if (item->getSelected())
+                {
+                    switch (item->getItemIdx())
+                    {
+                    case SPEED:
+                        config |= SPEED_BIT;
+                        break;
+                    case DISAPPEARING_FOOD:
+                        config |= DISAPPEARING_FOOD_BIT;
+                        break;
+                    }
+                }
+                i++;
+            }
+        }
+    }
+    return config;
 }

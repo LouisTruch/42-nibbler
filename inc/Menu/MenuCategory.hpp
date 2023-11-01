@@ -11,11 +11,14 @@ class MenuCategory
   public:
     typedef std::vector<std::unique_ptr<MenuItem>> VectorMenuItem;
 
+  public:
     MenuCategory(std::string_view, bool, std::vector<std::unique_ptr<MenuItem>> &&);
     ~MenuCategory();
     bool operator<(const MenuCategory &) const;
     void printCategory(int, WINDOW *, int);
     void selectItem(int);
+    const VectorMenuItem &getVecMenuItem() const;
+    bool getMultiChoice() const;
 
   private:
     MenuCategory() = delete;

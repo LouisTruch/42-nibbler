@@ -10,7 +10,8 @@ class MenuItem
     ~MenuItem();
     std::string_view getItemName();
     void setSelected();
-    bool getSelected();
+    bool getSelected() const;
+    int getItemIdx() const;
     void print(int, WINDOW *, int, int);
 
   private:

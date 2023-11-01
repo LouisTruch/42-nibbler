@@ -2,6 +2,7 @@
 #include "Food.hpp"
 #include "IGraphicLib.hpp"
 #include "LibHandler.hpp"
+#include "ModesHandler.hpp"
 #include "Player.hpp"
 #include "types.hpp"
 #include <bits/types/clock_t.h>
@@ -21,7 +22,7 @@ constexpr double DEFAULT_GAME_SPEED = 0.15;
 class Game
 {
   public:
-    Game(int, int);
+    Game(int, int, const ModesHandler);
     ~Game();
     Game(const Game &);
     Game &operator=(const Game &);
@@ -32,6 +33,9 @@ class Game
     point_t chooseRandomFoodPos();
     point_t generateRandomPoint();
     bool isTileFree(point_t);
+
+    double getGameSpeed() const;
+    void setGameSpeed(double);
 
     class GameOverException : public std::exception
     {
@@ -56,6 +60,8 @@ class Game
     int _width;
     int _height;
     int _totalSpace;
+    double _gameSpeed;
+    ModesHandler _modesHandler;
     double _turn;
     clock_t _turnStart;
 

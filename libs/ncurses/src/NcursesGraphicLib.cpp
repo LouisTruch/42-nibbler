@@ -1,4 +1,5 @@
 #include "../inc/NcursesGraphicLib.hpp"
+#include <curses.h>
 
 NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _height(height)
 {
@@ -71,6 +72,7 @@ void NcursesGraphicLib::resetPlayerInput()
 
 NcursesGraphicLib::~NcursesGraphicLib()
 {
+    delwin(_board);
     endwin();
 }
 

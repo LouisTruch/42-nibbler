@@ -4,7 +4,9 @@
 #include <ranges>
 #include <unistd.h>
 
-Game::Game(int width, int height) : _width(width), _height(height), _totalSpace(width * height)
+Game::Game(int width, int height, const ModesHandler modeHandler)
+    : _width(width), _height(height), _totalSpace(width * height), _gameSpeed(DEFAULT_GAME_SPEED),
+      _modesHandler(modeHandler)
 {
     _rng.seed(getpid());
     _libHandler = std::make_unique<LibHandler>(_width, _height);
@@ -16,7 +18,7 @@ Game::Game(int width, int height) : _width(width), _height(height), _totalSpace(
 
 void Game::loop(void)
 {
-    _turnStart = clock();
+    _turnStart = std::clock();
     while (1)
     {
         _gHandler->registerPlayerInput();
@@ -25,8 +27,8 @@ void Game::loop(void)
         else if (_gHandler->getPlayerInput() >= SWAP_LIBNCURSES && _gHandler->getPlayerInput() <= SWAP_LIBRAYLIB)
             handleLibSwitch();
 
-        _turn = (clock() - _turnStart) / (double)CLOCKS_PER_SEC;
-        if (_turn > DEFAULT_GAME_SPEED)
+        _turn = (std::clock() - _turnStart) / (double)CLOCKS_PER_SEC;
+        if (_turn > _gameSpeed)
         {
             _player->move(_gHandler->getPlayerInput());
             if (checkCollision() == DEATH)
@@ -35,6 +37,7 @@ void Game::loop(void)
             _gHandler->drawFood(_food->getPos());
             if (_totalSpace <= (int)_player->getBody().size())
                 throw Game::GameOverException("Game Win");
+            _food = _modesHandler.handleDisappearingFood(*this, std::move(_food));
             _turnStart = clock();
         }
     }
@@ -42,6 +45,7 @@ void Game::loop(void)
 
 void Game::handleLibSwitch()
 {
+    // To redo
     if (_gHandler->getPlayerInput() == SWAP_LIBNCURSES)
         _gHandler = _libHandler->switchLib(LibHandler::LIBNCURSES, std::move(_gHandler));
     else if (_gHandler->getPlayerInput() == SWAP_LIBSDL)
@@ -63,6 +67,7 @@ int Game::checkCollision()
     {
         _player->growBody();
         _food.reset(new Food(chooseRandomFoodPos()));
+        _modesHandler.changeGameSpeed(SPEED_MODIFIER, *this);
         return BUFF;
     }
 
@@ -96,12 +101,22 @@ point_t Game::generateRandomPoint()
     return {rngWidth(_rng), (rngHeight(_rng))};
 }
 
+double Game::getGameSpeed() const
+{
+    return _gameSpeed;
+}
+
+void Game::setGameSpeed(double newSpeed)
+{
+    _gameSpeed = newSpeed;
+}
+
 Game::~Game()
 {
     _libHandler->destroyGraphicLib(std::move(_gHandler));
 }
 
-Game::Game(const Game &other)
+Game::Game(const Game &other) : _modesHandler(other._modesHandler)
 {
     *this = other;
 }

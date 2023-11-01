@@ -11,7 +11,6 @@ MenuItem::MenuItem(std::string_view itemName, bool selected)
 
 MenuItem::~MenuItem()
 {
-    std::cout << "Destructor" << std::endl;
 }
 
 std::string_view MenuItem::getItemName()
@@ -43,7 +42,12 @@ void MenuItem::setSelected()
     _isSelected = _isSelected ? false : true;
 }
 
-bool MenuItem::getSelected()
+bool MenuItem::getSelected() const
 {
     return _isSelected;
+}
+
+int MenuItem::getItemIdx() const
+{
+    return _itemIdx;
 }

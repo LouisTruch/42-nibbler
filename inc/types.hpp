@@ -27,12 +27,6 @@ struct point
 {
     int x;
     int y;
-    // point &operator=(const point &other)
-    // {
-    //     x = other.x;
-    //     y = other.y;
-    //     return *this;
-    // }
 
     bool operator==(const point a) const
     {
@@ -42,3 +36,19 @@ struct point
 typedef struct point point_t;
 
 typedef std::deque<point_t> body_t;
+
+typedef int int_gameConfig_t;
+
+enum item_name_idx_e
+{
+    SPEED,
+    DISAPPEARING_FOOD,
+    MULTIPLAYER,
+    SOUND,
+};
+
+enum item_name_bit
+{
+    SPEED_BIT = 0x1,
+    DISAPPEARING_FOOD_BIT = 0x2,
+};
