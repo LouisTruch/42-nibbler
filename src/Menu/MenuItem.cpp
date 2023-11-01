@@ -11,7 +11,7 @@ MenuItem::MenuItem(std::string_view itemName, bool selected)
 
 MenuItem::~MenuItem()
 {
-    std::cout << "grosfdptest" << std::endl;
+    std::cout << "Destructor" << std::endl;
 }
 
 std::string_view MenuItem::getItemName()

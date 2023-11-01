@@ -22,7 +22,7 @@ class Menu
   private:
     int _highlight;
     WINDOW *_windowMenu;
-    static constexpr int MENU_HEIGHT = 10;
+    static constexpr int MENU_HEIGHT = 12;
     static constexpr int MENU_WIDTH = 60;
 
     typedef std::vector<std::unique_ptr<MenuCategory>> VectorMenuCategory;

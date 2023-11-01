@@ -42,5 +42,17 @@ void MenuCategory::selectItem(int hightlight)
 {
     if (hightlight >= _vecMenuItem.size())
         return;
-    _vecMenuItem[hightlight]->setSelected();
+    if ((!_vecMenuItem[hightlight]->getSelected()))
+    {
+        if (_isMultiChoice || (!_isMultiChoice && _nbSelected == 0))
+        {
+            _vecMenuItem[hightlight]->setSelected();
+            _nbSelected++;
+        }
+    }
+    else if (_vecMenuItem[hightlight]->getSelected())
+    {
+        _vecMenuItem[hightlight]->setSelected();
+        _nbSelected--;
+    }
 }

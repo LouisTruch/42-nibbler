@@ -1,10 +1,11 @@
 #include "../../inc/Menu/Menu.hpp"
 #include <cmath>
+#include <cstdlib>
 #include <curses.h>
 #include <iostream>
 #include <memory>
 
-Menu::Menu()
+Menu::Menu() : _highlight(0)
 {
     initscr();
     noecho();
@@ -16,7 +17,6 @@ Menu::Menu()
     wrefresh(_windowMenu);
 
     keypad(_windowMenu, true);
-    // std::make_unique(MenuCategory("GAME MODE", {MenuItem("OPTION", false, _windowMenu)}));
     MenuCategory::VectorMenuItem vecGameMode;
     vecGameMode.push_back(std::make_unique<MenuItem>("OPTION", false));
     vecGameMode.push_back(std::make_unique<MenuItem>("PLACEHOLDER", false));
@@ -33,7 +33,10 @@ Menu::Menu()
     vecSound.push_back(std::make_unique<MenuItem>("OFF", true));
     vecSound.push_back(std::make_unique<MenuItem>("ON", false));
     _vecMenuCategory.push_back(std::make_unique<MenuCategory>("SOUND", false, std::move(vecSound)));
-    _highlight = 0;
+
+    // MenuCategory::VectorMenuItem vecPseudo;
+    // vecPseudo.push_back(std::make_unique<MenuItem>("__", false));
+    // _vecMenuCategory.push_back(std::make_unique<MenuCategory>("PSEUDO", false, std::move(vecPseudo)));
 
     printMenu();
 }
@@ -69,63 +72,33 @@ void Menu::printMenu()
         int key = wgetch(_windowMenu);
         switch (key)
         {
+        case KEY_RIGHT:
+            if (_highlight != 8)
+                _highlight++;
+            break;
+        case KEY_LEFT:
+            if (_highlight != 0)
+                _highlight--;
+            break;
         case KEY_DOWN:
-            if (_highlight == 8)
-                break;
-            _highlight++;
+            if (_highlight <= 5)
+                _highlight += 3;
             break;
         case KEY_UP:
-            if (_highlight == 0)
-                break;
-            _highlight--;
+            if (_highlight >= 3)
+                _highlight -= 3;
             break;
         case 32: // SpaceBar
             _vecMenuCategory[_highlight / _vecMenuCategory.size()]->selectItem(_highlight % _vecMenuCategory.size());
             break;
         case 10: // Enter
+                 /// Export config
             break;
         case 27: // Escap
             return;
         default:
-            std::cout << key << std::endl;
-
+            // std::cout << key << std::endl;
             break;
         }
     }
 }
-
-// for (int i = 0; i < NB_CATEGORY; i++)
-// {
-
-//     mvwprintw(_windowMenu, i * 2 + 1, 1, _menuChoice[i].data());
-//     if (i == 0)
-//     {
-//         int line_idx = 0;
-//         for (int j = 0; j < NB_GAMEMODE; j++)
-//         {
-//             mvwprintw(_windowMenu, i * 2 + 1 + 1, line_idx + PADDING_CHOICES, _gameModeChoice[j].data());
-//             line_idx += _gameModeChoice[j].size() + PADDING_CHOICES;
-//         }
-//     }
-//     else if (i == 1)
-//     {
-//         int line_idx = 0;
-//         for (int j = 0; j < 2; j++)
-//         {
-//             mvwprintw(_windowMenu, i * 2 + 1 + 1, line_idx + PADDING_CHOICES, _soundChoice[j].data());
-//             line_idx += _soundChoice[j].size() + PADDING_CHOICES;
-//         }
-//     }
-//     else if (i == 2)
-//     {
-//         int line_idx = 0;
-//         for (int j = 0; j < NB_GAMEMODE; j++)
-//         {
-//             mvwprintw(_windowMenu, i * 2 + 1 + 1, line_idx + PADDING_CHOICES, _multiplayerChoice[j].data());
-//             line_idx += _multiplayerChoice[j].size() + PADDING_CHOICES;
-//         }
-//     }
-// }
-// mvwprintw(_windowMenu, MENU_HEIGHT - 2, MENU_WIDTH / 2 - 3, "START");
-// wattroff(_windowMenu, A_BOLD);
-// wrefresh(_windowMenu);
