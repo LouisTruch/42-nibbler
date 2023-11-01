@@ -52,7 +52,12 @@ void NcursesGraphicLib::drawPlayer(const Player &player)
     wclear(_board);
     box(_board, boxIcon, boxIcon);
     for (auto &point : player._body)
-        mvwaddch(_board, point.y + 1, point.x + 1, playerIcon);
+    {
+        if (point == player._body.front())
+            mvwaddch(_board, point.y + 1, point.x + 1, playerHeadIcon);
+        else
+            mvwaddch(_board, point.y + 1, point.x + 1, playerIcon);
+    }
 }
 
 void NcursesGraphicLib::drawFood(const point_t &point)

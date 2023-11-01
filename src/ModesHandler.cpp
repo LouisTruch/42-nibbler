@@ -45,7 +45,6 @@ std::unique_ptr<Food> ModesHandler::handleDisappearingFood(Game &game, std::uniq
     // std::cout << (_foodTimer - std::clock()) / (double)CLOCKS_PER_SEC << "test\n";
     if (!_isDisappearingFood || !(((std::clock() - _foodTimer) / (double)CLOCKS_PER_SEC) >= FOOD_TIMER))
         return food;
-    std::cout << "here\n";
     _foodTimer = std::clock();
     return std::make_unique<Food>(game.chooseRandomFoodPos());
 }

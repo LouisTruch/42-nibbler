@@ -4,7 +4,8 @@
 #include <memory>
 #include <ncurses.h>
 
-constexpr char playerIcon = '@';
+constexpr char playerIcon = '*';
+constexpr char playerHeadIcon = '@';
 constexpr char foodIcon = 'o';
 constexpr char boxIcon = '#';
 
