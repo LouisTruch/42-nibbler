@@ -16,6 +16,7 @@ class Player
     typedef body_t::const_iterator it_body;
     it_body getHead() const;
     it_body getTail() const;
+    int getPlayerScore() const;
     int _currentDir;
     body_t _body;
 

@@ -1,10 +1,9 @@
 #include "../inc/Game.hpp"
+#include "../inc/LibHandler.hpp"
 #include "../inc/Menu/Menu.hpp"
-#include "../inc/ModesHandler.hpp"
-#include "../inc/types.hpp"
+#include "../inc/ModeHandler.hpp"
+#include "../inc/Score.hpp"
 #include <iostream>
-#include <string>
-#include <vector>
 
 int main(int argc, char **argv)
 {
@@ -17,12 +16,17 @@ int main(int argc, char **argv)
         std::cerr << "In main.cpp: Parsing error: " << e.what() << std::endl;
         exit(EXIT_FAILURE);
     }
+
+    Score score;
+    score.readScoreFile(50, 50);
+    return 0;
     Menu menu;
-    int_gameConfig_t config = menu.exportGameConfig();
-    ModesHandler modesHandler(config);
+    menu.printMenu();
+    std::unique_ptr<ModeHandler> modeHandler = std::make_unique<ModeHandler>(menu.exportGameConfig());
     try
     {
-        Game game(atoi(argv[1]), atoi(argv[2]), modesHandler);
+        // std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(atoi(argv[1]), atoi(argv[2]));
+        Game game(atoi(argv[1]), atoi(argv[2]), std::move(modeHandler));
         game.loop();
     }
     catch (const Game::GameOverException &e)

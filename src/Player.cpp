@@ -51,6 +51,11 @@ Player::it_body Player::getTail() const
     return _body.end();
 }
 
+int Player::getPlayerScore() const
+{
+    return (int)_body.size();
+}
+
 Player::Player(int mapWidth, int mapHeight, int size)
 {
     _currentDir = UP;

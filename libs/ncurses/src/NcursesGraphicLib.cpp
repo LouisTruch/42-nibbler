@@ -1,5 +1,6 @@
 #include "../inc/NcursesGraphicLib.hpp"
 #include <curses.h>
+#include <string>
 
 NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _height(height)
 {
@@ -10,6 +11,7 @@ NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _he
     timeout(0);
 
     _board = newwin(_height, _width, 0, 0);
+    _scoreBoard = newwin(1, 20, 1, _width + 1);
     // keypad(_board, true);
     // nodelay(_board, TRUE);
     wtimeout(_board, 0); // Set non blocking call of user input
@@ -58,6 +60,15 @@ void NcursesGraphicLib::drawPlayer(const Player &player)
         else
             mvwaddch(_board, point.y + 1, point.x + 1, playerIcon);
     }
+    drawScore(player._body.size());
+}
+
+void NcursesGraphicLib::drawScore(int score)
+{
+    std::string str = std::to_string(score);
+    mvwprintw(_scoreBoard, 0, 0, "%s", "SCORE: ");
+    mvwprintw(_scoreBoard, 0, 7, "%s", str.c_str());
+    wrefresh(_scoreBoard);
 }
 
 void NcursesGraphicLib::drawFood(const point_t &point)
@@ -78,6 +89,7 @@ void NcursesGraphicLib::resetPlayerInput()
 NcursesGraphicLib::~NcursesGraphicLib()
 {
     delwin(_board);
+    delwin(_scoreBoard);
     endwin();
 }
 
@@ -93,10 +105,6 @@ NcursesGraphicLib &NcursesGraphicLib::operator=(const NcursesGraphicLib &other)
     _width = other._width;
     _height = other._height;
     return *this;
-}
-
-NcursesGraphicLib::NcursesGraphicLib()
-{
 }
 
 std::unique_ptr<NcursesGraphicLib> makeGraphicLib(int width, int height)

@@ -8,7 +8,6 @@
 #include <memory>
 #include <ncurses.h>
 #include <string_view>
-#include <tuple>
 #include <vector>
 
 class Menu
@@ -16,18 +15,12 @@ class Menu
   public:
     typedef std::vector<std::unique_ptr<MenuCategory>> VectorMenuCategory;
 
-
-    // struct gameConfig
-    // {
-    //     bool _changingSpeed = false;
-    //     bool _sound = false;
-    //     int _multiplayer = 0;
-    // };
-
   public:
     Menu();
     ~Menu();
     void printMenu();
+    void findItemCategoryIdx(int &, int &);
+    int returnItemIdx();
     int_gameConfig_t exportGameConfig();
 
   private:
@@ -36,7 +29,7 @@ class Menu
 
   private:
     static constexpr int MENU_HEIGHT = 12;
-    static constexpr int MENU_WIDTH = 60;
+    static constexpr int MENU_WIDTH = 70;
     int _highlight;
     WINDOW *_windowMenu;
     VectorMenuCategory _vecMenuCategory;

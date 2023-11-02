@@ -1,6 +1,6 @@
 #pragma once
+
 #include <deque>
-#include <vector>
 
 typedef enum
 {
@@ -14,14 +14,6 @@ typedef enum
     DEFAULT,
     QUIT,
 } player_input_t;
-
-enum map_objects
-{
-    OBJ_NONE,
-    OBJ_PLAYER,
-    OBJ_FOOD,
-    OBJ_WALL,
-};
 
 struct point
 {
@@ -38,17 +30,3 @@ typedef struct point point_t;
 typedef std::deque<point_t> body_t;
 
 typedef int int_gameConfig_t;
-
-enum item_name_idx_e
-{
-    SPEED,
-    DISAPPEARING_FOOD,
-    MULTIPLAYER,
-    SOUND,
-};
-
-enum item_name_bit
-{
-    SPEED_BIT = 0x1,
-    DISAPPEARING_FOOD_BIT = 0x2,
-};

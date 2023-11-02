@@ -20,11 +20,13 @@ class NcursesGraphicLib : public IGraphicLib
     void resetPlayerInput();
     void registerPlayerInput();
     void drawPlayer(const Player &);
+    void drawScore(int);
     void drawFood(const point_t &);
 
   private:
-    NcursesGraphicLib();
+    NcursesGraphicLib() = delete;
     WINDOW *_board;
+    WINDOW *_scoreBoard;
     int _width;
     int _height;
 };

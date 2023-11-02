@@ -1,4 +1,5 @@
 #include "../../inc/Menu/Menu.hpp"
+#include <cmath>
 #include <curses.h>
 #include <iostream>
 
@@ -10,37 +11,33 @@ Menu::Menu() : _highlight(0)
 
     _windowMenu = newwin(MENU_HEIGHT, MENU_WIDTH, 0, 0);
     box(_windowMenu, 0, 0);
-    // refresh();
     wrefresh(_windowMenu);
 
     keypad(_windowMenu, true);
     MenuCategory::VectorMenuItem vecGameMode;
-    vecGameMode.push_back(std::make_unique<MenuItem>("CHANGING_SPEED", false));
-    vecGameMode.push_back(std::make_unique<MenuItem>("DISAPPEARING_FOOD", false));
+    vecGameMode.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::CHANGING_SPEED], false));
+    vecGameMode.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::DISAPPEARING_FOOD], false));
+    vecGameMode.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::HUNGER], false));
+    vecGameMode.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::SCORE], false));
     _vecMenuCategory.push_back(std::make_unique<MenuCategory>("GAME MODE", true, std::move(vecGameMode)));
 
     MenuCategory::VectorMenuItem vecMultiplayer;
-    vecMultiplayer.push_back(std::make_unique<MenuItem>("OFF", true));
-    vecMultiplayer.push_back(std::make_unique<MenuItem>("LOCAL", false));
-    vecMultiplayer.push_back(std::make_unique<MenuItem>("NETWORK", false));
+    vecMultiplayer.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::MULTI_OFF], true));
+    vecMultiplayer.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::MULTI_LOCAL], false));
+    vecMultiplayer.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::MULTI_NETWORK], false));
     _vecMenuCategory.push_back(std::make_unique<MenuCategory>("MULTIPLAYER", false, std::move(vecMultiplayer)));
 
     MenuCategory::VectorMenuItem vecSound;
-    vecSound.push_back(std::make_unique<MenuItem>("OFF", true));
-    vecSound.push_back(std::make_unique<MenuItem>("ON", false));
+    vecSound.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::SOUND], false));
     _vecMenuCategory.push_back(std::make_unique<MenuCategory>("SOUND", false, std::move(vecSound)));
 
     // MenuCategory::VectorMenuItem vecPseudo;
     // vecPseudo.push_back(std::make_unique<MenuItem>("__", false));
     // _vecMenuCategory.push_back(std::make_unique<MenuCategory>("PSEUDO", false, std::move(vecPseudo)));
-
-    printMenu();
 }
 
 Menu::~Menu()
 {
-    delwin(_windowMenu);
-    endwin();
 }
 
 void Menu::printMenu()
@@ -58,7 +55,7 @@ void Menu::printMenu()
         for (int y = 0; auto &category : _vecMenuCategory)
             category->printCategory(y++, _windowMenu, _highlight);
 
-        if (_highlight == 8)
+        if (_highlight == MenuItem::NB_ITEM)
             wattron(_windowMenu, A_REVERSE);
         wattron(_windowMenu, A_BOLD);
         mvwprintw(_windowMenu, MENU_HEIGHT - 2, MENU_WIDTH / 2 - 3, "START");
@@ -70,7 +67,7 @@ void Menu::printMenu()
         switch (key)
         {
         case KEY_RIGHT:
-            if (_highlight != 8)
+            if (_highlight != MenuItem::NB_ITEM)
                 _highlight++;
             break;
         case KEY_LEFT:
@@ -86,8 +83,14 @@ void Menu::printMenu()
                 _highlight -= 3;
             break;
         case 32: // SpaceBar
-            _vecMenuCategory[_highlight / _vecMenuCategory.size()]->selectItem(_highlight % _vecMenuCategory.size());
+        {
+            if (_highlight == MenuItem::NB_ITEM)
+                break;
+            int categoryIdx = 0, itemIdx;
+            findItemCategoryIdx(categoryIdx, itemIdx);
+            _vecMenuCategory[categoryIdx]->selectItem(itemIdx);
             break;
+        }
         case 10: // Enter
                  /// Export config
             break;
@@ -100,30 +103,68 @@ void Menu::printMenu()
     }
 }
 
+void Menu::findItemCategoryIdx(int &categoryIdx, int &itemIdx)
+{
+    for (auto &&category : _vecMenuCategory)
+    {
+        itemIdx = 0;
+        for (auto &&item : category->getVecMenuItem())
+        {
+            if (item->getItemIdx() == _highlight)
+                return;
+            itemIdx++;
+        }
+        categoryIdx++;
+    }
+}
+
+int Menu::returnItemIdx()
+{
+
+    return 0;
+}
+
 int_gameConfig_t Menu::exportGameConfig()
 {
     int_gameConfig_t config = 0;
-    for (int i = 0; auto &&category : _vecMenuCategory)
+
+    for (auto &&category : _vecMenuCategory)
     {
-        if (category->getMultiChoice())
+        for (auto &&item : category->getVecMenuItem())
         {
-            for (auto &&item : category->getVecMenuItem())
+            if (item->getSelected())
             {
-                if (item->getSelected())
+                switch (item->getItemIdx())
                 {
-                    switch (item->getItemIdx())
-                    {
-                    case SPEED:
-                        config |= SPEED_BIT;
-                        break;
-                    case DISAPPEARING_FOOD:
-                        config |= DISAPPEARING_FOOD_BIT;
-                        break;
-                    }
+                case MenuItem::CHANGING_SPEED:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
+                case MenuItem::DISAPPEARING_FOOD:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
+                case MenuItem::HUNGER:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
+                case MenuItem::SCORE:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
+                case MenuItem::MULTI_OFF:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
+                case MenuItem::MULTI_LOCAL:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
+                case MenuItem::MULTI_NETWORK:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
+                case MenuItem::SOUND:
+                    config |= (int)std::pow(2, item->getItemIdx());
+                    break;
                 }
-                i++;
             }
         }
     }
+    delwin(_windowMenu);
+    endwin();
     return config;
 }

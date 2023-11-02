@@ -1,9 +1,11 @@
 #include "../inc/SDLGraphicLib.hpp"
+#include <SDL2/SDL.h>
 #include <ranges>
 #include <stdexcept>
 
 SDLGraphicLib::SDLGraphicLib(int width, int height) : _width(width * TILE_SIZE), _height(height * TILE_SIZE)
 {
+    SDL_Init(SDL_INIT_VIDEO);
     _window = SDL_CreateWindow("nibbler", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _width, _height, 0);
 
     if (!_window)
@@ -96,10 +98,6 @@ player_input_t SDLGraphicLib::getPlayerInput() const
 void SDLGraphicLib::resetPlayerInput()
 {
     _playerInput = DEFAULT;
-}
-
-SDLGraphicLib::SDLGraphicLib()
-{
 }
 
 SDLGraphicLib::~SDLGraphicLib()

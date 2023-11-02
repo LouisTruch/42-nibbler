@@ -1,18 +1,18 @@
 CC = g++
 CFLAGS = -Wall -Werror -Wextra -std=c++20 -fPIC
 INCLUDES = -Iinc
-SRCS = src/RaylibGraphicLib.cpp \
-		src/RaylibTexture.cpp
+SRCS = src/RaylibSoundLib.cpp \
+
 OBJS = $(SRCS:.c=.o)
-TARGET = libraylib.so
+TARGET = libsoundraylib.so
 
 .PHONY: clean fclean re
     
 all:    $(TARGET)
-	@echo  Successfully compiled Raylib shared object.
+	@echo  Successfully compiled Raylib Sound shared object.
 
 $(TARGET): $(OBJS) 
-	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -Lraylib/src -lraylib
+	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -L../raylib/src -lraylib
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -cpp $<  -o $@

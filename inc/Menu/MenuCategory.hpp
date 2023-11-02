@@ -19,6 +19,7 @@ class MenuCategory
     void selectItem(int);
     const VectorMenuItem &getVecMenuItem() const;
     bool getMultiChoice() const;
+    std::string_view getCategoryName() const;
 
   private:
     MenuCategory() = delete;

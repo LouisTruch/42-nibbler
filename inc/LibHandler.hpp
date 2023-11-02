@@ -1,9 +1,10 @@
 #pragma once
 #include "../inc/IGraphicLib.hpp"
+#include "../inc/ISoundLib.hpp"
 #include <memory>
 #include <string_view>
 
-#define NB_LIBS 3
+class Game;
 
 class LibHandler
 {
@@ -13,35 +14,58 @@ class LibHandler
         LIBNCURSES,
         LIBSDL,
         LIBRAYLIB,
+        LIBSOUND,
     } lib_name_e;
 
+    typedef enum
+    {
+        GRAPHIC,
+        SOUND,
+    } lib_type_e;
+
+    // For loading graphic lib
     LibHandler(int, int);
-    void openLib(int);
-    void closeLib();
-    std::unique_ptr<IGraphicLib> switchLib(lib_name_e, std::unique_ptr<IGraphicLib>);
+    void openLib(lib_type_e, int);
+    void openSoundLib(int);
+
+    void closeLib(lib_type_e);
+    std::unique_ptr<IGraphicLib> switchGraphicLib(lib_name_e, std::unique_ptr<IGraphicLib>);
 
     std::unique_ptr<IGraphicLib> makeGraphicLib(int, int);
     void destroyGraphicLib(std::unique_ptr<IGraphicLib>);
 
+    std::unique_ptr<ISoundLib> makeSoundLib(const Game &);
+    void destroySoundLib(std::unique_ptr<ISoundLib>);
+
     ~LibHandler();
-    LibHandler(const LibHandler &);
-    LibHandler &operator=(const LibHandler &);
+    LibHandler(const LibHandler &) = delete;
+    LibHandler &operator=(const LibHandler &) = delete;
 
   private:
     LibHandler() = delete;
-    void loadSymbols();
+    void loadSymbolsGraphicLib();
+    void loadSymbolsSoundLib();
 
   private:
     int _width;
     int _height;
-    void *_lib;
-    int _currentLib;
+    int _currentGraphicLib;
+    int _currentSoundLib;
+    void *_graphicLibPtr;
+    void *_soundLibPtr;
 
     typedef std::unique_ptr<IGraphicLib> (*makeGraphicLibFunc)(int, int);
-    makeGraphicLibFunc _makerFunc;
+    makeGraphicLibFunc _makerGraphicFunc;
     typedef void (*destroyGraphicLibFunc)(std::unique_ptr<IGraphicLib>);
-    destroyGraphicLibFunc _deleterFunc;
+    destroyGraphicLibFunc _deleterGraphicFunc;
 
-    static constexpr std::string_view _libPaths[3] = {"./libs/ncurses/libncurses.so", "./libs/sdl/libsdl.so",
-                                                      "./libs/raylib/libraylib.so"};
+    typedef std::unique_ptr<ISoundLib> (*makeSoundLibFunc)(const Game &);
+    makeSoundLibFunc _makerSoundFunc;
+    typedef void (*destroySoundLibFunc)(std::unique_ptr<ISoundLib>);
+    destroySoundLibFunc _deleterSoundFunc;
+
+    static constexpr int NB_GRAPHIC_LIBS = 3;
+    static constexpr std::string_view LIB_PATH[4] = {"./libs/ncurses/libncurses.so", "./libs/sdl/libsdl.so",
+                                                     "./libs/raylib/libraylib.so",
+                                                     "./libs/raylib/sound/libsoundraylib.so"};
 };

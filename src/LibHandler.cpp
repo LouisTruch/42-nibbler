@@ -3,76 +3,118 @@
 #include <iostream>
 #include <stdexcept>
 
-LibHandler::LibHandler(int width, int height) : _width(width), _height(height), _currentLib(-1)
+LibHandler::LibHandler(int width, int height)
+    : _width(width), _height(height), _currentGraphicLib(-1), _currentSoundLib(-1), _graphicLibPtr(NULL),
+      _soundLibPtr(NULL)
 {
-    openLib(LIBRAYLIB);
-    loadSymbols();
+    openLib(GRAPHIC, LIBNCURSES);
+    loadSymbolsGraphicLib();
 }
 
-void LibHandler::openLib(int libChoice)
+void LibHandler::openLib(lib_type_e type, int libChoice)
 {
-    _currentLib = libChoice;
-    _lib = dlopen(_libPaths[_currentLib].data(), RTLD_LAZY);
-    if (!_lib)
-        throw std::runtime_error("Error LibHandler(): couldnt load .so object");
+    if (type == GRAPHIC)
+    {
+        _currentGraphicLib = libChoice;
+        _graphicLibPtr = dlopen(LIB_PATH[_currentGraphicLib].data(), RTLD_LAZY);
+        if (!_graphicLibPtr)
+            throw std::runtime_error("Error LibHandler(): couldnt load .so object");
+    }
+    else if (type == SOUND)
+    {
+        _currentSoundLib = libChoice;
+        _soundLibPtr = dlopen(LIB_PATH[_currentSoundLib].data(), RTLD_LAZY);
+        if (!_soundLibPtr)
+            throw std::runtime_error("Error LibHandler(): couldnt load .so object");
+        loadSymbolsSoundLib();
+    }
 }
 
-void LibHandler::closeLib()
+void LibHandler::closeLib(lib_type_e type)
 {
-    if (dlclose(_lib))
-        throw std::runtime_error("Error LibHandler->closeLib(): Couldnt close lib");
+    if (type == GRAPHIC)
+    {
+        if (dlclose(_graphicLibPtr))
+            throw std::runtime_error("Error LibHandler->closeLib(): Couldnt close lib");
+    }
+    else if (type == SOUND)
+    {
+        if (dlclose(_soundLibPtr))
+            throw std::runtime_error("Error LibHandler->closeLib(): Couldnt close lib");
+    }
 }
 
 LibHandler::~LibHandler()
 {
-    dlclose(_lib);
+    if (_graphicLibPtr)
+        dlclose(_graphicLibPtr);
+    if (_soundLibPtr)
+        dlclose(_soundLibPtr);
 }
 
-std::unique_ptr<IGraphicLib> LibHandler::switchLib(lib_name_e libChoice, std::unique_ptr<IGraphicLib> gLib)
+std::unique_ptr<IGraphicLib> LibHandler::switchGraphicLib(lib_name_e libChoice, std::unique_ptr<IGraphicLib> gLib)
 {
-    if (libChoice == _currentLib)
+    if (libChoice == _currentGraphicLib)
         return gLib;
 
-    if (0 < libChoice && libChoice >= NB_LIBS)
+    if (0 < libChoice && libChoice >= NB_GRAPHIC_LIBS)
         return gLib;
 
-    _deleterFunc(std::move(gLib));
-    closeLib();
-    openLib(libChoice);
-    loadSymbols();
-    return _makerFunc(_width + 2, _height + 2);
+    _deleterGraphicFunc(std::move(gLib));
+    closeLib(GRAPHIC);
+    openLib(GRAPHIC, libChoice);
+    loadSymbolsGraphicLib();
+    return _makerGraphicFunc(_width + 2, _height + 2);
 }
 
-void LibHandler::loadSymbols(void)
+void LibHandler::loadSymbolsGraphicLib(void)
 {
-    _makerFunc = (makeGraphicLibFunc)dlsym(_lib, "makeGraphicLib");
-    _deleterFunc = (destroyGraphicLibFunc)dlsym(_lib, "destroyGraphicLib");
-    if (!_makerFunc || !_deleterFunc)
+    _makerGraphicFunc = (makeGraphicLibFunc)dlsym(_graphicLibPtr, "makeGraphicLib");
+    _deleterGraphicFunc = (destroyGraphicLibFunc)dlsym(_graphicLibPtr, "destroyGraphicLib");
+    if (!_makerGraphicFunc || !_deleterGraphicFunc)
+        throw std::runtime_error("Error LibHandler loadSymbols: couldnt load lib functions");
+}
+
+void LibHandler::loadSymbolsSoundLib(void)
+{
+    _makerSoundFunc = (makeSoundLibFunc)dlsym(_soundLibPtr, "makeSoundLib");
+    _deleterSoundFunc = (destroySoundLibFunc)dlsym(_soundLibPtr, "destroySoundLib");
+    if (!_makerSoundFunc || !_deleterSoundFunc)
         throw std::runtime_error("Error LibHandler loadSymbols: couldnt load lib functions");
 }
 
 std::unique_ptr<IGraphicLib> LibHandler::makeGraphicLib(int width, int height)
 {
-    return _makerFunc(width, height);
+    return _makerGraphicFunc(width, height);
 }
 
 void LibHandler::destroyGraphicLib(std::unique_ptr<IGraphicLib> gLib)
 {
-    _deleterFunc(std::move(gLib));
+    _deleterGraphicFunc(std::move(gLib));
 }
 
-LibHandler::LibHandler(const LibHandler &other)
+std::unique_ptr<ISoundLib> LibHandler::makeSoundLib(const Game &game)
 {
-    *this = other;
+    return _makerSoundFunc(game);
 }
 
-LibHandler &LibHandler::operator=(const LibHandler &other)
+void LibHandler::destroySoundLib(std::unique_ptr<ISoundLib> sLib)
 {
-    if (&other == this)
-        return *this;
-    _lib = other._lib;
-    _currentLib = other._currentLib;
-    _makerFunc = other._makerFunc;
-    _deleterFunc = other._deleterFunc;
-    return *this;
+    _deleterSoundFunc(std::move(sLib));
 }
+
+// LibHandler::LibHandler(const LibHandler &other)
+// {
+//     *this = other;
+// }
+
+// LibHandler &LibHandler::operator=(const LibHandler &other)
+// {
+//     if (&other == this)
+//         return *this;
+//     _lib = other._lib;
+//     _currentLib = other._currentLib;
+//     _makerGraphicFunc = other._makerGraphicFunc;
+//     _deleterGraphicFunc = other._deleterGraphicFunc;
+//     return *this;
+// }

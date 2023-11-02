@@ -28,7 +28,7 @@ bool MenuCategory::operator<(const MenuCategory &other) const
 void MenuCategory::printCategory(int y, WINDOW *win, int highlight)
 {
     wattron(win, A_BOLD);
-    mvwprintw(win, y * 2 + 1, 1, _categoryName.data());
+    mvwprintw(win, y * 2 + 1, 1, "%s", _categoryName.data());
     wattroff(win, A_BOLD);
     int line_idx = 0;
     for (auto &menuItem : _vecMenuItem)
@@ -65,4 +65,9 @@ bool MenuCategory::getMultiChoice() const
 const MenuCategory::VectorMenuItem &MenuCategory::getVecMenuItem() const
 {
     return _vecMenuItem;
+}
+
+std::string_view MenuCategory::getCategoryName() const
+{
+    return _categoryName;
 }

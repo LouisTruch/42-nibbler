@@ -19,7 +19,7 @@ class SDLGraphicLib : public IGraphicLib
     void drawFood(const point_t &);
 
   private:
-    SDLGraphicLib();
+    SDLGraphicLib() = delete;
 
   private:
     int _width;

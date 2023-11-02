@@ -10,6 +10,7 @@ SRCS :=	src/main.cpp \
 		src/Player.cpp \
 		src/Food.cpp \
 		src/ModesHandler.cpp \
+		src/Score.cpp \
 
 OBJS := $(patsubst %.cpp, %.o, $(SRCS))
 DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))
@@ -35,12 +36,14 @@ clean	:
 			make -C libs/sdl/ clean
 			make -C libs/ncurses/ clean
 			make -C libs/raylib/ clean
+			make -C libs/raylib/sound/ clean
 			${RM} ${OBJS} ${DEPENDS}
 
 fclean	:	clean
 			make -C libs/sdl/ fclean
 			make -C libs/ncurses/ fclean
-			make -C libs/raylib/ clean
+			make -C libs/raylib/ fclean
+			make -C libs/raylib/sound/ fclean
 			${RM} ${NAME}
 
 re		:	fclean all lib
@@ -49,5 +52,6 @@ lib		:
 			make -C libs/sdl/
 			make -C libs/ncurses/
 			make -C libs/raylib/
+			make -C libs/raylib/sound/
 
 .PHONY : all clean fclean re

@@ -1,5 +1,6 @@
 #include "../inc/Game.hpp"
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 
 static bool checkSize(const char *str, int min, int max)

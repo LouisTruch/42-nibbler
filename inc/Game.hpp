@@ -1,8 +1,9 @@
 #pragma once
 #include "Food.hpp"
 #include "IGraphicLib.hpp"
+#include "ISoundLib.hpp"
 #include "LibHandler.hpp"
-#include "ModesHandler.hpp"
+#include "ModeHandler.hpp"
 #include "Player.hpp"
 #include "types.hpp"
 #include <bits/types/clock_t.h>
@@ -22,38 +23,37 @@ constexpr double DEFAULT_GAME_SPEED = 0.15;
 class Game
 {
   public:
-    Game(int, int, const ModesHandler);
+    typedef enum game_collision
+    {
+        NOTHING,
+        RUNNING,
+        DEATH_WALL,
+        DEATH_BODY,
+        EAT,
+    } game_collision_e;
+
+  public:
+    Game(int, int, std::unique_ptr<ModeHandler>);
     ~Game();
     Game(const Game &);
     Game &operator=(const Game &);
 
     void loop();
-    int checkCollision();
+    game_collision_e checkCollision();
     void handleLibSwitch();
     point_t chooseRandomFoodPos();
     point_t generateRandomPoint();
     bool isTileFree(point_t);
-
+    void throwGameOverScore(std::string_view) const;
     double getGameSpeed() const;
     void setGameSpeed(double);
-
-    class GameOverException : public std::exception
-    {
-      private:
-        std::string _msg;
-
-      public:
-        GameOverException(const char *);
-        virtual const char *what() const throw();
-        ~GameOverException() throw() = default;
-    };
 
   private:
     Game() = delete;
 
   private:
     std::unique_ptr<LibHandler> _libHandler;
-    std::unique_ptr<IGraphicLib> _gHandler;
+    std::unique_ptr<IGraphicLib> _graphicHandler;
     std::unique_ptr<Player> _player;
     std::unique_ptr<Food> _food;
     std::mt19937 _rng;
@@ -61,15 +61,23 @@ class Game
     int _height;
     int _totalSpace;
     double _gameSpeed;
-    ModesHandler _modesHandler;
+    std::unique_ptr<ModeHandler> _modeHandler;
     double _turn;
     clock_t _turnStart;
 
-    enum collision_type
+  public:
+    class GameOverException : public std::exception
     {
-        DEATH,
-        BUFF,
-        NOTHING,
+      private:
+        std::string _msg;
+        inline static constexpr std::string_view PLAYER_SCORE_STR = {"\nPlayer Score: "};
+        inline static constexpr std::string_view MAP_WIDTH_STR = {"\nMap width: "};
+        inline static constexpr std::string_view MAP_HEIGHT_STR = {"\nMap height: "};
+
+      public:
+        GameOverException(std::string_view, int, int, int);
+        virtual const char *what() const throw();
+        ~GameOverException() throw() = default;
     };
 };
 
