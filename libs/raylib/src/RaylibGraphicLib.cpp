@@ -4,11 +4,6 @@ RaylibGraphicLib::RaylibGraphicLib(int width, int height) : _width(width * TILE_
 {
     SetTraceLogLevel(LOG_ERROR);
     InitWindow(_width, _height, "Raylib Nibbler");
-    // InitAudioDevice();
-    // Sound fxWav = LoadSound("./eating.wav");
-    // PlaySound(fxWav);
-    // UnloadSound(fxWav);
-    // CloseAudioDevice();
     for (int idx = RaylibTexture::BODY_BOTTOMLEFT; idx != RaylibTexture::TEXTURE_NB_ITEMS; idx++)
         _vecTexture.push_back(static_cast<RaylibTexture::texture_name_e>(idx));
     _background = std::make_unique<RaylibTexture>(_width, _height, TILE_SIZE, _boardColor1, _boardColor2);
@@ -29,6 +24,7 @@ void RaylibGraphicLib::drawPlayer(const Player &player)
         else
             drawBody(current);
     }
+    EndDrawing();
 }
 
 void RaylibGraphicLib::drawHead(int x, int y, int dir)
@@ -127,14 +123,17 @@ void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current)
 
 void RaylibGraphicLib::drawFood(const point_t &point)
 {
+    BeginDrawing();
     drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x, point.y, WHITE);
     EndDrawing();
 }
 
 void RaylibGraphicLib::drawScores(int score, int highScore)
 {
-    (void)score;
-    (void)highScore;
+    BeginDrawing();
+    DrawText(TextFormat("Score: %i", score), TILE_SIZE, 0, 16, RED);
+    DrawText(TextFormat("HiScore: %i", highScore), TILE_SIZE, 18, 16, GREEN);
+    EndDrawing();
 }
 
 void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Color color)

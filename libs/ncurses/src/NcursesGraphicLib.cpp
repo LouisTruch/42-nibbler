@@ -68,9 +68,9 @@ void NcursesGraphicLib::drawScores(int score, int highScore)
     mvwprintw(_scoreBoard, 0, 0, "%s", "SCORE: ");
     mvwprintw(_scoreBoard, 0, 7, "%s", str.c_str());
     str = std::to_string(highScore);
-    mvwprintw(_scoreBoard, 2, 0, "%s", "HIGH SCORE: ");
+    mvwprintw(_scoreBoard, 2, 0, "%s", "HISCORE: ");
     wrefresh(_scoreBoard);
-    mvwprintw(_scoreBoard, 2, 12, "%s", str.c_str());
+    mvwprintw(_scoreBoard, 2, 9, "%s", str.c_str());
     wrefresh(_scoreBoard);
 }
 

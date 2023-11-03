@@ -24,7 +24,7 @@ int main(int argc, char **argv)
     try
     {
         // std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(atoi(argv[1]), atoi(argv[2]));
-        Game game(atoi(argv[1]), atoi(argv[2]), std::move(modeHandler));
+        Game game(std::move(modeHandler));
         game.loop();
     }
     catch (const Game::GameOverException &e)

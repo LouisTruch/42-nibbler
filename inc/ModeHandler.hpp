@@ -32,8 +32,12 @@ class ModeHandler
     void playSound(ISoundLib::sound_type_e) const;
     void updateScore(int, IGraphicLib *);
     std::unique_ptr<ISoundLib> getSoundHandler();
+    int getWidth() const;
+    int getHeight() const;
 
   private:
+    int _width;
+    int _height;
     bool _isChangingSpeed;
     bool _isDisappearingFood;
     bool _isHunger;

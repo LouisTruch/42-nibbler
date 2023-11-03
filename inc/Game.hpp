@@ -33,7 +33,7 @@ class Game
     } game_collision_e;
 
   public:
-    Game(int, int, std::unique_ptr<ModeHandler>);
+    Game(std::unique_ptr<ModeHandler>);
     ~Game();
     Game(const Game &);
     Game &operator=(const Game &);
@@ -52,6 +52,7 @@ class Game
     Game() = delete;
 
   private:
+    std::unique_ptr<ModeHandler> _modeHandler;
     std::unique_ptr<LibHandler> _libHandler;
     std::unique_ptr<IGraphicLib> _graphicHandler;
     std::unique_ptr<Player> _player;
@@ -61,7 +62,6 @@ class Game
     int _height;
     int _totalSpace;
     double _gameSpeed;
-    std::unique_ptr<ModeHandler> _modeHandler;
     double _turn;
     clock_t _turnStart;
 

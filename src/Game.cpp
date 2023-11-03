@@ -4,15 +4,15 @@
 #include <ranges>
 #include <unistd.h>
 
-Game::Game(int width, int height, std::unique_ptr<ModeHandler> modeHandler)
-    : _width(width), _height(height), _totalSpace(width * height), _gameSpeed(DEFAULT_GAME_SPEED),
-      _modeHandler(std::move(modeHandler)), _turnStart(std::clock())
+Game::Game(std::unique_ptr<ModeHandler> modeHandler)
+    : _modeHandler(std::move(modeHandler)), _width(_modeHandler->getWidth()), _height(_modeHandler->getHeight()),
+      _totalSpace(_width * _height), _gameSpeed(DEFAULT_GAME_SPEED), _turnStart(std::clock())
 {
     _rng.seed(getpid());
     _libHandler = std::make_unique<LibHandler>(_width, _height);
     // +2 to includes border walls
     _graphicHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
-    _player = std::make_unique<Player>(width / 2, height / 2, DEFAULT_PLAYER_SIZE);
+    _player = std::make_unique<Player>(_width / 2, _height / 2, DEFAULT_PLAYER_SIZE);
     _food = std::make_unique<Food>(chooseRandomFoodPos());
 
     // Create Sound Handler in ModeHandler if needed
