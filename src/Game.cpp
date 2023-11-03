@@ -55,10 +55,11 @@ void Game::loop(void)
                 _modeHandler->changeGameSpeed(SPEED_MODIFIER, *this);
                 _modeHandler->resetHungerTimer(now);
             }
-            if (_totalSpace <= (int)_player->getBody().size())
+            if (_totalSpace <= _player->getPlayerScore())
                 throwGameOverScore("Game Win");
             _graphicHandler->drawPlayer(*_player);
             _graphicHandler->drawFood(_food->getPos());
+            _modeHandler->updateScore(_player->getPlayerScore(), this->_graphicHandler.get());
             _food = _modeHandler->handleDisappearingFood(*this, std::move(_food), now);
             _turnStart = clock();
         }

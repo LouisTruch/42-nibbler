@@ -7,12 +7,12 @@
 #include <memory>
 
 ModeHandler::ModeHandler()
-    : _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false), _isScore(false), _isSound(false),
-      _soundHandler(nullptr)
+    : _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false), _isScore(false), _scoreHandler(nullptr),
+      _isSound(false), _soundHandler(nullptr)
 {
 }
 
-ModeHandler::ModeHandler(int_gameConfig_t config)
+ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height)
 {
     _isChangingSpeed = config & (int)(std::pow(2, (int)MenuItem::CHANGING_SPEED)) ? true : false;
     _isDisappearingFood = config & (int)(std::pow(2, (int)MenuItem::DISAPPEARING_FOOD)) ? true : false;
@@ -21,7 +21,12 @@ ModeHandler::ModeHandler(int_gameConfig_t config)
     _isHunger = config & (int)(std::pow(2, (int)MenuItem::HUNGER)) ? true : false;
     if (_isHunger)
         _hungerTimer = std::clock();
-    _isScore = config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? true : false;
+    _scoreHandler =
+        config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? std::make_unique<Score>(width, height) : nullptr;
+    // if (_isScore)
+    //     _scoreHandler = std::make_unique<Score>(width, height);
+    // else
+    //     _scoreHandler = nullptr;
     // _isChangingSpeed = conf(int)(std::pow(2, (int)MenuItem::MULTI_OFF + 1) ? true : false;
     // _isChangingSpeed = conf(int)(std::pow(2, (int)MenuItem::MULTI_LOCAL + 1) ? true : false;
     // _isChangingSpeed = conf(int)(std::pow(2, (int)MenuItem::MULTI_NETWORK + 1) ? true : false;
@@ -76,6 +81,17 @@ void ModeHandler::resetHungerTimer(clock_t now)
 {
     if (_isHunger)
         _hungerTimer = now;
+}
+
+void ModeHandler::updateScore(int score, IGraphicLib *graphicHandler)
+{
+    if (_scoreHandler == nullptr || graphicHandler == NULL)
+        return;
+    _scoreHandler->setCurrentScore(score);
+    if (_scoreHandler->getCurrentScore() > _scoreHandler->getHighScoreFile())
+        graphicHandler->drawScores(_scoreHandler->getCurrentScore(), _scoreHandler->getCurrentScore());
+    else
+        graphicHandler->drawScores(_scoreHandler->getCurrentScore(), _scoreHandler->getHighScoreFile());
 }
 
 void ModeHandler::playSound(ISoundLib::sound_type_e sound) const

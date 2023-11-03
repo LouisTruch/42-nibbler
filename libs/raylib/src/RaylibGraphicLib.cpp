@@ -131,6 +131,12 @@ void RaylibGraphicLib::drawFood(const point_t &point)
     EndDrawing();
 }
 
+void RaylibGraphicLib::drawScores(int score, int highScore)
+{
+    (void)score;
+    (void)highScore;
+}
+
 void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Color color)
 {
     DrawTexture(texture, x * TILE_SIZE + TILE_SIZE, y * TILE_SIZE + TILE_SIZE, color);

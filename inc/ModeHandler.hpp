@@ -1,7 +1,9 @@
 #pragma once
 
 #include "Food.hpp"
+#include "IGraphicLib.hpp"
 #include "ISoundLib.hpp"
+#include "Score.hpp"
 #include "types.hpp"
 #include <ctime>
 #include <memory>
@@ -17,7 +19,7 @@ class ModeHandler
 {
   public:
     ModeHandler();
-    ModeHandler(int_gameConfig_t);
+    ModeHandler(int_gameConfig_t, int, int);
     ~ModeHandler();
     ModeHandler(const ModeHandler &);
     ModeHandler &operator=(const ModeHandler &);
@@ -28,6 +30,7 @@ class ModeHandler
     bool getIsSound() const;
     void setSoundHandler(std::unique_ptr<ISoundLib>);
     void playSound(ISoundLib::sound_type_e) const;
+    void updateScore(int, IGraphicLib *);
     std::unique_ptr<ISoundLib> getSoundHandler();
 
   private:
@@ -36,6 +39,7 @@ class ModeHandler
     bool _isHunger;
     std::clock_t _hungerTimer;
     bool _isScore;
+    std::unique_ptr<Score> _scoreHandler;
     bool _isSound;
     std::clock_t _foodTimer;
     std::unique_ptr<ISoundLib> _soundHandler;

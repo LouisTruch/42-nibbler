@@ -64,6 +64,12 @@ void SDLGraphicLib::drawFood(const point_t &point)
     SDL_RenderPresent(_renderer);
 }
 
+void SDLGraphicLib::drawScores(int score, int highScore)
+{
+    (void)score;
+    (void)highScore;
+}
+
 void SDLGraphicLib::registerPlayerInput()
 {
     while (SDL_PollEvent(&_event) > 0)

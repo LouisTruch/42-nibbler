@@ -17,6 +17,7 @@ class SDLGraphicLib : public IGraphicLib
     void registerPlayerInput();
     void drawPlayer(const Player &);
     void drawFood(const point_t &);
+    void drawScores(int, int);
 
   private:
     SDLGraphicLib() = delete;

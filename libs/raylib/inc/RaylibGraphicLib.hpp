@@ -21,6 +21,7 @@ class RaylibGraphicLib : public IGraphicLib
     void registerPlayerInput();
     void drawPlayer(const Player &);
     void drawFood(const point_t &);
+    void drawScores(int , int);
 
   private:
     RaylibGraphicLib() = delete;

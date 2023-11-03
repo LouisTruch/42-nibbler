@@ -20,7 +20,7 @@ class NcursesGraphicLib : public IGraphicLib
     void resetPlayerInput();
     void registerPlayerInput();
     void drawPlayer(const Player &);
-    void drawScore(int);
+    void drawScores(int, int);
     void drawFood(const point_t &);
 
   private:

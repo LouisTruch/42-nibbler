@@ -14,6 +14,7 @@ class IGraphicLib
     // Can't pass unique_ptr to .so functions ?
     virtual void drawPlayer(const Player &) = 0;
     virtual void drawFood(const point_t &) = 0;
+    virtual void drawScores(int, int) = 0;
 
   protected:
     player_input_t _playerInput = UP;
