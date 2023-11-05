@@ -16,20 +16,21 @@ class RaylibGraphicLib : public IGraphicLib
     ~RaylibGraphicLib();
     RaylibGraphicLib(const RaylibGraphicLib &);
     RaylibGraphicLib &operator=(const RaylibGraphicLib &);
-    player_input_t getPlayerInput() const;
+    void clearBoard() const;
+    player_input_t getPlayerInput(int) const;
     void resetPlayerInput();
     void registerPlayerInput();
     void drawPlayer(const Player &);
     void drawFood(const point_t &);
-    void drawScores(int , int);
+    void drawScores(int, int);
 
   private:
     RaylibGraphicLib() = delete;
-    void drawHead(int, int, int);
-    void drawTail(std::deque<point_t>::const_iterator &);
-    void drawBody(std::deque<point_t>::const_iterator &);
+    void drawHead(int, int, int, Color);
+    void drawTail(std::deque<point_t>::const_iterator &, Color);
+    void drawBody(std::deque<point_t>::const_iterator &, Color);
     // DrawTexture() wrapper to avoid having to add TILE_SIZE to every call;
-    void drawTextureTileSize(Texture2D, int, int, Color);
+    void drawTextureTileSize(Texture2D, int, int, Color) const;
 
   private:
     static constexpr int TILE_SIZE = 40;

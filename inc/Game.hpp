@@ -6,6 +6,7 @@
 #include "ModeHandler.hpp"
 #include "Player.hpp"
 #include "types.hpp"
+#include <array>
 #include <bits/types/clock_t.h>
 #include <memory>
 #include <random>
@@ -23,14 +24,12 @@ constexpr double DEFAULT_GAME_SPEED = 0.15;
 class Game
 {
   public:
-    typedef enum game_collision
+    typedef enum player_action
     {
-        NOTHING,
-        RUNNING,
-        DEATH_WALL,
-        DEATH_BODY,
-        EAT,
-    } game_collision_e;
+        MOVE,
+        DRAW,
+        UPDATE_SCORE,
+    } player_action_e;
 
   public:
     Game(std::unique_ptr<ModeHandler>);
@@ -38,8 +37,11 @@ class Game
     Game(const Game &);
     Game &operator=(const Game &);
 
+    void initPlayer();
     void loop();
-    game_collision_e checkCollision();
+    void playerAction(player_action_e);
+    void checkCollisions() const;
+    void checkPlayerState();
     void handleLibSwitch();
     point_t chooseRandomFoodPos();
     point_t generateRandomPoint();
@@ -55,7 +57,7 @@ class Game
     std::unique_ptr<ModeHandler> _modeHandler;
     std::unique_ptr<LibHandler> _libHandler;
     std::unique_ptr<IGraphicLib> _graphicHandler;
-    std::unique_ptr<Player> _player;
+    std::array<std::unique_ptr<Player>, 2> _arrayPlayer;
     std::unique_ptr<Food> _food;
     std::mt19937 _rng;
     int _width;

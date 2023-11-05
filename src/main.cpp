@@ -17,10 +17,11 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    Menu menu;
-    menu.printMenu();
-    std::unique_ptr<ModeHandler> modeHandler =
-        std::make_unique<ModeHandler>(menu.exportGameConfig(), atoi(argv[1]), atoi(argv[2]));
+    // Menu menu;
+    // menu.printMenu();
+    // std::unique_ptr<ModeHandler> modeHandler =
+    //     std::make_unique<ModeHandler>(menu.exportGameConfig(), atoi(argv[1]), atoi(argv[2]));
+    std::unique_ptr<ModeHandler> modeHandler = std::make_unique<ModeHandler>();
     try
     {
         // std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(atoi(argv[1]), atoi(argv[2]));

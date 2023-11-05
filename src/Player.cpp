@@ -1,4 +1,5 @@
 #include "../inc/Player.hpp"
+#include <ctime>
 
 void Player::setDirection(player_input_t input)
 {
@@ -56,11 +57,19 @@ int Player::getPlayerScore() const
     return (int)_body.size();
 }
 
-Player::Player(int mapWidth, int mapHeight, int size)
+int Player::getPlayerIdx() const
+{
+    return _playerIdx;
+}
+
+Player::Player(int x, int y, int size)
 {
     _currentDir = UP;
     for (; size; size--)
-        _body.push_back({mapWidth, mapHeight});
+        _body.push_back({x, y});
+    _playerIdx = nbPlayer++;
+    _collision = STATE_NOTHING;
+    _hungerTimer = std::clock();
 }
 
 Player::~Player()
@@ -78,4 +87,24 @@ Player &Player::operator=(const Player &other)
         return *this;
     _body = other._body;
     return *this;
+}
+
+player_state_e Player::getPlayerCollision() const
+{
+    return _collision;
+}
+
+void Player::setPlayerCollision(player_state_e coll)
+{
+    _collision = coll;
+}
+
+clock_t Player::getHungerTimer() const
+{
+    return _hungerTimer;
+}
+
+void Player::setHungerTimer(clock_t timer)
+{
+    _hungerTimer = timer;
 }

@@ -12,15 +12,26 @@ Game::Game(std::unique_ptr<ModeHandler> modeHandler)
     _libHandler = std::make_unique<LibHandler>(_width, _height);
     // +2 to includes border walls
     _graphicHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
-    _player = std::make_unique<Player>(_width / 2, _height / 2, DEFAULT_PLAYER_SIZE);
     _food = std::make_unique<Food>(chooseRandomFoodPos());
-
     // Create Sound Handler in ModeHandler if needed
     if (_modeHandler->getIsSound())
     {
         _libHandler->openLib(LibHandler::SOUND, LibHandler::LIBSOUND);
         _modeHandler->setSoundHandler(_libHandler->makeSoundLib(*this));
     }
+    initPlayer();
+}
+
+void Game::initPlayer()
+{
+    if (!_modeHandler->getIsMultiLocal())
+    {
+        _arrayPlayer[0] = std::make_unique<Player>(_width / 2, _height / 2, DEFAULT_PLAYER_SIZE);
+        _arrayPlayer[1] = nullptr;
+        return;
+    }
+    _arrayPlayer[0] = std::make_unique<Player>(0, _height / 2, DEFAULT_PLAYER_SIZE);
+    _arrayPlayer[1] = std::make_unique<Player>(_width - 1, _height / 2, DEFAULT_PLAYER_SIZE);
 }
 
 void Game::loop(void)
@@ -29,39 +40,49 @@ void Game::loop(void)
     while (1)
     {
         _graphicHandler->registerPlayerInput();
-        if (_graphicHandler->getPlayerInput() == QUIT)
+        if (_graphicHandler->getPlayerInput(0) == QUIT)
             break;
-        else if (_graphicHandler->getPlayerInput() >= SWAP_LIBNCURSES &&
-                 _graphicHandler->getPlayerInput() <= SWAP_LIBRAYLIB)
+        else if (_graphicHandler->getPlayerInput(0) >= SWAP_LIBNCURSES &&
+                 _graphicHandler->getPlayerInput(0) <= SWAP_LIBRAYLIB)
             handleLibSwitch();
 
         now = std::clock();
         _turn = (now - _turnStart) / (double)CLOCKS_PER_SEC;
         if (_turn > _gameSpeed)
         {
-            if (_modeHandler->handleHunger(now))
-                throwGameOverScore("Game Over: Died of hunger");
-            _player->move(_graphicHandler->getPlayerInput());
-            game_collision_e collision = checkCollision();
-            if (collision == DEATH_WALL)
-                throwGameOverScore("Game Over: Went in a wall");
-            else if (collision == DEATH_BODY)
-                throwGameOverScore("Game Over: Went in player");
-            else if (collision == EAT)
-            {
-                _player->growBody();
-                _food.reset(new Food(chooseRandomFoodPos()));
-                _modeHandler->playSound(ISoundLib::EATING);
-                _modeHandler->changeGameSpeed(SPEED_MODIFIER, *this);
-                _modeHandler->resetHungerTimer(now);
-            }
-            if (_totalSpace <= _player->getPlayerScore())
+            playerAction(MOVE);
+            checkCollisions();
+            _modeHandler->handleHunger(now, _arrayPlayer[0].get(), _arrayPlayer[1].get());
+            checkPlayerState();
+            if (_modeHandler->getIsMultiOff() && _totalSpace <= _arrayPlayer[0]->getPlayerScore())
                 throwGameOverScore("Game Win");
-            _graphicHandler->drawPlayer(*_player);
+            _graphicHandler->clearBoard();
+            playerAction(DRAW);
             _graphicHandler->drawFood(_food->getPos());
-            _modeHandler->updateScore(_player->getPlayerScore(), this->_graphicHandler.get());
             _food = _modeHandler->handleDisappearingFood(*this, std::move(_food), now);
             _turnStart = clock();
+        }
+    }
+}
+
+void Game::playerAction(player_action_e playerAction)
+{
+    for (auto &&player : _arrayPlayer)
+    {
+        if (player == nullptr)
+            continue;
+
+        switch (playerAction)
+        {
+        case MOVE:
+            player->move(_graphicHandler->getPlayerInput(player->getPlayerIdx()));
+            break;
+        case DRAW:
+            _graphicHandler->drawPlayer(*player);
+            break;
+        case UPDATE_SCORE:
+            _modeHandler->updateScore(player->getPlayerScore(), this->_graphicHandler.get());
+            break;
         }
     }
 }
@@ -69,38 +90,101 @@ void Game::loop(void)
 void Game::handleLibSwitch()
 {
     // To redo
-    if (_graphicHandler->getPlayerInput() == SWAP_LIBNCURSES)
+    if (_graphicHandler->getPlayerInput(0) == SWAP_LIBNCURSES)
         _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBNCURSES, std::move(_graphicHandler));
-    else if (_graphicHandler->getPlayerInput() == SWAP_LIBSDL)
+    else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBSDL)
         _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBSDL, std::move(_graphicHandler));
-    else if (_graphicHandler->getPlayerInput() == SWAP_LIBRAYLIB)
+    else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBRAYLIB)
         _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBRAYLIB, std::move(_graphicHandler));
     _graphicHandler->resetPlayerInput();
     _turnStart = clock();
 }
 
-Game::game_collision_e Game::checkCollision()
+void Game::checkCollisions() const
 {
-    auto playerHeadPoint = _player->getHead();
-    if (0 > playerHeadPoint->x || playerHeadPoint->x >= _width || 0 > playerHeadPoint->y ||
-        playerHeadPoint->y >= _height)
-        return DEATH_WALL;
+    for (auto &&player : _arrayPlayer)
+    {
+        if (player == nullptr)
+            continue;
+        player->setPlayerCollision(STATE_NOTHING);
+        auto playerHeadPoint = player->getHead();
+        if (0 > playerHeadPoint->x || playerHeadPoint->x >= _width || 0 > playerHeadPoint->y ||
+            playerHeadPoint->y >= _height)
+        {
+            player->setPlayerCollision(STATE_WALL);
+            return;
+        }
+        if (*playerHeadPoint == _food->getPos())
+        {
+            player->setPlayerCollision(STATE_FOOD);
+            continue;
+        }
 
-    if (*playerHeadPoint == _food->getPos())
-        return EAT;
+        for (auto playerBodyIt = player->getHead() + 1; playerBodyIt != player->getTail(); ++playerBodyIt)
+        {
+            if (*playerBodyIt == *playerHeadPoint)
+            {
+                player->setPlayerCollision(STATE_BODY);
+                return;
+            }
+        }
+        for (auto &&otherPlayer : _arrayPlayer)
+        {
+            if (otherPlayer == nullptr || otherPlayer == player)
+                continue;
+            for (auto playerBodyIt = otherPlayer->getHead() + 1; playerBodyIt != otherPlayer->getTail(); ++playerBodyIt)
+            {
+                if (*playerBodyIt == *playerHeadPoint)
+                {
+                    player->setPlayerCollision(STATE_PLAYER);
+                    return;
+                }
+            }
+        }
+    }
+}
 
-    for (auto playerBodyIt = _player->getHead() + 1; playerBodyIt != _player->getTail(); ++playerBodyIt)
-        if (*playerBodyIt == *playerHeadPoint)
-            return DEATH_BODY;
-
-    return NOTHING;
+void Game::checkPlayerState()
+{
+    for (auto &&player : _arrayPlayer)
+    {
+        if (player == nullptr)
+            continue;
+        switch (player->getPlayerCollision())
+        {
+        case STATE_NOTHING:
+            break;
+        case STATE_WALL:
+            throwGameOverScore("Game Over: Went in wall");
+            break;
+        case STATE_BODY:
+            throwGameOverScore("Game Over: Went in itself");
+            break;
+        case STATE_FOOD:
+            player->growBody();
+            player->setHungerTimer(std::clock());
+            _food.reset(new Food(chooseRandomFoodPos()));
+            break;
+        case STATE_PLAYER:
+            throwGameOverScore("Game Over: Went in other player");
+            break;
+        case STATE_HUNGER:
+            throwGameOverScore("Game Over: Died of starvation");
+            break;
+        }
+    }
 }
 
 bool Game::isTileFree(point_t point)
 {
-    for (auto &playerPoint : _player->getBody())
-        if (playerPoint == point)
-            return false;
+    for (auto &&player : _arrayPlayer)
+    {
+        if (player == nullptr)
+            continue;
+        for (auto &playerPoint : player->getBody())
+            if (playerPoint == point)
+                return false;
+    }
     return true;
 }
 
@@ -131,7 +215,7 @@ void Game::setGameSpeed(double newSpeed)
 
 void Game::throwGameOverScore(std::string_view str) const
 {
-    throw Game::GameOverException(str, _player->getPlayerScore(), _width, _height);
+    throw Game::GameOverException(str, _arrayPlayer[0]->getPlayerScore(), _width, _height);
 }
 
 Game::~Game()

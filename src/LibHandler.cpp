@@ -7,7 +7,7 @@ LibHandler::LibHandler(int width, int height)
     : _width(width), _height(height), _currentGraphicLib(-1), _currentSoundLib(-1), _graphicLibPtr(NULL),
       _soundLibPtr(NULL)
 {
-    openLib(GRAPHIC, LIBSDL);
+    openLib(GRAPHIC, LIBRAYLIB);
     loadSymbolsGraphicLib();
 }
 

@@ -15,6 +15,16 @@ typedef enum
     QUIT,
 } player_input_t;
 
+typedef enum
+{
+    STATE_NOTHING,
+    STATE_WALL,
+    STATE_BODY,
+    STATE_FOOD,
+    STATE_PLAYER,
+    STATE_HUNGER
+} player_state_e;
+
 struct point
 {
     int x;

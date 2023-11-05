@@ -7,8 +7,8 @@
 #include <memory>
 
 ModeHandler::ModeHandler()
-    : _width(10), _height(10), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false), _isScore(false),
-      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr)
+    : _width(15), _height(15), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
+      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(true)
 {
 }
 
@@ -23,12 +23,8 @@ ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _widt
         _hungerTimer = std::clock();
     _scoreHandler =
         config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? std::make_unique<Score>(width, height) : nullptr;
-    // if (_isScore)
-    //     _scoreHandler = std::make_unique<Score>(width, height);
-    // else
-    //     _scoreHandler = nullptr;
-    // _isChangingSpeed = conf(int)(std::pow(2, (int)MenuItem::MULTI_OFF + 1) ? true : false;
-    // _isChangingSpeed = conf(int)(std::pow(2, (int)MenuItem::MULTI_LOCAL + 1) ? true : false;
+    _isMultiOff = config & (int)(std::pow(2, (int)MenuItem::MULTI_OFF)) ? true : false;
+    _isMultiLocal = config & (int)(std::pow(2, (int)MenuItem::MULTI_LOCAL)) ? true : false;
     // _isChangingSpeed = conf(int)(std::pow(2, (int)MenuItem::MULTI_NETWORK + 1) ? true : false;
     _isSound = config & (int)(std::pow(2, (int)MenuItem::SOUND)) ? true : false;
     _soundHandler = nullptr;
@@ -72,9 +68,21 @@ std::unique_ptr<Food> ModeHandler::handleDisappearingFood(Game &game, std::uniqu
     return std::make_unique<Food>(game.chooseRandomFoodPos());
 }
 
-bool ModeHandler::handleHunger(clock_t now)
+void ModeHandler::handleHunger(clock_t now, Player *player0, Player *player1)
 {
-    return (_isHunger && (((now - _hungerTimer) / (double)CLOCKS_PER_SEC) >= HUNGER_TIMER));
+    if (!_isHunger)
+        return;
+    if (player0)
+    {
+        if (((now - player0->getHungerTimer()) / (double)CLOCKS_PER_SEC) >= HUNGER_DEATH_TIMER)
+            player0->setPlayerCollision(STATE_HUNGER);
+    }
+    if (player1)
+    {
+        if (((now - player1->getHungerTimer()) / (double)CLOCKS_PER_SEC) >= HUNGER_DEATH_TIMER)
+            player1->setPlayerCollision(STATE_HUNGER);
+    }
+    // return (_isHunger && (((now - _hungerTimer) / (double)CLOCKS_PER_SEC) >= HUNGER_DEATH_TIMER));
 }
 
 void ModeHandler::resetHungerTimer(clock_t now)
@@ -124,4 +132,14 @@ int ModeHandler::getWidth() const
 int ModeHandler::getHeight() const
 {
     return _height;
+}
+
+bool ModeHandler::getIsMultiOff() const
+{
+    return _isMultiOff;
+}
+
+bool ModeHandler::getIsMultiLocal() const
+{
+    return _isMultiLocal;
 }

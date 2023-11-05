@@ -1,5 +1,6 @@
 #include "../inc/SDLGraphicLib.hpp"
 #include <SDL2/SDL.h>
+#include <iostream>
 #include <ranges>
 #include <stdexcept>
 
@@ -34,24 +35,36 @@ SDLGraphicLib::SDLGraphicLib(int width, int height) : _width(width * TILE_SIZE),
     _borders[VERTICAL_LEFT].y = 0;
 }
 
+void SDLGraphicLib::clearBoard() const
+{
+    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
+    SDL_RenderClear(_renderer);
+}
+
 void SDLGraphicLib::drawPlayer(const Player &player)
 {
     // Clear screen and render border walls
-    SDL_SetRenderDrawColor(_renderer, 0, 0, 0, 0);
-    SDL_RenderClear(_renderer);
     SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 0);
     for (auto &border : _borders)
         SDL_RenderFillRect(_renderer, &border);
 
     // Render Player
-    SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
+    if (player._playerIdx == 0)
+        SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
+    else
+        SDL_SetRenderDrawColor(_renderer, 255, 255, 0, 0);
     for (auto &point : player._body)
     {
         _rect.x = point.x * TILE_SIZE + TILE_SIZE;
         _rect.y = point.y * TILE_SIZE + TILE_SIZE;
         SDL_RenderFillRect(_renderer, &_rect);
         if (point == player._body.front())
-            SDL_SetRenderDrawColor(_renderer, 175, 0, 0, 0);
+        {
+            if (player._playerIdx == 0)
+                SDL_SetRenderDrawColor(_renderer, 175, 0, 0, 0);
+            else
+                SDL_SetRenderDrawColor(_renderer, 175, 175, 0, 0);
+        }
     }
 }
 
@@ -78,32 +91,41 @@ void SDLGraphicLib::registerPlayerInput()
         {
         case SDL_KEYDOWN:
             if (_event.key.keysym.scancode == SDL_SCANCODE_W)
-                _playerInput = UP;
-            else if (_event.key.keysym.scancode == SDL_SCANCODE_S)
-                _playerInput = DOWN;
-            else if (_event.key.keysym.scancode == SDL_SCANCODE_A)
-                _playerInput = LEFT;
-            else if (_event.key.keysym.scancode == SDL_SCANCODE_D)
-                _playerInput = RIGHT;
+                _arrayPlayerInput[0] = UP;
+            if (_event.key.keysym.scancode == SDL_SCANCODE_S)
+                _arrayPlayerInput[0] = DOWN;
+            if (_event.key.keysym.scancode == SDL_SCANCODE_A)
+                _arrayPlayerInput[0] = LEFT;
+            if (_event.key.keysym.scancode == SDL_SCANCODE_D)
+                _arrayPlayerInput[0] = RIGHT;
+            if (_event.key.keysym.scancode == SDL_SCANCODE_UP)
+                _arrayPlayerInput[1] = UP;
+            if (_event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+                _arrayPlayerInput[1] = DOWN;
+            if (_event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+                _arrayPlayerInput[1] = LEFT;
+            if (_event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+                _arrayPlayerInput[1] = RIGHT;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_1)
-                _playerInput = SWAP_LIBNCURSES;
+                _arrayPlayerInput[0] = SWAP_LIBNCURSES;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_3)
-                _playerInput = SWAP_LIBRAYLIB;
+                _arrayPlayerInput[0] = SWAP_LIBRAYLIB;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                _playerInput = QUIT;
+                _arrayPlayerInput[0] = QUIT;
             break;
         }
     }
 }
 
-player_input_t SDLGraphicLib::getPlayerInput() const
+player_input_t SDLGraphicLib::getPlayerInput(int playerIdx) const
 {
-    return _playerInput;
+    return _arrayPlayerInput[playerIdx];
 }
 
 void SDLGraphicLib::resetPlayerInput()
 {
-    _playerInput = DEFAULT;
+    _arrayPlayerInput[0] = DEFAULT;
+    _arrayPlayerInput[1] = DEFAULT;
 }
 
 SDLGraphicLib::~SDLGraphicLib()

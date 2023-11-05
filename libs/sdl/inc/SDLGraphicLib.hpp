@@ -12,7 +12,8 @@ class SDLGraphicLib : public IGraphicLib
     ~SDLGraphicLib();
     SDLGraphicLib(const SDLGraphicLib &);
     SDLGraphicLib &operator=(const SDLGraphicLib &);
-    player_input_t getPlayerInput() const;
+    void clearBoard() const;
+    player_input_t getPlayerInput(int) const;
     void resetPlayerInput();
     void registerPlayerInput();
     void drawPlayer(const Player &);

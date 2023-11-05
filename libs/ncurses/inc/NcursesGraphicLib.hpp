@@ -4,6 +4,10 @@
 #include <memory>
 #include <ncurses.h>
 
+#define PLAYER_0_PAIR 1
+#define PLAYER_1_PAIR 2
+#define FOOD_PAIR 2
+
 constexpr char playerIcon = '*';
 constexpr char playerHeadIcon = '@';
 constexpr char foodIcon = 'o';
@@ -16,12 +20,13 @@ class NcursesGraphicLib : public IGraphicLib
     ~NcursesGraphicLib();
     NcursesGraphicLib(const NcursesGraphicLib &);
     NcursesGraphicLib &operator=(const NcursesGraphicLib &);
-    player_input_t getPlayerInput() const;
+    void clearBoard() const;
+    player_input_t getPlayerInput(int) const;
     void resetPlayerInput();
     void registerPlayerInput();
     void drawPlayer(const Player &);
-    void drawScores(int, int);
     void drawFood(const point_t &);
+    void drawScores(int, int);
 
   private:
     NcursesGraphicLib() = delete;

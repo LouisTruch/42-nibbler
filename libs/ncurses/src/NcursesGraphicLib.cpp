@@ -9,14 +9,27 @@ NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _he
     noecho();    // Prevent keypress being printed on screen
     curs_set(0); // Remove cursor from screen
     timeout(0);
+    start_color();
+    if (has_colors())
+    {
+        init_pair(PLAYER_0_PAIR, COLOR_RED, 0);
+        init_pair(PLAYER_1_PAIR, COLOR_YELLOW, 0);
+        init_pair(FOOD_PAIR, COLOR_GREEN, 0);
+    }
 
     _board = newwin(_height, _width, 0, 0);
     _scoreBoard = newwin(3, 30, 1, _width + 1);
-    // keypad(_board, true);
+    keypad(_board, true);
     // nodelay(_board, TRUE);
     wtimeout(_board, 0); // Set non blocking call of user input
     box(_board, boxIcon, boxIcon);
     wrefresh(_board);
+}
+
+void NcursesGraphicLib::clearBoard() const
+{
+    wclear(_board);
+    box(_board, boxIcon, boxIcon);
 }
 
 void NcursesGraphicLib::registerPlayerInput()
@@ -26,33 +39,49 @@ void NcursesGraphicLib::registerPlayerInput()
     switch (input)
     {
     case 'w':
-        _playerInput = UP;
+        _arrayPlayerInput[0] = UP;
         break;
     case 's':
-        _playerInput = DOWN;
+        _arrayPlayerInput[0] = DOWN;
         break;
     case 'a':
-        _playerInput = LEFT;
+        _arrayPlayerInput[0] = LEFT;
         break;
     case 'd':
-        _playerInput = RIGHT;
+        _arrayPlayerInput[0] = RIGHT;
         break;
     case '2':
-        _playerInput = SWAP_LIBSDL;
+        _arrayPlayerInput[0] = SWAP_LIBSDL;
         break;
     case '3':
-        _playerInput = SWAP_LIBRAYLIB;
+        _arrayPlayerInput[0] = SWAP_LIBRAYLIB;
+        break;
+    case KEY_UP:
+        _arrayPlayerInput[1] = UP;
+        break;
+    case KEY_DOWN:
+        _arrayPlayerInput[1] = DOWN;
+        break;
+    case KEY_LEFT:
+        _arrayPlayerInput[1] = LEFT;
+        break;
+    case KEY_RIGHT:
+        _arrayPlayerInput[1] = RIGHT;
         break;
     case 27:
-        _playerInput = QUIT;
+        _arrayPlayerInput[0] = QUIT;
         break;
     }
 }
 
 void NcursesGraphicLib::drawPlayer(const Player &player)
 {
-    wclear(_board);
-    box(_board, boxIcon, boxIcon);
+    // if (has_colors())
+    // {
+    if (player._playerIdx == 0)
+        wattron(_board, COLOR_PAIR(PLAYER_0_PAIR));
+    else
+        wattron(_board, COLOR_PAIR(PLAYER_1_PAIR));
     for (auto &point : player._body)
     {
         if (point == player._body.front())
@@ -60,6 +89,8 @@ void NcursesGraphicLib::drawPlayer(const Player &player)
         else
             mvwaddch(_board, point.y + 1, point.x + 1, playerIcon);
     }
+    wattroff(_board, COLOR_PAIR(PLAYER_0_PAIR));
+    wattroff(_board, COLOR_PAIR(PLAYER_1_PAIR));
 }
 
 void NcursesGraphicLib::drawScores(int score, int highScore)
@@ -76,17 +107,20 @@ void NcursesGraphicLib::drawScores(int score, int highScore)
 
 void NcursesGraphicLib::drawFood(const point_t &point)
 {
+    wattron(_board, COLOR_PAIR(FOOD_PAIR));
     mvwaddch(_board, point.y + 1, point.x + 1, foodIcon);
+    wattroff(_board, COLOR_PAIR(FOOD_PAIR));
 }
 
-player_input_t NcursesGraphicLib::getPlayerInput() const
+player_input_t NcursesGraphicLib::getPlayerInput(int playerIdx) const
 {
-    return _playerInput;
+    return _arrayPlayerInput[playerIdx];
 }
 
 void NcursesGraphicLib::resetPlayerInput()
 {
-    _playerInput = DEFAULT;
+    _arrayPlayerInput[0] = DEFAULT;
+    _arrayPlayerInput[1] = DEFAULT;
 }
 
 NcursesGraphicLib::~NcursesGraphicLib()
