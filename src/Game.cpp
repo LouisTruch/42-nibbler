@@ -130,7 +130,6 @@ void Game::checkCollisions() const
             player->setPlayerCollision(STATE_FOOD);
             continue;
         }
-
         for (auto playerBodyIt = player->getHead() + 1; playerBodyIt != player->getTail(); ++playerBodyIt)
         {
             if (*playerBodyIt == *playerHeadPoint)

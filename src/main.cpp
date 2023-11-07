@@ -34,7 +34,7 @@ int main(int argc, char **argv)
     }
     catch (const std::exception &e)
     {
-        std::cerr << "In main(): " << e.what() << std::endl;
+        std::cerr << "In main.cpp: " << e.what() << std::endl;
     }
     return EXIT_SUCCESS;
 }
