@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-Client::Client(const char *ip)
+Client::Client(const char *ip) : _isSound(false)
 {
     _fd = socket(AF_INET, SOCK_STREAM, 0);
     if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -37,13 +37,19 @@ void Client::readInitData()
     _width = std::stoi(buffer, nullptr, 10);
     buffer.erase(0, 2);
     _height = std::stoi(buffer, nullptr, 10);
+    buffer.erase(0, 3);
+    _isSound = std::stoi(buffer, nullptr, 10);
 }
 
 void Client::instantiatePtrs()
 {
     _libHandler = std::make_unique<LibHandler>(_width, _height);
     _graphicHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
-    // if sound make soundhandler
+    if (_isSound)
+    {
+        _libHandler->openLib(LibHandler::SOUND, LibHandler::LIBSOUND);
+        _soundHandler = _libHandler->makeSoundLib();
+    }
 }
 
 void Client::readData()
@@ -56,10 +62,7 @@ void Client::readData()
     {
         byteRead = recv(_fd, &bufferRecv[0], bufferRecv.size(), 0);
         if (byteRead < 0)
-        {
-            std::cerr << "recv error\n";
-            break;
-        }
+            throw std::runtime_error("In Client::readData(): recv()");
 
         try
         {
@@ -71,10 +74,7 @@ void Client::readData()
         }
         _graphicHandler->registerPlayerInput();
         if (_graphicHandler->getPlayerInput(0) == QUIT)
-        {
-            std::cout << "ici\n";
             break;
-        }
         else if (_graphicHandler->getPlayerInput(0) >= SWAP_LIBNCURSES &&
                  _graphicHandler->getPlayerInput(0) <= SWAP_LIBRAYLIB)
         {
@@ -85,6 +85,8 @@ void Client::readData()
         {
             bufferSend += std::to_string(_graphicHandler->getPlayerInput(0));
             byteSent = send(_fd, bufferSend.c_str(), 2, 0);
+            if (byteSent < 0)
+                throw std::runtime_error("In Client::readData(): send");
             bufferSend.clear();
         }
     }
@@ -154,8 +156,8 @@ void Client::constructDrawables(std::string buffer)
     foodPoint.y = std::stoi(buffer, 0, 10);
     _graphicHandler->clearBoard();
     // Add player index to player constructor
-    _graphicHandler->drawPlayer(Player(vecPlayer0Body, player0Dir));
-    _graphicHandler->drawPlayer(Player(vecPlayer1Body, player1Dir));
+    _graphicHandler->drawPlayer(Player(0, vecPlayer0Body, player0Dir));
+    _graphicHandler->drawPlayer(Player(1, vecPlayer1Body, player1Dir));
     _graphicHandler->drawFood(foodPoint);
 }
 
@@ -185,6 +187,6 @@ Client::~Client()
 {
     close(_fd);
     _libHandler->destroyGraphicLib(std::move(_graphicHandler));
-    // if (_modeHandler->getIsSound())
-    // _libHandler->destroySoundLib(_modeHandler->getSoundHandler());
+    if (_isSound)
+        _libHandler->destroySoundLib(std::move(_soundHandler));
 }

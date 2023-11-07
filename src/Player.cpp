@@ -72,11 +72,11 @@ Player::Player(int x, int y, int size)
     _hungerTimer = std::clock();
 }
 
-Player::Player(const body_t &playerBody, int dir)
+Player::Player(int playerIdx, const body_t &playerBody, int dir)
 {
     _body = playerBody;
     _currentDir = dir;
-    _playerIdx = 0;
+    _playerIdx = playerIdx;
 }
 
 Player::~Player()

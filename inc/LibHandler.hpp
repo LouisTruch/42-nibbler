@@ -35,7 +35,7 @@ class LibHandler
     std::unique_ptr<IGraphicLib> makeGraphicLib(int, int);
     void destroyGraphicLib(std::unique_ptr<IGraphicLib>);
 
-    std::unique_ptr<ISoundLib> makeSoundLib(const Game &);
+    std::unique_ptr<ISoundLib> makeSoundLib();
     void destroySoundLib(std::unique_ptr<ISoundLib>);
 
     ~LibHandler();
@@ -60,7 +60,7 @@ class LibHandler
     typedef void (*destroyGraphicLibFunc)(std::unique_ptr<IGraphicLib>);
     destroyGraphicLibFunc _deleterGraphicFunc;
 
-    typedef std::unique_ptr<ISoundLib> (*makeSoundLibFunc)(const Game &);
+    typedef std::unique_ptr<ISoundLib> (*makeSoundLibFunc)();
     makeSoundLibFunc _makerSoundFunc;
     typedef void (*destroySoundLibFunc)(std::unique_ptr<ISoundLib>);
     destroySoundLibFunc _deleterSoundFunc;

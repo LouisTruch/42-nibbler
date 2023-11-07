@@ -24,8 +24,6 @@ class ModeHandler
     ModeHandler();
     ModeHandler(int_gameConfig_t, int, int);
     ~ModeHandler();
-    ModeHandler(const ModeHandler &);
-    ModeHandler &operator=(const ModeHandler &);
     void changeGameSpeed(double, Game &);
     std::unique_ptr<Food> handleDisappearingFood(Game &, std::unique_ptr<Food>, clock_t);
     void handleHunger(clock_t, Player *, Player *);
@@ -41,6 +39,11 @@ class ModeHandler
     bool getIsMultiOff() const;
     bool getIsMultiLocal() const;
     bool getIsMultiNetwork() const;
+    void instantiateServer();
+
+  private:
+    ModeHandler(const ModeHandler &) = delete;
+    ModeHandler &operator=(const ModeHandler &) = delete;
 
   private:
     int _width;

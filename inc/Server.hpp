@@ -20,7 +20,7 @@ class Server
     ~Server();
     void waitConnection();
     [[nodiscard("READ DATA FROM CLIENT")]] int readData();
-    void sendInitData(int, int) const;
+    void sendInitData(int, int, bool) const;
     void sendGameData(std::string_view) const;
 
   private:

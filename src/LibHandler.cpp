@@ -93,28 +93,12 @@ void LibHandler::destroyGraphicLib(std::unique_ptr<IGraphicLib> gLib)
     _deleterGraphicFunc(std::move(gLib));
 }
 
-std::unique_ptr<ISoundLib> LibHandler::makeSoundLib(const Game &game)
+std::unique_ptr<ISoundLib> LibHandler::makeSoundLib()
 {
-    return _makerSoundFunc(game);
+    return _makerSoundFunc();
 }
 
 void LibHandler::destroySoundLib(std::unique_ptr<ISoundLib> sLib)
 {
     _deleterSoundFunc(std::move(sLib));
 }
-
-// LibHandler::LibHandler(const LibHandler &other)
-// {
-//     *this = other;
-// }
-
-// LibHandler &LibHandler::operator=(const LibHandler &other)
-// {
-//     if (&other == this)
-//         return *this;
-//     _lib = other._lib;
-//     _currentLib = other._currentLib;
-//     _makerGraphicFunc = other._makerGraphicFunc;
-//     _deleterGraphicFunc = other._deleterGraphicFunc;
-//     return *this;
-// }

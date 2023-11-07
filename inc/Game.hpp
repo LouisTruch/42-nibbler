@@ -50,7 +50,7 @@ class Game
     double getGameSpeed() const;
     void setGameSpeed(double);
     std::string constructGameData() const;
-    void handleMultiplayerInput();
+    int handleMultiplayerInput();
 
   private:
     Game() = delete;

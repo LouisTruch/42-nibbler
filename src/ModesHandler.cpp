@@ -9,19 +9,22 @@
 // This constructor is for debugging purpose
 ModeHandler::ModeHandler()
     : _width(21), _height(20), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
-      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(false),
+      _scoreHandler(nullptr), _isSound(true), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(false),
       _isMultiNetwork(true)
 {
-    try
+    if (_isMultiNetwork)
     {
-        _server = std::make_unique<Server>();
-        serverAction(Server::WAIT_CONNECTION);
-        serverAction(Server::SEND_INIT_DATA);
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "In ModeHandler():" << e.what() << std::endl;
-        _server = nullptr;
+        try
+        {
+            _server = std::make_unique<Server>();
+            serverAction(Server::WAIT_CONNECTION);
+            serverAction(Server::SEND_INIT_DATA);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "In ModeHandler():" << e.what() << std::endl;
+            _server = nullptr;
+        }
     }
 }
 
@@ -41,7 +44,6 @@ ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _widt
     _isSound = config & (int)(std::pow(2, (int)MenuItem::SOUND)) ? true : false;
     _soundHandler = nullptr;
     _isMultiNetwork = config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)) ? true : false;
-    // _server = config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)) ? std::make_unique<Server>() : nullptr;
     // instantiateServer()
     if (config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)))
     {
@@ -63,23 +65,6 @@ ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _widt
 
 ModeHandler::~ModeHandler()
 {
-}
-
-ModeHandler::ModeHandler(const ModeHandler &other)
-{
-    *this = other;
-}
-
-ModeHandler &ModeHandler::operator=(const ModeHandler &other)
-{
-    if (&other == this)
-        return *this;
-    _isChangingSpeed = other._isChangingSpeed;
-    _isDisappearingFood = other._isDisappearingFood;
-    _foodTimer = other._foodTimer;
-    _isSound = other._isSound;
-    _soundHandler = nullptr;
-    return *this;
 }
 
 void ModeHandler::changeGameSpeed(double coeff, Game &game)
@@ -149,7 +134,7 @@ player_input_t ModeHandler::serverAction(Server::server_action_e action, std::st
         _server->waitConnection();
         break;
     case Server::SEND_INIT_DATA:
-        _server->sendInitData(_width, _height);
+        _server->sendInitData(_width, _height, _isSound);
         break;
     case Server::SEND_GAME_DATA:
         _server->sendGameData(gameData);
@@ -166,6 +151,8 @@ player_input_t ModeHandler::serverAction(Server::server_action_e action, std::st
             catch (const std::exception &e)
             {
                 std::cerr << "In ModeHandler::serverAction(): " << e.what() << std::endl;
+                std::cerr << "Client probably rqed..." << std::endl;
+                return QUIT;
             }
         }
         break;

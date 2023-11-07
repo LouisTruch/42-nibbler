@@ -55,13 +55,16 @@ void Server::waitConnection()
     }
 }
 
-void Server::sendInitData(int width, int height) const
+void Server::sendInitData(int width, int height, bool isSound) const
 {
     std::string buffer;
     buffer += std::to_string(width);
     buffer.append(" ");
     buffer += std::to_string(height);
-    send(_clientFd, buffer.c_str(), buffer.size(), 0);
+    buffer.append(" ");
+    buffer += isSound ? '1' : '0';
+    if (send(_clientFd, buffer.c_str(), buffer.size(), 0) < 0)
+        throw std::runtime_error("In Server::sendInitData(): send()");
 }
 
 // Return client input directly in int form

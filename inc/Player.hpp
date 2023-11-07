@@ -8,7 +8,7 @@ class Player
 {
   public:
     Player(int, int, int);
-    Player(const body_t &, int);
+    Player(int, const body_t &, int);
     ~Player();
     Player(const Player &);
     Player &operator=(const Player &);

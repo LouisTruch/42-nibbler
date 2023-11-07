@@ -17,7 +17,7 @@ Game::Game(std::unique_ptr<ModeHandler> modeHandler)
     if (_modeHandler->getIsSound())
     {
         _libHandler->openLib(LibHandler::SOUND, LibHandler::LIBSOUND);
-        _modeHandler->setSoundHandler(_libHandler->makeSoundLib(*this));
+        _modeHandler->setSoundHandler(_libHandler->makeSoundLib());
     }
     initPlayer();
 }
@@ -30,8 +30,8 @@ void Game::initPlayer()
         _arrayPlayer[1] = nullptr;
         return;
     }
-    _arrayPlayer[0] = std::make_unique<Player>(0, _height / 2, DEFAULT_PLAYER_SIZE);
-    _arrayPlayer[1] = std::make_unique<Player>(_width - 1, _height / 2, DEFAULT_PLAYER_SIZE);
+    _arrayPlayer[0] = std::make_unique<Player>(1, _height / 2, DEFAULT_PLAYER_SIZE);
+    _arrayPlayer[1] = std::make_unique<Player>(_width - 2, _height / 2, DEFAULT_PLAYER_SIZE);
 }
 
 void Game::loop(void)
@@ -51,7 +51,9 @@ void Game::loop(void)
         else
             _arrayPlayer[0]->setDirection(_graphicHandler->getPlayerInput(0));
 
-        handleMultiplayerInput();
+        // Player quit
+        if (handleMultiplayerInput())
+            break;
 
         now = std::clock();
         _turn = (now - _turnStart) / (double)CLOCKS_PER_SEC;
@@ -67,8 +69,8 @@ void Game::loop(void)
             playersAction(DRAW);
             _graphicHandler->drawFood(_food->getPos());
             _food = _modeHandler->handleDisappearingFood(*this, std::move(_food), now);
-            _turnStart = clock();
             _modeHandler->serverAction(Server::SEND_GAME_DATA, constructGameData());
+            _turnStart = clock();
         }
     }
 }
@@ -83,7 +85,6 @@ void Game::playersAction(player_action_e playerAction)
         switch (playerAction)
         {
         case MOVE:
-            // player->move(_graphicHandler->getPlayerInput(player->getPlayerIdx()));
             player->move();
             break;
         case DRAW:
@@ -225,7 +226,7 @@ point_t Game::generateRandomPoint()
     return {rngWidth(_rng), (rngHeight(_rng))};
 }
 
-void Game::handleMultiplayerInput()
+int Game::handleMultiplayerInput()
 {
     player_input_t clientInput;
     if (!_modeHandler->getIsMultiLocal())
@@ -234,8 +235,11 @@ void Game::handleMultiplayerInput()
             clientInput = _graphicHandler->getPlayerInput(1);
         if (_modeHandler->getIsMultiNetwork())
             clientInput = _modeHandler->serverAction(Server::READ_CLIENT_DATA, "", _arrayPlayer[1].get());
+        if (clientInput == QUIT)
+            return -1;
         _arrayPlayer[1]->setDirection(clientInput);
     }
+    return 0;
 }
 
 std::string Game::constructGameData() const
