@@ -23,7 +23,6 @@ void RaylibGraphicLib::drawPlayer(const Player &player)
         playerColor = {255, 0, 0, 255};
     else
         playerColor = {255, 255, 0, 255};
-    BeginDrawing();
     for (auto current = player._body.begin(); current != player._body.end(); current++)
     {
         if (current == player._body.begin())
@@ -33,7 +32,6 @@ void RaylibGraphicLib::drawPlayer(const Player &player)
         else
             drawBody(current, playerColor);
     }
-    EndDrawing();
 }
 
 void RaylibGraphicLib::drawHead(int x, int y, int dir, Color playerColor)
@@ -138,7 +136,6 @@ void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current, Co
 
 void RaylibGraphicLib::drawFood(const point_t &point)
 {
-    BeginDrawing();
     drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x, point.y, WHITE);
     EndDrawing();
 }

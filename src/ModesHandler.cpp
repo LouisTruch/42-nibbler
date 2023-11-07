@@ -7,8 +7,8 @@
 #include <memory>
 
 ModeHandler::ModeHandler()
-    : _width(15), _height(15), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
-      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(true)
+    : _width(20), _height(20), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
+      _scoreHandler(nullptr), _isSound(true), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(true)
 {
 }
 
@@ -82,7 +82,6 @@ void ModeHandler::handleHunger(clock_t now, Player *player0, Player *player1)
         if (((now - player1->getHungerTimer()) / (double)CLOCKS_PER_SEC) >= HUNGER_DEATH_TIMER)
             player1->setPlayerCollision(STATE_HUNGER);
     }
-    // return (_isHunger && (((now - _hungerTimer) / (double)CLOCKS_PER_SEC) >= HUNGER_DEATH_TIMER));
 }
 
 void ModeHandler::resetHungerTimer(clock_t now)

@@ -5,7 +5,7 @@ class ISoundLib
   public:
     typedef enum sound_type
     {
-        EATING,
+        SOUND_EAT,
     } sound_type_e;
 
   public:

@@ -2,6 +2,7 @@
 #include "../inc/IGraphicLib.hpp"
 #include "../inc/ISoundLib.hpp"
 #include <memory>
+#include <string>
 #include <string_view>
 
 class Game;
@@ -68,4 +69,16 @@ class LibHandler
     static constexpr std::string_view LIB_PATH[4] = {"./libs/ncurses/libncurses.so", "./libs/sdl/libsdl.so",
                                                      "./libs/raylib/libraylib.so",
                                                      "./libs/raylib/sound/libsoundraylib.so"};
+
+  public:
+    class LibException : public std::exception
+    {
+      private:
+        std::string _msg;
+
+      public:
+        LibException(std::string_view);
+        virtual const char *what() const throw();
+        ~LibException() throw() = default;
+    };
 };

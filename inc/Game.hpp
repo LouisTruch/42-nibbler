@@ -39,10 +39,10 @@ class Game
 
     void initPlayer();
     void loop();
-    void playerAction(player_action_e);
+    void playersAction(player_action_e);
     void checkCollisions() const;
     void checkPlayerState();
-    void handleLibSwitch();
+    int handleLibSwitch();
     point_t chooseRandomFoodPos();
     point_t generateRandomPoint();
     bool isTileFree(point_t);

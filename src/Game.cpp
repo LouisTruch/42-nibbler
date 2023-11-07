@@ -13,7 +13,7 @@ Game::Game(std::unique_ptr<ModeHandler> modeHandler)
     // +2 to includes border walls
     _graphicHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
     _food = std::make_unique<Food>(chooseRandomFoodPos());
-    // Create Sound Handler in ModeHandler if needed
+
     if (_modeHandler->getIsSound())
     {
         _libHandler->openLib(LibHandler::SOUND, LibHandler::LIBSOUND);
@@ -44,20 +44,21 @@ void Game::loop(void)
             break;
         else if (_graphicHandler->getPlayerInput(0) >= SWAP_LIBNCURSES &&
                  _graphicHandler->getPlayerInput(0) <= SWAP_LIBRAYLIB)
-            handleLibSwitch();
+            if (handleLibSwitch())
+                break;
 
         now = std::clock();
         _turn = (now - _turnStart) / (double)CLOCKS_PER_SEC;
         if (_turn > _gameSpeed)
         {
-            playerAction(MOVE);
+            playersAction(MOVE);
             checkCollisions();
             _modeHandler->handleHunger(now, _arrayPlayer[0].get(), _arrayPlayer[1].get());
             checkPlayerState();
             if (_modeHandler->getIsMultiOff() && _totalSpace <= _arrayPlayer[0]->getPlayerScore())
                 throwGameOverScore("Game Win");
             _graphicHandler->clearBoard();
-            playerAction(DRAW);
+            playersAction(DRAW);
             _graphicHandler->drawFood(_food->getPos());
             _food = _modeHandler->handleDisappearingFood(*this, std::move(_food), now);
             _turnStart = clock();
@@ -65,7 +66,7 @@ void Game::loop(void)
     }
 }
 
-void Game::playerAction(player_action_e playerAction)
+void Game::playersAction(player_action_e playerAction)
 {
     for (auto &&player : _arrayPlayer)
     {
@@ -87,17 +88,27 @@ void Game::playerAction(player_action_e playerAction)
     }
 }
 
-void Game::handleLibSwitch()
+int Game::handleLibSwitch()
 {
-    // To redo
-    if (_graphicHandler->getPlayerInput(0) == SWAP_LIBNCURSES)
-        _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBNCURSES, std::move(_graphicHandler));
-    else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBSDL)
-        _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBSDL, std::move(_graphicHandler));
-    else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBRAYLIB)
-        _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBRAYLIB, std::move(_graphicHandler));
-    _graphicHandler->resetPlayerInput();
-    _turnStart = clock();
+    // To refactor
+    try
+    {
+        if (_graphicHandler->getPlayerInput(0) == SWAP_LIBNCURSES)
+            _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBNCURSES, std::move(_graphicHandler));
+        else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBSDL)
+            _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBSDL, std::move(_graphicHandler));
+        else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBRAYLIB)
+            _graphicHandler =
+                _libHandler->switchGraphicLib((LibHandler::lib_name_e)(SWAP_LIBRAYLIB - 3), std::move(_graphicHandler));
+        _graphicHandler->resetPlayerInput();
+        _turnStart = clock();
+        return 0;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "In Game: handleLibSwitch(): " << std::endl;
+        return 1;
+    }
 }
 
 void Game::checkCollisions() const
@@ -111,7 +122,7 @@ void Game::checkCollisions() const
         if (0 > playerHeadPoint->x || playerHeadPoint->x >= _width || 0 > playerHeadPoint->y ||
             playerHeadPoint->y >= _height)
         {
-            player->setPlayerCollision(STATE_WALL);
+            player->setPlayerCollision(STATE_WALL_COLL);
             return;
         }
         if (*playerHeadPoint == _food->getPos())
@@ -124,7 +135,7 @@ void Game::checkCollisions() const
         {
             if (*playerBodyIt == *playerHeadPoint)
             {
-                player->setPlayerCollision(STATE_BODY);
+                player->setPlayerCollision(STATE_BODY_COLL);
                 return;
             }
         }
@@ -132,11 +143,11 @@ void Game::checkCollisions() const
         {
             if (otherPlayer == nullptr || otherPlayer == player)
                 continue;
-            for (auto playerBodyIt = otherPlayer->getHead() + 1; playerBodyIt != otherPlayer->getTail(); ++playerBodyIt)
+            for (auto playerBodyIt = otherPlayer->getHead(); playerBodyIt != otherPlayer->getTail(); ++playerBodyIt)
             {
                 if (*playerBodyIt == *playerHeadPoint)
                 {
-                    player->setPlayerCollision(STATE_PLAYER);
+                    player->setPlayerCollision(STATE_PLAYER_COLL);
                     return;
                 }
             }
@@ -154,18 +165,19 @@ void Game::checkPlayerState()
         {
         case STATE_NOTHING:
             break;
-        case STATE_WALL:
+        case STATE_WALL_COLL:
             throwGameOverScore("Game Over: Went in wall");
             break;
-        case STATE_BODY:
+        case STATE_BODY_COLL:
             throwGameOverScore("Game Over: Went in itself");
             break;
         case STATE_FOOD:
+            _modeHandler->playSound(ISoundLib::SOUND_EAT);
             player->growBody();
             player->setHungerTimer(std::clock());
             _food.reset(new Food(chooseRandomFoodPos()));
             break;
-        case STATE_PLAYER:
+        case STATE_PLAYER_COLL:
             throwGameOverScore("Game Over: Went in other player");
             break;
         case STATE_HUNGER:
@@ -173,6 +185,17 @@ void Game::checkPlayerState()
             break;
         }
     }
+}
+
+point_t Game::chooseRandomFoodPos()
+{
+    point_t point = generateRandomPoint();
+    for (int pass = 0; !isTileFree((point = generateRandomPoint())); pass++)
+    {
+        if (pass == 5000)
+            return {-1, -1};
+    }
+    return point;
 }
 
 bool Game::isTileFree(point_t point)
@@ -186,14 +209,6 @@ bool Game::isTileFree(point_t point)
                 return false;
     }
     return true;
-}
-
-point_t Game::chooseRandomFoodPos()
-{
-    point_t point = generateRandomPoint();
-    while (!isTileFree((point = generateRandomPoint())))
-        ;
-    return point;
 }
 
 point_t Game::generateRandomPoint()
@@ -221,7 +236,8 @@ void Game::throwGameOverScore(std::string_view str) const
 Game::~Game()
 {
     _libHandler->destroyGraphicLib(std::move(_graphicHandler));
-    // _libHandler->destroySoundLib(_modeHandler->getSoundHandler());
+    if (_modeHandler->getIsSound())
+        _libHandler->destroySoundLib(_modeHandler->getSoundHandler());
 }
 
 Game::Game(const Game &other)

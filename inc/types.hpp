@@ -18,10 +18,10 @@ typedef enum
 typedef enum
 {
     STATE_NOTHING,
-    STATE_WALL,
-    STATE_BODY,
+    STATE_WALL_COLL,
+    STATE_BODY_COLL,
     STATE_FOOD,
-    STATE_PLAYER,
+    STATE_PLAYER_COLL,
     STATE_HUNGER
 } player_state_e;
 
