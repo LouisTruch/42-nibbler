@@ -1,3 +1,4 @@
+#include "../inc/Client.hpp"
 #include "../inc/Game.hpp"
 #include "../inc/LibHandler.hpp"
 #include "../inc/Menu/Menu.hpp"
@@ -5,17 +6,45 @@
 #include "../inc/Score.hpp"
 #include <iostream>
 
+// Port 7777 for multiplayer
+#include <cstring>
+#include <netinet/in.h> // struct sockaddr_in
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <unistd.h> // close()
+
 int main(int argc, char **argv)
 {
-    try
+    if (!argv[2])
     {
-        checkArgs(argc, argv);
+        try
+        {
+            // Need to add parsing when only joining a game
+            Client client(argv[1]);
+            client.readInitData();
+            client.instantiatePtrs();
+            client.readData();
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "In main.cpp: " << e.what() << std::endl;
+        }
+        return 0;
     }
-    catch (std::exception const &e)
-    {
-        std::cerr << "In main.cpp: Parsing error: " << e.what() << std::endl;
-        exit(EXIT_FAILURE);
-    }
+    // else
+    // {
+    //     server();
+    //     return 0;
+    // }
+    // try
+    // {
+    //     checkArgs(argc, argv);
+    // }
+    // catch (std::exception const &e)
+    // {
+    //     std::cerr << "In main.cpp: Parsing error: " << e.what() << std::endl;
+    //     exit(EXIT_FAILURE);
+    // }
 
     // Menu menu;
     // menu.printMenu();

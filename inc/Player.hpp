@@ -2,16 +2,18 @@
 #include "types.hpp"
 #include <bits/types/clock_t.h>
 #include <deque>
+#include <vector>
 
 class Player
 {
   public:
     Player(int, int, int);
+    Player(const body_t &, int);
     ~Player();
     Player(const Player &);
     Player &operator=(const Player &);
     void setDirection(player_input_t);
-    void move(player_input_t);
+    void move();
     void growBody();
     body_t getBody() const;
     typedef body_t::const_iterator it_body;
@@ -19,6 +21,7 @@ class Player
     it_body getTail() const;
     int getPlayerIdx() const;
     int getPlayerScore() const;
+    int getCurrentDir() const;
     int _currentDir;
     body_t _body;
     int _playerIdx;

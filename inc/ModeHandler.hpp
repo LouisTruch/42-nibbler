@@ -4,10 +4,12 @@
 #include "IGraphicLib.hpp"
 #include "ISoundLib.hpp"
 #include "Score.hpp"
+#include "Server.hpp"
 #include "types.hpp"
 #include <array>
 #include <ctime>
 #include <memory>
+#include <optional>
 
 class Game;
 
@@ -32,11 +34,13 @@ class ModeHandler
     void setSoundHandler(std::unique_ptr<ISoundLib>);
     void playSound(ISoundLib::sound_type_e) const;
     void updateScore(int, IGraphicLib *);
+    player_input_t serverAction(Server::server_action_e, std::string = "", Player * = nullptr);
     std::unique_ptr<ISoundLib> getSoundHandler();
     int getWidth() const;
     int getHeight() const;
     bool getIsMultiOff() const;
     bool getIsMultiLocal() const;
+    bool getIsMultiNetwork() const;
 
   private:
     int _width;
@@ -51,4 +55,6 @@ class ModeHandler
     std::unique_ptr<ISoundLib> _soundHandler;
     bool _isMultiOff;
     bool _isMultiLocal;
+    bool _isMultiNetwork;
+    std::unique_ptr<Server> _server;
 };

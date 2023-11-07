@@ -6,12 +6,12 @@ typedef enum
 {
     UP = -1,
     DOWN = 1,
+    DEFAULT = 0,
     LEFT = -2,
     RIGHT = 2,
     SWAP_LIBNCURSES,
     SWAP_LIBSDL,
     SWAP_LIBRAYLIB,
-    DEFAULT,
     QUIT,
 } player_input_t;
 

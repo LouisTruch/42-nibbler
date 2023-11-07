@@ -3,14 +3,14 @@
 
 void Player::setDirection(player_input_t input)
 {
+    if (input == 0 || input > 2 || input < -2)
+        return;
     if (_currentDir + input != 0)
         _currentDir = input;
 }
 
-void Player::move(player_input_t input)
+void Player::move()
 {
-    if (input >= LEFT && input <= RIGHT)
-        setDirection(input);
     switch (_currentDir)
     {
     case UP:
@@ -72,6 +72,13 @@ Player::Player(int x, int y, int size)
     _hungerTimer = std::clock();
 }
 
+Player::Player(const body_t &playerBody, int dir)
+{
+    _body = playerBody;
+    _currentDir = dir;
+    _playerIdx = 0;
+}
+
 Player::~Player()
 {
 }
@@ -107,4 +114,9 @@ clock_t Player::getHungerTimer() const
 void Player::setHungerTimer(clock_t timer)
 {
     _hungerTimer = timer;
+}
+
+int Player::getCurrentDir() const
+{
+    return _currentDir;
 }

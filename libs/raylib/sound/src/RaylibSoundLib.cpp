@@ -18,7 +18,7 @@ void RaylibSoundLib::playSound(sound_type_e soundType) const
 {
     switch (soundType)
     {
-    case ISoundLib::EATING:
+    case ISoundLib::SOUND_EAT:
         PlaySound(_sfxEating);
         break;
     }

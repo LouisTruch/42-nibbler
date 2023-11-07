@@ -6,10 +6,23 @@
 #include <iostream>
 #include <memory>
 
+// This constructor is for debugging purpose
 ModeHandler::ModeHandler()
-    : _width(20), _height(20), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
-      _scoreHandler(nullptr), _isSound(true), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(true)
+    : _width(21), _height(20), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
+      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(false),
+      _isMultiNetwork(true)
 {
+    try
+    {
+        _server = std::make_unique<Server>();
+        serverAction(Server::WAIT_CONNECTION);
+        serverAction(Server::SEND_INIT_DATA);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "In ModeHandler():" << e.what() << std::endl;
+        _server = nullptr;
+    }
 }
 
 ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _width(width), _height(height)
@@ -25,9 +38,27 @@ ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _widt
         config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? std::make_unique<Score>(width, height) : nullptr;
     _isMultiOff = config & (int)(std::pow(2, (int)MenuItem::MULTI_OFF)) ? true : false;
     _isMultiLocal = config & (int)(std::pow(2, (int)MenuItem::MULTI_LOCAL)) ? true : false;
-    // _isChangingSpeed = conf(int)(std::pow(2, (int)MenuItem::MULTI_NETWORK + 1) ? true : false;
     _isSound = config & (int)(std::pow(2, (int)MenuItem::SOUND)) ? true : false;
     _soundHandler = nullptr;
+    _isMultiNetwork = config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)) ? true : false;
+    // _server = config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)) ? std::make_unique<Server>() : nullptr;
+    // instantiateServer()
+    if (config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)))
+    {
+        try
+        {
+            _server = std::make_unique<Server>();
+            serverAction(Server::WAIT_CONNECTION);
+            serverAction(Server::SEND_INIT_DATA);
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "In ModeHandler():" << e.what() << std::endl;
+            _server = nullptr;
+        }
+    }
+    else
+        _server = nullptr;
 }
 
 ModeHandler::~ModeHandler()
@@ -108,6 +139,40 @@ void ModeHandler::playSound(ISoundLib::sound_type_e sound) const
     _soundHandler->playSound(sound);
 }
 
+player_input_t ModeHandler::serverAction(Server::server_action_e action, std::string gameData, Player *player)
+{
+    if (_server == nullptr)
+        return DEFAULT;
+    switch (action)
+    {
+    case Server::WAIT_CONNECTION:
+        _server->waitConnection();
+        break;
+    case Server::SEND_INIT_DATA:
+        _server->sendInitData(_width, _height);
+        break;
+    case Server::SEND_GAME_DATA:
+        _server->sendGameData(gameData);
+        break;
+    case Server::READ_CLIENT_DATA:
+        if (player != nullptr)
+        {
+            try
+            {
+                player_input_t clientInput = (player_input_t)_server->readData();
+                if (clientInput != DEFAULT)
+                    return clientInput;
+            }
+            catch (const std::exception &e)
+            {
+                std::cerr << "In ModeHandler::serverAction(): " << e.what() << std::endl;
+            }
+        }
+        break;
+    }
+    return DEFAULT;
+}
+
 void ModeHandler::setSoundHandler(std::unique_ptr<ISoundLib> sLib)
 {
     _soundHandler = std::move(sLib);
@@ -141,4 +206,9 @@ bool ModeHandler::getIsMultiOff() const
 bool ModeHandler::getIsMultiLocal() const
 {
     return _isMultiLocal;
+}
+
+bool ModeHandler::getIsMultiNetwork() const
+{
+    return _isMultiNetwork;
 }

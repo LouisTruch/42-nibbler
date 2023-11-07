@@ -11,6 +11,8 @@ SRCS :=	src/main.cpp \
 		src/Food.cpp \
 		src/ModesHandler.cpp \
 		src/Score.cpp \
+		src/Server.cpp \
+		src/Client.cpp \
 
 OBJS := $(patsubst %.cpp, %.o, $(SRCS))
 DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))

@@ -24,7 +24,7 @@ Game::Game(std::unique_ptr<ModeHandler> modeHandler)
 
 void Game::initPlayer()
 {
-    if (!_modeHandler->getIsMultiLocal())
+    if (_modeHandler->getIsMultiOff())
     {
         _arrayPlayer[0] = std::make_unique<Player>(_width / 2, _height / 2, DEFAULT_PLAYER_SIZE);
         _arrayPlayer[1] = nullptr;
@@ -44,8 +44,14 @@ void Game::loop(void)
             break;
         else if (_graphicHandler->getPlayerInput(0) >= SWAP_LIBNCURSES &&
                  _graphicHandler->getPlayerInput(0) <= SWAP_LIBRAYLIB)
+        {
             if (handleLibSwitch())
                 break;
+        }
+        else
+            _arrayPlayer[0]->setDirection(_graphicHandler->getPlayerInput(0));
+
+        handleMultiplayerInput();
 
         now = std::clock();
         _turn = (now - _turnStart) / (double)CLOCKS_PER_SEC;
@@ -62,6 +68,7 @@ void Game::loop(void)
             _graphicHandler->drawFood(_food->getPos());
             _food = _modeHandler->handleDisappearingFood(*this, std::move(_food), now);
             _turnStart = clock();
+            _modeHandler->serverAction(Server::SEND_GAME_DATA, constructGameData());
         }
     }
 }
@@ -76,7 +83,8 @@ void Game::playersAction(player_action_e playerAction)
         switch (playerAction)
         {
         case MOVE:
-            player->move(_graphicHandler->getPlayerInput(player->getPlayerIdx()));
+            // player->move(_graphicHandler->getPlayerInput(player->getPlayerIdx()));
+            player->move();
             break;
         case DRAW:
             _graphicHandler->drawPlayer(*player);
@@ -215,6 +223,58 @@ point_t Game::generateRandomPoint()
     std::uniform_int_distribution<int> rngWidth(0, _width - 1);
     std::uniform_int_distribution<int> rngHeight(0, _height - 1);
     return {rngWidth(_rng), (rngHeight(_rng))};
+}
+
+void Game::handleMultiplayerInput()
+{
+    player_input_t clientInput;
+    if (!_modeHandler->getIsMultiLocal())
+    {
+        if (_modeHandler->getIsMultiLocal())
+            clientInput = _graphicHandler->getPlayerInput(1);
+        if (_modeHandler->getIsMultiNetwork())
+            clientInput = _modeHandler->serverAction(Server::READ_CLIENT_DATA, "", _arrayPlayer[1].get());
+        _arrayPlayer[1]->setDirection(clientInput);
+    }
+}
+
+std::string Game::constructGameData() const
+{
+    std::string str;
+    for (auto &&player : _arrayPlayer)
+    {
+        if (player == nullptr)
+            continue;
+        str.append("p");
+        str.append(std::to_string(player->getPlayerIdx()));
+        str.append("d");
+        if (player->getCurrentDir() > 0)
+            str.append("+");
+        str.append(std::to_string(player->getCurrentDir()));
+        str.append(":");
+        for (auto &playerBody : player->getBody())
+        {
+            if (playerBody.x < 10)
+                str.append("0");
+            str.append(std::to_string(playerBody.x));
+            str.append(" ");
+            if (playerBody.y < 10)
+                str.append("0");
+            str.append(std::to_string(playerBody.y));
+            str.append("|");
+        }
+        str.append("\n");
+    }
+    str.append("f:");
+    if (_food->getPos().x < 10)
+        str.append("0");
+    str.append(std::to_string(_food->getPos().x));
+    str.append(" ");
+    if (_food->getPos().y < 10)
+        str.append("0");
+    str.append(std::to_string(_food->getPos().y));
+    str.append("\n");
+    return str;
 }
 
 double Game::getGameSpeed() const
