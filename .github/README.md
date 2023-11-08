@@ -20,9 +20,23 @@ Bonus for nibbler are as followed : adding more game modes, adding a sound libra
 
 # Bonus
 I made a little menu (with Ncurses) to choose from every single option.
+---
 ![screenshot of the menu for the Snake game](https://github.com/LouisTruch/42-nibbler/blob/master/.github/menu.png)
+Bonus I made are :
+- Changing Speed : Every time a player eats the game speeds up
+- Disappearing Food : Food teleports every x seconds
+- Hunger : Player dies if he does not eat every x seconds
+- Score (single player only) : High score for a given map size are saved in a file and updated if a player beats it. Current score and high score are also printed in the game
+- Sound : Used Raylib to play sounds when a player eats
+- Local multiplayer : 2 players on the same keyboard
+- Network multiplayer : First player host and the second must join using first player local IP 
+<br />
 
 # Run
-Git clone the repo
-Use "make install"
-use "./nibbler"
+You need glfw3
+Git clone the repo <br />
+Use "make install" <br />
+Use "./nibbler" <br />
+
+# Assets
+The assets used in Raylib are from https://opengameart.org/content/snake-game-assets
