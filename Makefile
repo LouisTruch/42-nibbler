@@ -33,13 +33,15 @@ ${NAME}	:	${OBJS}
 -include $(DEPENDS)
 
 #Should probably use a cmake..
+#Download libs and make everything
 install: 
 			bash ./script.sh
 			make -C . raylib
 			make -C . lib
 			make -C .
 
-delete:
+#delete lib and cleans everything
+uninstall: fclean
 			rm -rf ./libs/raylib/raylib/
 
 clean	:	
@@ -64,10 +66,12 @@ lib		: raylib
 			make -C libs/raylib/
 			make -C libs/raylib/sound/
 
+#make raylib.a
 raylib:
 			make -C  libs/raylib/raylib/src/
 
+#clean raylib.a and objects
 cleanraylib:
 			make -C  libs/raylib/raylib/src/ clean
 
-.PHONY : all clean fclean re
+.PHONY : all clean fclean re lib raylib cleanraylib install uninstall
