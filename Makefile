@@ -50,10 +50,16 @@ fclean	:	clean
 
 re		:	fclean all lib
 
-lib		:
+lib		: raylib
 			make -C libs/sdl/
 			make -C libs/ncurses/
 			make -C libs/raylib/
 			make -C libs/raylib/sound/
+
+raylib:
+			make -C  libs/raylib/raylib/src/
+
+cleanraylib:
+			make -C  libs/raylib/raylib/src/ clean
 
 .PHONY : all clean fclean re
