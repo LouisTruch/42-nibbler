@@ -76,13 +76,13 @@ ModeHandler::~ModeHandler()
 {
 }
 
-void ModeHandler::changeGameSpeed(double coeff, Game &game)
+void ModeHandler::changeGameSpeed(double modifier, Game &game)
 {
     if (!_isChangingSpeed)
         return;
-    if (game.getGameSpeed() >= MAX_SPEED)
+    if (game.getGameSpeed() <= MAX_SPEED)
         return;
-    game.setGameSpeed(game.getGameSpeed() * coeff);
+    game.setGameSpeed(game.getGameSpeed() * modifier);
 }
 
 std::unique_ptr<Food> ModeHandler::handleDisappearingFood(Game &game, std::unique_ptr<Food> food, clock_t now)

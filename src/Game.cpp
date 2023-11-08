@@ -48,16 +48,14 @@ void Game::loop(void)
             if (handleLibSwitch())
                 break;
         }
-        else
-            _arrayPlayer[0]->setDirection(_graphicHandler->getPlayerInput(0));
-
-        if (handleMultiplayerInput())
-            break;
 
         now = std::clock();
         _turn = (now - _turnStart) / (double)CLOCKS_PER_SEC;
         if (_turn > _gameSpeed)
         {
+            _arrayPlayer[0]->setDirection(_graphicHandler->getPlayerInput(0));
+            if (handleMultiplayerInput())
+                break;
             playersAction(MOVE);
             checkCollisions();
             _modeHandler->handleHunger(now, _arrayPlayer[0].get(), _arrayPlayer[1].get());
@@ -181,6 +179,7 @@ void Game::checkPlayerState()
             break;
         case STATE_FOOD:
             _modeHandler->playSound(ISoundLib::SOUND_EAT);
+            _modeHandler->changeGameSpeed(SPEED_MODIFIER, *this);
             player->growBody();
             player->setHungerTimer(std::clock());
             _food.reset(new Food(chooseRandomFoodPos()));

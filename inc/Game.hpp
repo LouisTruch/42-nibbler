@@ -19,7 +19,7 @@ constexpr int MIN_HEIGHT = 5;
 constexpr int MAX_HEIGHT = 24;
 
 constexpr int DEFAULT_PLAYER_SIZE = 4;
-constexpr double DEFAULT_GAME_SPEED = 0.15;
+constexpr double DEFAULT_GAME_SPEED = 0.18;
 
 class Game
 {

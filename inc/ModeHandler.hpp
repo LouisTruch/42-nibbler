@@ -12,8 +12,8 @@
 
 class Game;
 
-constexpr double SPEED_MODIFIER = 0.95;
-constexpr double MAX_SPEED = 0.8;
+constexpr double SPEED_MODIFIER = 0.92;
+constexpr double MAX_SPEED = 0.01;
 constexpr double FOOD_TIMER = 4;
 constexpr double HUNGER_DEATH_TIMER = 10;
 
