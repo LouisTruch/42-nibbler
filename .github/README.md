@@ -13,9 +13,6 @@ Bonus for nibbler are as followed : adding more game modes, adding a sound libra
 ![screencast of a Snake game rendered with the 3 libraris](https://github.com/LouisTruch/42-nibbler/blob/master/.github/gif.gif)
 
 ## Bonus
-
-I made a little menu (with Ncurses) to choose from every single option. <br />
-![screenshot of the menu for the Snake game](https://github.com/LouisTruch/42-nibbler/blob/master/.github/menu.png)
 Bonus I made are :
 - Changing Speed : Every time a player eats the game speeds up
 - Disappearing Food : Food teleports every x seconds
