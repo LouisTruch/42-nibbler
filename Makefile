@@ -36,7 +36,6 @@ ${NAME}	:	${OBJS}
 #Download libs and make everything
 install: 
 			bash ./script.sh
-			make -C . raylib
 			make -C . lib
 			make -C .
 

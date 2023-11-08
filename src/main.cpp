@@ -9,6 +9,13 @@
 std::string_view parseIp(const std::string &input);
 board_size_t parseInput(const std::string &width, const std::string &height);
 
+#include <stdio.h>
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <netinet/in.h> 
+#include <string.h> 
+#include <arpa/inet.h>
+
 int main(int argc, char **argv)
 {
     if (argc < 2 || argc > 3)

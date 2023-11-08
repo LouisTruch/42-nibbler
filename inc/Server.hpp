@@ -21,6 +21,7 @@ class Server
     [[nodiscard("READ DATA FROM CLIENT")]] int readData();
     void sendInitData(int, int, bool) const;
     void sendData(std::string_view) const;
+    void printLocalIp() const;
 
   private:
     int _fd;

@@ -34,7 +34,8 @@ Server::Server()
 
 void Server::waitConnection()
 {
-    std::cout << "Waiting for another player to join" << std::endl;
+    std::cout << "Waiting for another player to join";
+    printLocalIp();
     _selectSet = _masterSet;
     if (select(_maxFds + 1, &_selectSet, NULL, NULL, NULL) < 0)
         throw std::runtime_error("WaitConnection: select()");
@@ -53,6 +54,37 @@ void Server::waitConnection()
             std::cout << "A player joined, starting game...\n";
         }
     }
+}
+
+#include <arpa/inet.h> // inet_ntop
+#include <ifaddrs.h>   // getifaddrs()
+
+void Server::printLocalIp() const
+{
+    struct ifaddrs *ifAddrStruct = NULL;
+    struct ifaddrs *ifa = NULL;
+    void *tmpAddrPtr = NULL;
+
+    if (getifaddrs(&ifAddrStruct) == -1)
+    {
+        if (ifAddrStruct != NULL)
+            freeifaddrs(ifAddrStruct);
+        std::cout << std::endl;
+        return;
+    }
+    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
+    {
+        std::string ifaNameStr(ifa->ifa_name);
+        if (ifa->ifa_addr->sa_family == AF_INET && ifaNameStr == "eno2")
+        {
+            tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
+            char addressBuffer[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
+            std::cout << " on IP: " << addressBuffer;
+        }
+    }
+    freeifaddrs(ifAddrStruct);
+    std::cout << std::endl;
 }
 
 // Return client input directly in int form because it is the only thing we need from client
