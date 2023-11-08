@@ -10,4 +10,4 @@ I used c++20 to build this project and the 3 libraries are :
 Bonus for nibbler are : adding more game modes, adding a sound library (still compiled in a shared object and opened in game), add a local multiplayer and finally add a network based multiplayer.
 
 # Ncurses
-![alt text](https://github.com/LouisTruch/42-nibbler/tree/master/ncurses.png)
+![screenshot of a Snake game rendered with Ncurses](https://github.com/LouisTruch/42-nibbler/blob/master/.github/ncurses.png)
