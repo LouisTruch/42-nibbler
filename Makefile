@@ -18,14 +18,12 @@ OBJS := $(patsubst %.cpp, %.o, $(SRCS))
 DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))
 
 CXX			= 	g++
-CXXFLAGS	=	-Wall -Wextra  -std=c++20 -g
+CXXFLAGS	=	-Wall -Wextra -std=c++20
 RM			= 	rm -f
 
 %.o : %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-# .cpp.o	:	
-# 			${CXX} ${CXXFLAGS} -c $< -o ${<:.cpp=.o}
 
 all		:	${NAME}
 
@@ -33,6 +31,16 @@ ${NAME}	:	${OBJS}
 			${CXX} ${CXXFLAGS} $^ -o $@ -lncurses
 
 -include $(DEPENDS)
+
+#Should probably use a cmake..
+install: 
+			bash ./script.sh
+			make -C . raylib
+			make -C . lib
+			make -C .
+
+delete:
+			rm -rf ./libs/raylib/raylib/
 
 clean	:	
 			make -C libs/sdl/ clean
