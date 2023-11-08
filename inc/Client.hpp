@@ -9,7 +9,7 @@
 class Client
 {
   public:
-    Client(const char *);
+    Client(std::string_view);
     ~Client();
     void instantiatePtrs();
     void readData();

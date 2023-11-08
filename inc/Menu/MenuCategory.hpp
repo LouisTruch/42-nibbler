@@ -20,6 +20,7 @@ class MenuCategory
     const VectorMenuItem &getVecMenuItem() const;
     bool getMultiChoice() const;
     std::string_view getCategoryName() const;
+    int getNbItemsSelected() const;
 
   private:
     MenuCategory() = delete;

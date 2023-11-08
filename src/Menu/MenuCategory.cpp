@@ -71,3 +71,14 @@ std::string_view MenuCategory::getCategoryName() const
 {
     return _categoryName;
 }
+
+int MenuCategory::getNbItemsSelected() const
+{
+    int i = 0;
+    for (auto &&item : _vecMenuItem)
+    {
+        if (item->getSelected())
+            i++;
+    }
+    return i;
+}

@@ -19,7 +19,8 @@ class MenuItem
         SOUND,
     } game_mode_idx_e;
     static constexpr std::string_view GAME_MODE_STR[8] = {
-        "CHANGING SPEED", "DISAPPEARING FOOD", "HUNGER", "SCORE", "MULTI OFF", "MULTI LOCAL", "MULTI NETWORK", "SOUND"};
+        "CHANGING SPEED", "DISAPPEARING FOOD", "HUNGER",        "SCORE",
+        "SINGLE PLAYER",  "MULTI LOCAL",       "MULTI NETWORK", "SOUND"};
 
   public:
     MenuItem(std::string_view, bool);

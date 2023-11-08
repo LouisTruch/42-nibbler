@@ -21,7 +21,7 @@ class ModeHandler
 {
   public:
     ModeHandler();
-    ModeHandler(int_gameConfig_t, int, int);
+    ModeHandler(int_gameConfig_t, board_size_t);
     ~ModeHandler();
     void changeGameSpeed(double, Game &);
     std::unique_ptr<Food> handleDisappearingFood(Game &, std::unique_ptr<Food>, clock_t);

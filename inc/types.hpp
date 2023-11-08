@@ -36,6 +36,7 @@ struct point
     }
 };
 typedef struct point point_t;
+typedef struct point board_size_t; // Only for parsing
 
 typedef std::deque<point_t> body_t;
 

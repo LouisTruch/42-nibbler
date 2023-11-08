@@ -29,18 +29,14 @@ Menu::Menu() : _highlight(0)
 
     MenuCategory::VectorMenuItem vecSound;
     vecSound.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::SOUND], false));
-    _vecMenuCategory.push_back(std::make_unique<MenuCategory>("SOUND", false, std::move(vecSound)));
-
-    // MenuCategory::VectorMenuItem vecPseudo;
-    // vecPseudo.push_back(std::make_unique<MenuItem>("__", false));
-    // _vecMenuCategory.push_back(std::make_unique<MenuCategory>("PSEUDO", false, std::move(vecPseudo)));
+    _vecMenuCategory.push_back(std::make_unique<MenuCategory>("SOUND", true, std::move(vecSound)));
 }
 
 Menu::~Menu()
 {
 }
 
-void Menu::printMenu()
+void Menu::printMenu(board_size_t boardSize)
 {
     // Print box Title
     while (1)
@@ -50,6 +46,7 @@ void Menu::printMenu()
         mvwprintw(_windowMenu, 0, MENU_WIDTH / 2 - 4, "NIBBLER");
         wattroff(_windowMenu, A_UNDERLINE);
         wattroff(_windowMenu, A_BOLD);
+        mvwprintw(_windowMenu, 0, MENU_WIDTH / 2 + 5, "width:%i height:%i", boardSize.x, boardSize.y);
 
         // Print box content
         for (int y = 0; auto &category : _vecMenuCategory)
@@ -75,6 +72,8 @@ void Menu::printMenu()
                 _highlight--;
             break;
         case KEY_DOWN:
+            if (_highlight == 0)
+                _highlight++;
             if (_highlight <= 5)
                 _highlight += 3;
             break;
@@ -83,24 +82,49 @@ void Menu::printMenu()
                 _highlight -= 3;
             break;
         case 32: // SpaceBar
-        {
-            if (_highlight == MenuItem::NB_ITEM)
-                break;
-            int categoryIdx = 0, itemIdx;
-            findItemCategoryIdx(categoryIdx, itemIdx);
-            _vecMenuCategory[categoryIdx]->selectItem(itemIdx);
+            if (handleHighlighting())
+                return;
             break;
-        }
         case 10: // Enter
-                 /// Export config
+            if (checkSingleChoiceCategory())
+                return;
             break;
         case 27: // Escap
-            return;
+            delwin(_windowMenu);
+            endwin();
+            throw std::runtime_error("Throw in Menu.cpp: printMenu(): Quit");
         default:
-            // std::cout << key << std::endl;
             break;
         }
     }
+}
+
+int Menu::handleHighlighting()
+{
+    if (_highlight == MenuItem::NB_ITEM)
+    {
+        if (!checkSingleChoiceCategory())
+            return 0;
+        return 1;
+    }
+    int categoryIdx = 0, itemIdx;
+    findItemCategoryIdx(categoryIdx, itemIdx);
+    _vecMenuCategory[categoryIdx]->selectItem(itemIdx);
+    return 0;
+}
+
+// Check that one option is selected in single choice categories
+bool Menu::checkSingleChoiceCategory() const
+{
+    for (auto &&category : _vecMenuCategory)
+    {
+        if (!category->getMultiChoice() && !category->getNbItemsSelected())
+        {
+            mvwprintw(_windowMenu, MENU_HEIGHT - 4, 1, "At least one option must be selected in MULTIPLAYER !");
+            return false;
+        }
+    }
+    return true;
 }
 
 void Menu::findItemCategoryIdx(int &categoryIdx, int &itemIdx)
@@ -116,12 +140,6 @@ void Menu::findItemCategoryIdx(int &categoryIdx, int &itemIdx)
         }
         categoryIdx++;
     }
-}
-
-int Menu::returnItemIdx()
-{
-
-    return 0;
 }
 
 int_gameConfig_t Menu::exportGameConfig()

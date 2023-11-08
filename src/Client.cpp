@@ -7,7 +7,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-Client::Client(const char *ip) : _isSound(false), _libHandler(nullptr), _graphicHandler(nullptr), _soundHandler(nullptr)
+Client::Client(std::string_view ip)
+    : _isSound(false), _libHandler(nullptr), _graphicHandler(nullptr), _soundHandler(nullptr)
 {
     _fd = socket(AF_INET, SOCK_STREAM, 0);
     if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -19,7 +20,7 @@ Client::Client(const char *ip) : _isSound(false), _libHandler(nullptr), _graphic
     servAddr.sin_port = htons(PORT);
 
     // Change address below by argv1
-    if (inet_pton(AF_INET, "127.0.0.1", &servAddr.sin_addr) <= 0)
+    if (inet_pton(AF_INET, ip.data(), &servAddr.sin_addr) <= 0)
         throw std::runtime_error("In Client(): inet_pton() error");
     if (connect(_fd, (struct sockaddr *)&servAddr, sizeof(servAddr)))
         throw std::runtime_error("In Client(): connect() error");

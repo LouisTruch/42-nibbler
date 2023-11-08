@@ -2,25 +2,36 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <regex>
+#include <stdexcept>
 
-static bool checkSize(const char *str, int min, int max)
+std::string_view parseIp(const std::string &input)
 {
-    errno = 0;
-    long int nb = strtol(str, NULL, 10);
-    return !(errno == ERANGE || nb < min || nb > max);
+    std::regex ipv4Pattern("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+    if (std::regex_match(input, ipv4Pattern))
+        return input;
+    throw std::runtime_error("In utils.cpp: parseIp(): invalid IPv4");
 }
 
-static bool checkOnlyPosInt(std::string_view sv)
+bool isStrOnlyDigits(const std::string &str)
 {
-    return std::find_if(sv.begin(), sv.end(), [](unsigned char c) { return !std::isdigit(c); }) == sv.end();
+    return std::all_of(str.begin(), str.end(), ::isdigit);
 }
 
-void checkArgs(int argc, char **argv)
+bool isIntInRange(const std::string &str, int min, int max)
 {
-    if (argc != 3)
-        throw std::logic_error("Correct Format is: [./nibbler] [width] [height]");
-    if (!checkOnlyPosInt(argv[1]) || !checkOnlyPosInt(argv[2]))
-        throw std::logic_error("Arguments must be positive integers");
-    if (!checkSize(argv[1], MIN_WIDTH, MAX_WIDTH) || !checkSize(argv[2], MIN_HEIGHT, MAX_HEIGHT))
-        throw std::logic_error("Width [5-47] Height [5-24]");
+    return !(min > std::stoi(str) || std::stoi(str) > max);
+}
+
+board_size_t parseInput(const std::string &width, const std::string &height)
+{
+    if (!isStrOnlyDigits(width) || !isStrOnlyDigits(height))
+        throw std::logic_error("In utils.cpp: parseInput(): WIDTH and HEIGHT can only contain digits");
+    if (!isIntInRange(width, MIN_WIDTH, MAX_WIDTH))
+        throw std::logic_error("In utils.cpp: parseInput(): HEIGHT must be between " + std::to_string(MIN_WIDTH) +
+                               " and " + std::to_string(MAX_WIDTH));
+    if (!isIntInRange(height, MIN_HEIGHT, MAX_HEIGHT))
+        throw std::logic_error("In utils.cpp: parseInput(): HEIGHT must be between " + std::to_string(MIN_HEIGHT) +
+                               " and " + std::to_string(MAX_HEIGHT));
+    return {std::stoi(width), std::stoi(height)};
 }

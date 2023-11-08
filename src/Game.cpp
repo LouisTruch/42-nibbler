@@ -51,7 +51,6 @@ void Game::loop(void)
         else
             _arrayPlayer[0]->setDirection(_graphicHandler->getPlayerInput(0));
 
-        // Player quit
         if (handleMultiplayerInput())
             break;
 
@@ -70,6 +69,7 @@ void Game::loop(void)
             _graphicHandler->drawFood(_food->getPos());
             _food = _modeHandler->handleDisappearingFood(*this, std::move(_food), now);
             _modeHandler->serverAction(Server::SEND_DATA, constructGameData());
+            _modeHandler->updateScore(_arrayPlayer[0]->getPlayerScore(), _graphicHandler.get());
             _turnStart = clock();
         }
     }

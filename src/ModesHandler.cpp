@@ -9,8 +9,8 @@
 // This constructor is for debugging purpose
 ModeHandler::ModeHandler()
     : _width(20), _height(20), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
-      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr), _isSinglePlayer(true), _isMultiLocal(false),
-      _isMultiNetwork(false)
+      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr), _isSinglePlayer(false), _isMultiLocal(false),
+      _isMultiNetwork(true)
 {
     if (_isMultiNetwork)
     {
@@ -28,7 +28,7 @@ ModeHandler::ModeHandler()
     }
 }
 
-ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _width(width), _height(height)
+ModeHandler::ModeHandler(int_gameConfig_t config, board_size_t boardSize) : _width(boardSize.x), _height(boardSize.y)
 {
     _isChangingSpeed = config & (int)(std::pow(2, (int)MenuItem::CHANGING_SPEED)) ? true : false;
     _isDisappearingFood = config & (int)(std::pow(2, (int)MenuItem::DISAPPEARING_FOOD)) ? true : false;
@@ -37,9 +37,16 @@ ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _widt
     _isHunger = config & (int)(std::pow(2, (int)MenuItem::HUNGER)) ? true : false;
     if (_isHunger)
         _hungerTimer = std::clock();
-    _scoreHandler =
-        config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? std::make_unique<Score>(width, height) : nullptr;
     _isSinglePlayer = config & (int)(std::pow(2, (int)MenuItem::SINGLE_PLAYER)) ? true : false;
+    if (!_isSinglePlayer)
+    {
+        if (config & (int)(std::pow(2, (int)MenuItem::SCORE)))
+            std::cout << "Score is disabled in multiplayer\n";
+        _scoreHandler = nullptr;
+    }
+    else
+        _scoreHandler =
+            config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? std::make_unique<Score>(_width, _height) : nullptr;
     _isMultiLocal = config & (int)(std::pow(2, (int)MenuItem::MULTI_LOCAL)) ? true : false;
     _isSound = config & (int)(std::pow(2, (int)MenuItem::SOUND)) ? true : false;
     _soundHandler = nullptr;
@@ -49,6 +56,7 @@ ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _widt
     else
         _server = nullptr;
 }
+
 void ModeHandler::instantiateServer()
 {
     try

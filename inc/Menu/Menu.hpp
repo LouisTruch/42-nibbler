@@ -18,10 +18,11 @@ class Menu
   public:
     Menu();
     ~Menu();
-    void printMenu();
+    void printMenu(board_size_t);
+    int handleHighlighting();
     void findItemCategoryIdx(int &, int &);
-    int returnItemIdx();
     int_gameConfig_t exportGameConfig();
+    bool checkSingleChoiceCategory() const;
 
   private:
     Menu(const Menu &) = delete;
