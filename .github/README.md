@@ -3,9 +3,9 @@
 This 42 school projet aims to get a better understanding of shared objects. It's about coding a Snake-like game in C++ and using dlopen() C syscall's to dynamically load graphic library on the go. We must have at least 3 different graphic libraries.
 
 I used c++20 to build this project and the 3 libraries I built my shared objects with are : 
-- **Ncurses** (terminal based)
-- **SDL2**
-- **raylib**
+- [**Ncurses**](https://github.com/mirror/ncurses) (terminal based)
+- [**SDL2**](https://github.com/libsdl-org/SDL)
+- [**Raylib**](https://github.com/raysan5/raylib)
 
 Bonus for nibbler are as followed : adding more game modes, adding a sound library (still compiled in a shared object and opened in game), add a local multiplayer and finally add a network based multiplayer.
 
