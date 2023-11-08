@@ -24,7 +24,7 @@ Game::Game(std::unique_ptr<ModeHandler> modeHandler)
 
 void Game::initPlayer()
 {
-    if (_modeHandler->getIsMultiOff())
+    if (_modeHandler->getIsSinglePlayer())
     {
         _arrayPlayer[0] = std::make_unique<Player>(_width / 2, _height / 2, DEFAULT_PLAYER_SIZE);
         _arrayPlayer[1] = nullptr;
@@ -63,13 +63,13 @@ void Game::loop(void)
             checkCollisions();
             _modeHandler->handleHunger(now, _arrayPlayer[0].get(), _arrayPlayer[1].get());
             checkPlayerState();
-            if (_modeHandler->getIsMultiOff() && _totalSpace <= _arrayPlayer[0]->getPlayerScore())
+            if (_modeHandler->getIsSinglePlayer() && _totalSpace <= _arrayPlayer[0]->getPlayerScore())
                 throwGameOverScore("Game Win");
             _graphicHandler->clearBoard();
             playersAction(DRAW);
             _graphicHandler->drawFood(_food->getPos());
             _food = _modeHandler->handleDisappearingFood(*this, std::move(_food), now);
-            _modeHandler->serverAction(Server::SEND_GAME_DATA, constructGameData());
+            _modeHandler->serverAction(Server::SEND_DATA, constructGameData());
             _turnStart = clock();
         }
     }
@@ -174,10 +174,10 @@ void Game::checkPlayerState()
         case STATE_NOTHING:
             break;
         case STATE_WALL_COLL:
-            throwGameOverScore("Game Over: Went in wall");
+            handleGameOver("Game Over: A Player went in a wall", player->getPlayerIdx());
             break;
         case STATE_BODY_COLL:
-            throwGameOverScore("Game Over: Went in itself");
+            handleGameOver("Game Over: A Player ate itself", player->getPlayerIdx());
             break;
         case STATE_FOOD:
             _modeHandler->playSound(ISoundLib::SOUND_EAT);
@@ -186,10 +186,10 @@ void Game::checkPlayerState()
             _food.reset(new Food(chooseRandomFoodPos()));
             break;
         case STATE_PLAYER_COLL:
-            throwGameOverScore("Game Over: Went in other player");
+            handleGameOver("Game Over: A Player tried to eat the other player", player->getPlayerIdx());
             break;
         case STATE_HUNGER:
-            throwGameOverScore("Game Over: Died of starvation");
+            handleGameOver("Game Over: A Player died of starvation", player->getPlayerIdx());
             break;
         }
     }
@@ -229,12 +229,12 @@ point_t Game::generateRandomPoint()
 int Game::handleMultiplayerInput()
 {
     player_input_t clientInput;
-    if (!_modeHandler->getIsMultiLocal())
+    if (!_modeHandler->getIsSinglePlayer())
     {
         if (_modeHandler->getIsMultiLocal())
             clientInput = _graphicHandler->getPlayerInput(1);
         if (_modeHandler->getIsMultiNetwork())
-            clientInput = _modeHandler->serverAction(Server::READ_CLIENT_DATA, "", _arrayPlayer[1].get());
+            clientInput = _modeHandler->serverAction(Server::READ_DATA, "", _arrayPlayer[1].get());
         if (clientInput == QUIT)
             return -1;
         _arrayPlayer[1]->setDirection(clientInput);
@@ -281,6 +281,19 @@ std::string Game::constructGameData() const
     return str;
 }
 
+void Game::handleGameOver(std::string str, int playerIdx)
+{
+    if (!_modeHandler->getIsSinglePlayer())
+    {
+        std::string playerWinStr("Player ");
+        playerWinStr.append(std::to_string((playerIdx ^ 1)));
+        playerWinStr.append(" wins !");
+        _modeHandler->serverAction(Server::SEND_DATA, std::string("m:" + playerWinStr));
+        throwGameOverScore(str + "\n" + playerWinStr);
+    }
+    throwGameOverScore(str);
+}
+
 double Game::getGameSpeed() const
 {
     return _gameSpeed;
@@ -293,7 +306,8 @@ void Game::setGameSpeed(double newSpeed)
 
 void Game::throwGameOverScore(std::string_view str) const
 {
-    throw Game::GameOverException(str, _arrayPlayer[0]->getPlayerScore(), _width, _height);
+    throw Game::GameOverException(str, _arrayPlayer[0]->getPlayerScore(), _width, _height,
+                                  _modeHandler->getScoreHandler());
 }
 
 Game::~Game()
@@ -322,9 +336,12 @@ Game &Game::operator=(const Game &other)
     return *this;
 }
 
-Game::GameOverException::GameOverException(std::string_view str, int playerScore, int width, int height)
+Game::GameOverException::GameOverException(std::string_view str, int playerScore, int width, int height,
+                                           Score *scoreHandler)
 {
     _msg = str;
+    if (scoreHandler == nullptr)
+        return;
     _msg += PLAYER_SCORE_STR;
     _msg += std::to_string(playerScore);
     _msg += MAP_WIDTH_STR;

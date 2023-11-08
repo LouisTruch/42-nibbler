@@ -22,7 +22,7 @@ Menu::Menu() : _highlight(0)
     _vecMenuCategory.push_back(std::make_unique<MenuCategory>("GAME MODE", true, std::move(vecGameMode)));
 
     MenuCategory::VectorMenuItem vecMultiplayer;
-    vecMultiplayer.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::MULTI_OFF], true));
+    vecMultiplayer.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::SINGLE_PLAYER], true));
     vecMultiplayer.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::MULTI_LOCAL], false));
     vecMultiplayer.push_back(std::make_unique<MenuItem>(MenuItem::GAME_MODE_STR[MenuItem::MULTI_NETWORK], false));
     _vecMenuCategory.push_back(std::make_unique<MenuCategory>("MULTIPLAYER", false, std::move(vecMultiplayer)));
@@ -148,7 +148,7 @@ int_gameConfig_t Menu::exportGameConfig()
                 case MenuItem::SCORE:
                     config |= (int)std::pow(2, item->getItemIdx());
                     break;
-                case MenuItem::MULTI_OFF:
+                case MenuItem::SINGLE_PLAYER:
                     config |= (int)std::pow(2, item->getItemIdx());
                     break;
                 case MenuItem::MULTI_LOCAL:

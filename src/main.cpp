@@ -21,9 +21,9 @@ int main(int argc, char **argv)
         {
             // Need to add parsing when only joining a game
             Client client(argv[1]);
-            client.readInitData();
-            client.instantiatePtrs();
             client.readData();
+            // client.readInitData();
+            client.instantiatePtrs();
         }
         catch (const std::exception &e)
         {

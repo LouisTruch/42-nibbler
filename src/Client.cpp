@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-Client::Client(const char *ip) : _isSound(false)
+Client::Client(const char *ip) : _isSound(false), _libHandler(nullptr), _graphicHandler(nullptr), _soundHandler(nullptr)
 {
     _fd = socket(AF_INET, SOCK_STREAM, 0);
     if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -24,23 +24,9 @@ Client::Client(const char *ip) : _isSound(false)
     if (connect(_fd, (struct sockaddr *)&servAddr, sizeof(servAddr)))
         throw std::runtime_error("In Client(): connect() error");
 
-    // Ignore SIGPIPE to end properly execution when server closed
+    // Ignore SIGPIPE to end properly execution when server closed and recv() sends a SIGPIPE
     signal(SIGPIPE, SIG_IGN);
 }
-
-void Client::readInitData()
-{
-    char tmpRecvBuffer[200] = {0};
-    if (recv(_fd, tmpRecvBuffer, sizeof(tmpRecvBuffer), 0) < 0)
-        throw std::runtime_error("In Client::readInitData(): recv() error");
-    std::string buffer(tmpRecvBuffer);
-    _width = std::stoi(buffer, nullptr, 10);
-    buffer.erase(0, 2);
-    _height = std::stoi(buffer, nullptr, 10);
-    buffer.erase(0, 3);
-    _isSound = std::stoi(buffer, nullptr, 10);
-}
-
 void Client::instantiatePtrs()
 {
     _libHandler = std::make_unique<LibHandler>(_width, _height);
@@ -55,23 +41,37 @@ void Client::instantiatePtrs()
 void Client::readData()
 {
     std::string bufferRecv, bufferSend;
-    bufferRecv.resize(5000);
     int byteRead = 1;
     int byteSent;
+    bufferRecv.resize(5000);
     while (byteRead > 0)
     {
+        // bufferRecv.clear();
         byteRead = recv(_fd, &bufferRecv[0], bufferRecv.size(), 0);
         if (byteRead < 0)
-            throw std::runtime_error("In Client::readData(): recv()");
+            throw std::runtime_error("In Client::readData(): recv() host is probably offline");
 
+        if (bufferRecv[0] == 'i')
+        {
+            readInitData(bufferRecv);
+            instantiatePtrs();
+            continue;
+        }
+        else if (bufferRecv[0] == 'm')
+        {
+            readMessage(bufferRecv);
+            break;
+        }
         try
         {
-            constructDrawables(bufferRecv);
+            if (bufferRecv[0] == 'p' && _graphicHandler != nullptr)
+                readGameData(bufferRecv);
         }
         catch (const std::exception &e)
         {
             std::cerr << "In Client::readData(): " << e.what() << std::endl;
         }
+
         _graphicHandler->registerPlayerInput();
         if (_graphicHandler->getPlayerInput(0) == QUIT)
             break;
@@ -86,17 +86,29 @@ void Client::readData()
             bufferSend += std::to_string(_graphicHandler->getPlayerInput(0));
             byteSent = send(_fd, bufferSend.c_str(), 2, 0);
             if (byteSent < 0)
-                throw std::runtime_error("In Client::readData(): send");
+                throw std::runtime_error("In Client::readData(): send() host is probably offline");
             bufferSend.clear();
         }
     }
 }
 
-// Split this
-void Client::constructDrawables(std::string buffer)
+// Read first data sent by the host which are width height and a bool to know if sound is ON or not
+// Format received is "i:w h s"
+void Client::readInitData(std::string &buffer)
 {
-    if (buffer[0] != 'p')
-        return;
+    buffer.erase(0, 2);
+    _width = std::stoi(buffer, nullptr, 10);
+    buffer.erase(0, 2);
+    _height = std::stoi(buffer, nullptr, 10);
+    buffer.erase(0, 3);
+    _isSound = std::stoi(buffer, nullptr, 10);
+}
+
+// Read game data then draw
+// Format received is "pid+1:x y|x y|x y|\n(pid-1:x y|x y|x y|)\nf:x y"
+// i is player index, d is direction from -2 to 2 without 0
+void Client::readGameData(std::string &buffer)
+{
     bool isP0 = true;
     std::deque<point_t> vecPlayer0Body;
     int player0Dir;
@@ -155,15 +167,21 @@ void Client::constructDrawables(std::string buffer)
     buffer.erase(0, 3);
     foodPoint.y = std::stoi(buffer, 0, 10);
     _graphicHandler->clearBoard();
-    // Add player index to player constructor
     _graphicHandler->drawPlayer(Player(0, vecPlayer0Body, player0Dir));
     _graphicHandler->drawPlayer(Player(1, vecPlayer1Body, player1Dir));
     _graphicHandler->drawFood(foodPoint);
 }
 
+// Read Game Over message and print it in terminal
+// Format is "m: xxx"
+void Client::readMessage(std::string &buffer)
+{
+    buffer.erase(0, 2);
+    std::cout << buffer << std::endl;
+}
+
 int Client::handleLibSwitch()
 {
-    // To refactor
     try
     {
         if (_graphicHandler->getPlayerInput(0) == SWAP_LIBNCURSES)

@@ -8,9 +8,9 @@
 
 // This constructor is for debugging purpose
 ModeHandler::ModeHandler()
-    : _width(21), _height(20), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
-      _scoreHandler(nullptr), _isSound(true), _soundHandler(nullptr), _isMultiOff(false), _isMultiLocal(false),
-      _isMultiNetwork(true)
+    : _width(20), _height(20), _isChangingSpeed(false), _isDisappearingFood(false), _isHunger(false),
+      _scoreHandler(nullptr), _isSound(false), _soundHandler(nullptr), _isSinglePlayer(true), _isMultiLocal(false),
+      _isMultiNetwork(false)
 {
     if (_isMultiNetwork)
     {
@@ -18,7 +18,7 @@ ModeHandler::ModeHandler()
         {
             _server = std::make_unique<Server>();
             serverAction(Server::WAIT_CONNECTION);
-            serverAction(Server::SEND_INIT_DATA);
+            serverAction(Server::SEND_DATA, constructGameInitData());
         }
         catch (const std::exception &e)
         {
@@ -39,28 +39,29 @@ ModeHandler::ModeHandler(int_gameConfig_t config, int width, int height) : _widt
         _hungerTimer = std::clock();
     _scoreHandler =
         config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? std::make_unique<Score>(width, height) : nullptr;
-    _isMultiOff = config & (int)(std::pow(2, (int)MenuItem::MULTI_OFF)) ? true : false;
+    _isSinglePlayer = config & (int)(std::pow(2, (int)MenuItem::SINGLE_PLAYER)) ? true : false;
     _isMultiLocal = config & (int)(std::pow(2, (int)MenuItem::MULTI_LOCAL)) ? true : false;
     _isSound = config & (int)(std::pow(2, (int)MenuItem::SOUND)) ? true : false;
     _soundHandler = nullptr;
     _isMultiNetwork = config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)) ? true : false;
-    // instantiateServer()
     if (config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)))
-    {
-        try
-        {
-            _server = std::make_unique<Server>();
-            serverAction(Server::WAIT_CONNECTION);
-            serverAction(Server::SEND_INIT_DATA);
-        }
-        catch (const std::exception &e)
-        {
-            std::cerr << "In ModeHandler():" << e.what() << std::endl;
-            _server = nullptr;
-        }
-    }
+        instantiateServer();
     else
         _server = nullptr;
+}
+void ModeHandler::instantiateServer()
+{
+    try
+    {
+        _server = std::make_unique<Server>();
+        serverAction(Server::WAIT_CONNECTION);
+        serverAction(Server::SEND_DATA, constructGameInitData());
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "In ModeHandler():" << e.what() << std::endl;
+        _server = nullptr;
+    }
 }
 
 ModeHandler::~ModeHandler()
@@ -88,16 +89,13 @@ void ModeHandler::handleHunger(clock_t now, Player *player0, Player *player1)
 {
     if (!_isHunger)
         return;
+
     if (player0)
-    {
         if (((now - player0->getHungerTimer()) / (double)CLOCKS_PER_SEC) >= HUNGER_DEATH_TIMER)
             player0->setPlayerCollision(STATE_HUNGER);
-    }
     if (player1)
-    {
         if (((now - player1->getHungerTimer()) / (double)CLOCKS_PER_SEC) >= HUNGER_DEATH_TIMER)
             player1->setPlayerCollision(STATE_HUNGER);
-    }
 }
 
 void ModeHandler::resetHungerTimer(clock_t now)
@@ -124,7 +122,7 @@ void ModeHandler::playSound(ISoundLib::sound_type_e sound) const
     _soundHandler->playSound(sound);
 }
 
-player_input_t ModeHandler::serverAction(Server::server_action_e action, std::string gameData, Player *player)
+player_input_t ModeHandler::serverAction(Server::server_action_e action, std::string data, Player *player)
 {
     if (_server == nullptr)
         return DEFAULT;
@@ -133,13 +131,10 @@ player_input_t ModeHandler::serverAction(Server::server_action_e action, std::st
     case Server::WAIT_CONNECTION:
         _server->waitConnection();
         break;
-    case Server::SEND_INIT_DATA:
-        _server->sendInitData(_width, _height, _isSound);
+    case Server::SEND_DATA:
+        _server->sendData(data);
         break;
-    case Server::SEND_GAME_DATA:
-        _server->sendGameData(gameData);
-        break;
-    case Server::READ_CLIENT_DATA:
+    case Server::READ_DATA:
         if (player != nullptr)
         {
             try
@@ -158,6 +153,18 @@ player_input_t ModeHandler::serverAction(Server::server_action_e action, std::st
         break;
     }
     return DEFAULT;
+}
+
+const std::string ModeHandler::constructGameInitData()
+{
+    std::string buffer;
+    buffer.append("i:");
+    buffer += std::to_string(_width);
+    buffer.append(" ");
+    buffer += std::to_string(_height);
+    buffer.append(" ");
+    buffer += _isSound ? '1' : '0';
+    return buffer;
 }
 
 void ModeHandler::setSoundHandler(std::unique_ptr<ISoundLib> sLib)
@@ -185,9 +192,9 @@ int ModeHandler::getHeight() const
     return _height;
 }
 
-bool ModeHandler::getIsMultiOff() const
+bool ModeHandler::getIsSinglePlayer() const
 {
-    return _isMultiOff;
+    return _isSinglePlayer;
 }
 
 bool ModeHandler::getIsMultiLocal() const
@@ -198,4 +205,9 @@ bool ModeHandler::getIsMultiLocal() const
 bool ModeHandler::getIsMultiNetwork() const
 {
     return _isMultiNetwork;
+}
+
+Score *ModeHandler::getScoreHandler() const
+{
+    return _scoreHandler.get();
 }

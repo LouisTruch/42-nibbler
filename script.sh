@@ -9,8 +9,6 @@
 # rm -rf SFML-2.6.0-linux-gcc-64-bit.tar.gz
 # export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${PWD}/libs/sfml/lib"
 
-# Download MLX42
-# git clone https://github.com/codam-coding-college/MLX42.git libs/mlx/lib/
 
 # mkdir libs/mlx/lib/build
 # cmake libs/mlx/lib -B libs/mlx/lib/build

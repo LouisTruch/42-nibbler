@@ -11,10 +11,11 @@ class Client
   public:
     Client(const char *);
     ~Client();
-    void readInitData();
     void instantiatePtrs();
     void readData();
-    void constructDrawables(std::string);
+    void readInitData(std::string &);
+    void readGameData(std::string &);
+    void readMessage(std::string &);
     int handleLibSwitch();
 
   private:

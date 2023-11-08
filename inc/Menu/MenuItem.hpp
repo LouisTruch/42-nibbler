@@ -13,7 +13,7 @@ class MenuItem
         DISAPPEARING_FOOD,
         HUNGER,
         SCORE,
-        MULTI_OFF,
+        SINGLE_PLAYER,
         MULTI_LOCAL,
         MULTI_NETWORK,
         SOUND,

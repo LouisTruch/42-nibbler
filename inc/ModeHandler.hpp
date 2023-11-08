@@ -9,7 +9,6 @@
 #include <array>
 #include <ctime>
 #include <memory>
-#include <optional>
 
 class Game;
 
@@ -36,10 +35,12 @@ class ModeHandler
     std::unique_ptr<ISoundLib> getSoundHandler();
     int getWidth() const;
     int getHeight() const;
-    bool getIsMultiOff() const;
+    bool getIsSinglePlayer() const;
     bool getIsMultiLocal() const;
     bool getIsMultiNetwork() const;
     void instantiateServer();
+    const std::string constructGameInitData();
+    Score *getScoreHandler() const;
 
   private:
     ModeHandler(const ModeHandler &) = delete;
@@ -56,7 +57,7 @@ class ModeHandler
     bool _isSound;
     std::clock_t _foodTimer;
     std::unique_ptr<ISoundLib> _soundHandler;
-    bool _isMultiOff;
+    bool _isSinglePlayer;
     bool _isMultiLocal;
     bool _isMultiNetwork;
     std::unique_ptr<Server> _server;

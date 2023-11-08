@@ -19,7 +19,7 @@ constexpr int MIN_HEIGHT = 5;
 constexpr int MAX_HEIGHT = 24;
 
 constexpr int DEFAULT_PLAYER_SIZE = 4;
-constexpr double DEFAULT_GAME_SPEED = 0.5;
+constexpr double DEFAULT_GAME_SPEED = 0.15;
 
 class Game
 {
@@ -51,6 +51,7 @@ class Game
     void setGameSpeed(double);
     std::string constructGameData() const;
     int handleMultiplayerInput();
+    void handleGameOver(std::string, int);
 
   private:
     Game() = delete;
@@ -79,7 +80,7 @@ class Game
         inline static constexpr std::string_view MAP_HEIGHT_STR = {"\nMap height: "};
 
       public:
-        GameOverException(std::string_view, int, int, int);
+        GameOverException(std::string_view, int, int, int, Score *);
         virtual const char *what() const throw();
         ~GameOverException() throw() = default;
     };

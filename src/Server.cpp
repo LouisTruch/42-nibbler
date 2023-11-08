@@ -55,19 +55,7 @@ void Server::waitConnection()
     }
 }
 
-void Server::sendInitData(int width, int height, bool isSound) const
-{
-    std::string buffer;
-    buffer += std::to_string(width);
-    buffer.append(" ");
-    buffer += std::to_string(height);
-    buffer.append(" ");
-    buffer += isSound ? '1' : '0';
-    if (send(_clientFd, buffer.c_str(), buffer.size(), 0) < 0)
-        throw std::runtime_error("In Server::sendInitData(): send()");
-}
-
-// Return client input directly in int form
+// Return client input directly in int form because it is the only thing we need from client
 int Server::readData()
 {
     _selectSet = _masterSet;
@@ -88,12 +76,10 @@ int Server::readData()
     return 0;
 }
 
-void Server::sendGameData(std::string_view gameData) const
+void Server::sendData(std::string_view data) const
 {
-    if (send(_clientFd, gameData.data(), gameData.size() + 1, 0) == -1)
-    {
-        // handle error
-    }
+    if (send(_clientFd, data.data(), data.size() + 1, 0) == -1)
+        throw std::runtime_error("In Server::sendData(): send()");
 }
 
 Server::~Server()

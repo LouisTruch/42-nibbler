@@ -11,9 +11,8 @@ class Server
     typedef enum
     {
         WAIT_CONNECTION,
-        SEND_INIT_DATA,
-        SEND_GAME_DATA,
-        READ_CLIENT_DATA,
+        SEND_DATA,
+        READ_DATA,
     } server_action_e;
 
     Server();
@@ -21,7 +20,7 @@ class Server
     void waitConnection();
     [[nodiscard("READ DATA FROM CLIENT")]] int readData();
     void sendInitData(int, int, bool) const;
-    void sendGameData(std::string_view) const;
+    void sendData(std::string_view) const;
 
   private:
     int _fd;
