@@ -9,14 +9,8 @@ I used c++20 to build this project and the 3 libraries I built my shared objects
 
 Bonus for nibbler are as followed : adding more game modes, adding a sound library (still compiled in a shared object and opened in game), add a local multiplayer and finally add a network based multiplayer.
 
-## Ncurses
-![screenshot of a Snake game rendered with Ncurses](https://github.com/LouisTruch/42-nibbler/blob/master/.github/ncurses.png)
-
-## SDL2
-![screenshot of a Snake game rendered with SDL2](https://github.com/LouisTruch/42-nibbler/blob/master/.github/sdl.png)
-
-## Raylib
-![screenshot of a Snake game rendered with Raylib](https://github.com/LouisTruch/42-nibbler/blob/master/.github/raylib.png)
+## Preview
+![screencast of a Snake game rendered with the 3 libraris](https://github.com/LouisTruch/42-nibbler/blob/master/.github/gif.gif)
 
 ## Bonus
 

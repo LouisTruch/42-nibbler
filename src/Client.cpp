@@ -47,7 +47,6 @@ void Client::readData()
     bufferRecv.resize(5000);
     while (byteRead > 0)
     {
-        // bufferRecv.clear();
         byteRead = recv(_fd, &bufferRecv[0], bufferRecv.size(), 0);
         if (byteRead < 0)
             throw std::runtime_error("In Client::readData(): recv() host is probably offline");
@@ -206,6 +205,6 @@ Client::~Client()
 {
     close(_fd);
     _libHandler->destroyGraphicLib(std::move(_graphicHandler));
-    if (_isSound)
-        _libHandler->destroySoundLib(std::move(_soundHandler));
+    // if (_isSound)
+    // _libHandler->destroySoundLib(std::move(_soundHandler));
 }
