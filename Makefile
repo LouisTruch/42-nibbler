@@ -1,24 +1,30 @@
-NAME = nibbler
+MAKEFLAGS := -j9
 
-SRCS :=	src/main.cpp \
-		src/utils.cpp \
-		src/Game.cpp \
-		src/Menu/Menu.cpp \
-		src/Menu/MenuItem.cpp \
-		src/Menu/MenuCategory.cpp \
-		src/LibHandler.cpp \
-		src/Player.cpp \
-		src/Food.cpp \
-		src/ModesHandler.cpp \
-		src/Score.cpp \
-		src/Server.cpp \
-		src/Client.cpp \
+NAME = nibbler
+CXXFLAGS	:=	-Wall -Wextra -Werror -std=c++20 -DNDEBUG
+
+ifeq ($(VALGRIND), 1)
+	VALGRIND := valgrind --leak-check=full --show-leak-kinds=all
+else
+	VALGRIND :=
+endif
+
+ifeq ($(DEBUG), 1)
+	CXXFLAGS := $(filter-out -DNDEBUG, $(CXXFLAGS))
+	CXXFLAGS := $(filter-out -Werror, $(CXXFLAGS))
+	CXXFLAGS += -DDEBUG -g
+endif
+
+SRCS := $(wildcard srcs/*.cpp)
+SRCS += $(wildcard srcs/Menu/*.cpp)
+SRCS += $(wildcard srcs/Log/*.cpp)
+SRCS += $(wildcard srcs/Player/*.cpp)
+SRCS += $(wildcard srcs/Mode/*.cpp)
 
 OBJS := $(patsubst %.cpp, %.o, $(SRCS))
 DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))
 
 CXX			= 	g++
-CXXFLAGS	=	-Wall -Wextra -std=c++20
 RM			= 	rm -f
 
 %.o : %.cpp Makefile
@@ -44,6 +50,7 @@ uninstall: fclean
 			rm -rf ./libs/raylib/raylib/
 
 clean	:	
+			make -C libs/debug/ clean
 			make -C libs/sdl/ clean
 			make -C libs/ncurses/ clean
 			make -C libs/raylib/ clean
@@ -51,6 +58,7 @@ clean	:
 			${RM} ${OBJS} ${DEPENDS}
 
 fclean	:	clean
+			make -C libs/debug/ fclean
 			make -C libs/sdl/ fclean
 			make -C libs/ncurses/ fclean
 			make -C libs/raylib/ fclean
@@ -59,7 +67,11 @@ fclean	:	clean
 
 re		:	fclean all lib
 
+r 	:	all
+			${VALGRIND} ./nibbler 10 10
+
 lib		: raylib
+			make -C libs/debug/
 			make -C libs/sdl/
 			make -C libs/ncurses/
 			make -C libs/raylib/

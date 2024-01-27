@@ -1,7 +1,9 @@
 #include "../inc/Food.hpp"
+#include "../inc/Log/Logger.hpp"
 
-Food::Food(point_t point) : _pos(point)
+Food::Food(point_t spawn) : _pos(spawn)
 {
+    LOG_DEBUG("Food constructor at x:" << spawn.x << " y:" << spawn.y);
 }
 
 point_t Food::getPos() const
@@ -9,12 +11,9 @@ point_t Food::getPos() const
     return _pos;
 }
 
-Food::Food()
-{
-}
-
 Food::~Food()
 {
+    LOG_DEBUG("Food destructor");
 }
 
 Food::Food(const Food &other)

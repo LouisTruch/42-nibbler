@@ -4,26 +4,16 @@
 
 typedef enum
 {
-    UP = -1,
-    DOWN = 1,
-    DEFAULT = 0,
-    LEFT = -2,
-    RIGHT = 2,
-    SWAP_LIBNCURSES,
-    SWAP_LIBSDL,
-    SWAP_LIBRAYLIB,
-    QUIT,
+    INPUT_UP = -1,
+    INPUT_DOWN = 1,
+    INPUT_DEFAULT = 0,
+    INPUT_LEFT = -2,
+    INPUT_RIGHT = 2,
+    INPUT_SWAP_LIBNCURSES,
+    INPUT_SWAP_LIBSDL,
+    INPUT_SWAP_LIBRAYLIB,
+    INPUT_QUIT
 } player_input_t;
-
-typedef enum
-{
-    STATE_NOTHING,
-    STATE_WALL_COLL,
-    STATE_BODY_COLL,
-    STATE_FOOD,
-    STATE_PLAYER_COLL,
-    STATE_HUNGER
-} player_state_e;
 
 struct point
 {
@@ -37,7 +27,5 @@ struct point
 };
 typedef struct point point_t;
 typedef struct point board_size_t; // Only for parsing
-
-typedef std::deque<point_t> body_t;
 
 typedef int int_gameConfig_t;

@@ -24,7 +24,7 @@ Bonus I made are :
 <br />
 
 ## **Run**
-**You need glfw3**<br />
+**You need glfw3 installed**<br />
 Git clone the repo <br />
 Use "make install" <br />
 Use "./nibbler" <br />

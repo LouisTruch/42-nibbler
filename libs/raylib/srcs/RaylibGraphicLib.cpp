@@ -1,12 +1,12 @@
 #include "../inc/RaylibGraphicLib.hpp"
 
-RaylibGraphicLib::RaylibGraphicLib(int width, int height) : _width(width * TILE_SIZE), _height(height * TILE_SIZE)
+RaylibGraphicLib::RaylibGraphicLib(int width, int height) : _width(width * _TILE_SIZE), _height(height * _TILE_SIZE)
 {
     SetTraceLogLevel(LOG_ERROR);
     InitWindow(_width, _height, "Raylib Nibbler");
     for (int idx = RaylibTexture::BODY_BOTTOMLEFT; idx != RaylibTexture::TEXTURE_NB_ITEMS; idx++)
         _vecTexture.push_back(static_cast<RaylibTexture::texture_name_e>(idx));
-    _background = std::make_unique<RaylibTexture>(_width, _height, TILE_SIZE, _boardColor1, _boardColor2);
+    _background = std::make_unique<RaylibTexture>(_width, _height, _TILE_SIZE, _boardColor1, _boardColor2);
 }
 
 void RaylibGraphicLib::clearBoard() const
@@ -19,15 +19,15 @@ void RaylibGraphicLib::clearBoard() const
 void RaylibGraphicLib::drawPlayer(const Player &player)
 {
     Color playerColor;
-    if (player._playerIdx == 0)
+    if (player._idx == 0)
         playerColor = {255, 0, 0, 255};
-    else
+    else if (player._idx == 1)
         playerColor = {255, 255, 0, 255};
-    for (auto current = player._body.begin(); current != player._body.end(); current++)
+    for (auto current = player._body._deque.begin(); current != player._body._deque.end(); current++)
     {
-        if (current == player._body.begin())
-            drawHead(player._body.front().x, player._body.front().y, player._currentDir, playerColor);
-        else if (current == player._body.end() - 1)
+        if (current == player._body._deque.begin())
+            drawHead(player._body._deque.front().x, player._body._deque.front().y, player._direction, playerColor);
+        else if (current == player._body._deque.end() - 1)
             drawTail(current, playerColor);
         else
             drawBody(current, playerColor);
@@ -38,17 +38,20 @@ void RaylibGraphicLib::drawHead(int x, int y, int dir, Color playerColor)
 {
     switch (dir)
     {
-    case UP:
+    case Player::DIRECTION_UP:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_UP].getTexture(), x, y, playerColor);
         break;
-    case DOWN:
+    case Player::DIRECTION_DOWN:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_DOWN].getTexture(), x, y, playerColor);
         break;
-    case LEFT:
+    case Player::DIRECTION_LEFT:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_LEFT].getTexture(), x, y, playerColor);
         break;
-    case RIGHT:
+    case Player::DIRECTION_RIGHT:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_RIGHT].getTexture(), x, y, playerColor);
+        break;
+    default:
+        // Should never happen
         break;
     }
 }
@@ -121,62 +124,62 @@ void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current, Co
 // void    draw_eeeeeeeeee(?? a b c d eeee)
 // {
 //     if (a > b && b < c)
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), it_body->x * TILE_SIZE,
-//                     it_body->y * TILE_SIZE, WHITE);
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), it_body->x * _TILE_SIZE,
+//                     it_body->y * _TILE_SIZE, WHITE);
 //     else if (a < b && b > c)
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), it_body->x * TILE_SIZE,
-//                     it_body->y * TILE_SIZE, WHITE);
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), it_body->x * _TILE_SIZE,
+//                     it_body->y * _TILE_SIZE, WHITE);
 //     else if (a < b && b < c || a > b && b > c && eeee = 0)
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), it_body->x * TILE_SIZE,
-//                     it_body->y * TILE_SIZE, WHITE);
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), it_body->x * _TILE_SIZE,
+//                     it_body->y * _TILE_SIZE, WHITE);
 //     else
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), it_body->x * TILE_SIZE,
-//                     it_body->y * TILE_SIZE, WHITE);
+//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), it_body->x * _TILE_SIZE,
+//                     it_body->y * _TILE_SIZE, WHITE);
 // }
 
-void RaylibGraphicLib::drawFood(const point_t &point)
+void RaylibGraphicLib::drawFood(const Food &food)
 {
-    drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x, point.y, WHITE);
+    drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), food._pos.x, food._pos.y, WHITE);
     EndDrawing();
 }
 
 void RaylibGraphicLib::drawScores(int score, int highScore)
 {
     BeginDrawing();
-    DrawText(TextFormat("Score: %i", score), TILE_SIZE, 0, 16, RED);
-    DrawText(TextFormat("HiScore: %i", highScore), TILE_SIZE, 18, 16, GREEN);
+    DrawText(TextFormat("Score: %i", score), _TILE_SIZE, 0, 16, RED);
+    DrawText(TextFormat("HiScore: %i", highScore), _TILE_SIZE, 18, 16, GREEN);
     EndDrawing();
 }
 
 void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Color color) const
 {
-    DrawTexture(texture, x * TILE_SIZE + TILE_SIZE, y * TILE_SIZE + TILE_SIZE, color);
+    DrawTexture(texture, x * _TILE_SIZE + _TILE_SIZE, y * _TILE_SIZE + _TILE_SIZE, color);
 }
 
-void RaylibGraphicLib::registerPlayerInput()
+void RaylibGraphicLib::registerPlayerInput() noexcept
 {
     if (IsKeyDown(KEY_W))
-        _arrayPlayerInput[0] = UP;
+        _arrayPlayerInput[0] = INPUT_UP;
     if (IsKeyDown(KEY_S))
-        _arrayPlayerInput[0] = DOWN;
+        _arrayPlayerInput[0] = INPUT_DOWN;
     if (IsKeyDown(KEY_A))
-        _arrayPlayerInput[0] = LEFT;
+        _arrayPlayerInput[0] = INPUT_LEFT;
     if (IsKeyDown(KEY_D))
-        _arrayPlayerInput[0] = RIGHT;
+        _arrayPlayerInput[0] = INPUT_RIGHT;
     if (IsKeyDown(KEY_UP))
-        _arrayPlayerInput[1] = UP;
+        _arrayPlayerInput[1] = INPUT_UP;
     if (IsKeyDown(KEY_DOWN))
-        _arrayPlayerInput[1] = DOWN;
+        _arrayPlayerInput[1] = INPUT_DOWN;
     if (IsKeyDown(KEY_LEFT))
-        _arrayPlayerInput[1] = LEFT;
+        _arrayPlayerInput[1] = INPUT_LEFT;
     if (IsKeyDown(KEY_RIGHT))
-        _arrayPlayerInput[1] = RIGHT;
+        _arrayPlayerInput[1] = INPUT_RIGHT;
     if (IsKeyDown(KEY_ESCAPE))
-        _arrayPlayerInput[0] = QUIT;
+        _arrayPlayerInput[0] = INPUT_QUIT;
     else if (IsKeyDown(KEY_ONE))
-        _arrayPlayerInput[0] = SWAP_LIBNCURSES;
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
     else if (IsKeyDown(KEY_TWO))
-        _arrayPlayerInput[0] = SWAP_LIBSDL;
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
 }
 
 player_input_t RaylibGraphicLib::getPlayerInput(int playerIdx) const
@@ -186,8 +189,8 @@ player_input_t RaylibGraphicLib::getPlayerInput(int playerIdx) const
 
 void RaylibGraphicLib::resetPlayerInput()
 {
-    _arrayPlayerInput[0] = DEFAULT;
-    _arrayPlayerInput[1] = DEFAULT;
+    _arrayPlayerInput[0] = INPUT_DEFAULT;
+    _arrayPlayerInput[1] = INPUT_DEFAULT;
 }
 
 RaylibGraphicLib::~RaylibGraphicLib()
@@ -209,12 +212,15 @@ RaylibGraphicLib &RaylibGraphicLib::operator=(const RaylibGraphicLib &other)
     return *this;
 }
 
-std::unique_ptr<RaylibGraphicLib> makeGraphicLib(int width, int height)
+extern "C"
 {
-    return std::make_unique<RaylibGraphicLib>(width, height);
-}
+    RaylibGraphicLib *makeGraphicLib(int width, int height)
+    {
+        return new RaylibGraphicLib(width, height);
+    }
 
-void destroyGraphicLib(std::unique_ptr<RaylibGraphicLib> gLib)
-{
-    gLib.reset();
+    void destroyGraphicLib(RaylibGraphicLib *gLib)
+    {
+        delete gLib;
+    }
 }

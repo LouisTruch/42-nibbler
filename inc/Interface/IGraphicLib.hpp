@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Player.hpp"
-#include "types.hpp"
+#include "../Food.hpp"
+#include "../Player/Player.hpp"
+#include "../types.hpp"
 #include <array>
 #include <memory>
 
@@ -14,12 +15,12 @@ class IGraphicLib
     virtual void clearBoard() const = 0;
     virtual player_input_t getPlayerInput(int) const = 0;
     virtual void resetPlayerInput() = 0;
-    virtual void registerPlayerInput() = 0;
-    // Can't pass unique_ptr to .so functions ?
+    virtual void registerPlayerInput() noexcept = 0;
+    // Can't pass unique_ptr to .so loaded functions ?
     virtual void drawPlayer(const Player &) = 0;
-    virtual void drawFood(const point_t &) = 0;
+    virtual void drawFood(const Food &) = 0;
     virtual void drawScores(int, int) = 0;
 
   protected:
-    ArrayPlayerInput _arrayPlayerInput = {UP, UP};
+    ArrayPlayerInput _arrayPlayerInput = {INPUT_UP, INPUT_UP};
 };

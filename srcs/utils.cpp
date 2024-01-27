@@ -35,3 +35,11 @@ board_size_t parseInput(const std::string &width, const std::string &height)
                                " and " + std::to_string(MAX_HEIGHT));
     return {std::stoi(width), std::stoi(height)};
 }
+
+void printFormat()
+{
+    std::cerr << "Correct format is :\n"
+              << "./nibbler [WIDTH] [HEIGHT]\n"
+              << "or\n"
+              << "./nibbler [ipv4 to join]" << std::endl;
+}

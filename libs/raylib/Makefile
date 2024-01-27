@@ -1,8 +1,8 @@
 CC = g++
-CFLAGS = -Wall -Werror -Wextra -std=c++20 -fPIC
+CFLAGS = -Wall -Werror -Wextra -std=c++20 -fPIC -g
 INCLUDES = -Iinc
-SRCS = src/RaylibGraphicLib.cpp \
-		src/RaylibTexture.cpp
+SRCS = srcs/RaylibGraphicLib.cpp \
+		srcs/RaylibTexture.cpp
 OBJS = $(SRCS:.c=.o)
 TARGET = libraylib.so
 

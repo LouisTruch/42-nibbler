@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../../inc/IGraphicLib.hpp"
+#include "../../../inc/Interface/IGraphicLib.hpp"
 #include "../raylib/src/raylib.h"
 #include "RaylibTexture.hpp"
 #include <algorithm>
@@ -19,9 +19,9 @@ class RaylibGraphicLib : public IGraphicLib
     void clearBoard() const;
     player_input_t getPlayerInput(int) const;
     void resetPlayerInput();
-    void registerPlayerInput();
+    void registerPlayerInput() noexcept;
     void drawPlayer(const Player &);
-    void drawFood(const point_t &);
+    void drawFood(const Food &);
     void drawScores(int, int);
 
   private:
@@ -33,7 +33,7 @@ class RaylibGraphicLib : public IGraphicLib
     void drawTextureTileSize(Texture2D, int, int, Color) const;
 
   private:
-    static constexpr int TILE_SIZE = 40;
+    static constexpr int _TILE_SIZE = 40;
     const Color _boardColor1 = {174, 220, 79, 255};
     const Color _boardColor2 = {146, 206, 63, 255};
     int _width;
@@ -44,6 +44,6 @@ class RaylibGraphicLib : public IGraphicLib
 
 extern "C"
 {
-    std::unique_ptr<RaylibGraphicLib> makeGraphicLib(int width, int height);
-    void destroyGraphicLib(std::unique_ptr<RaylibGraphicLib> gLib);
+    RaylibGraphicLib *makeGraphicLib(int width, int height);
+    void destroyGraphicLib(RaylibGraphicLib *gLib);
 }

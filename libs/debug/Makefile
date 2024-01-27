@@ -1,20 +1,20 @@
 CC = g++
 CFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
 INCLUDES = -Iinc
-SRCS = srcs/SDLGraphicLib.cpp 
+SRCS = $(wildcard srcs/*.cpp)
 OBJS = $(SRCS:.c=.o)
-TARGET = libsdl.so
+TARGET = libdebug.so
 
 .PHONY: clean fclean re
     
 all:    $(TARGET)
-	@echo  Successfully compiled a SDL shared object.
+	@echo  Successfully compiled a debug shared object.
 
 $(TARGET): $(OBJS) 
-	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -lSDL2
+	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS)
 
 .c.o:
-	$(CC) $(CFLAGS) -I/usr/include/SDL2 $(INCLUDES) -cpp $<  -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -cpp $<  -o $@
 
 clean:
 	$(RM) *.o 

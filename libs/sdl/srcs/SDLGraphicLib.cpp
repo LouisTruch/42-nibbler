@@ -4,7 +4,7 @@
 #include <ranges>
 #include <stdexcept>
 
-SDLGraphicLib::SDLGraphicLib(int width, int height) : _width(width * TILE_SIZE), _height(height * TILE_SIZE)
+SDLGraphicLib::SDLGraphicLib(int width, int height) : _width(width * _TILE_SIZE), _height(height * _TILE_SIZE)
 {
     SDL_Init(SDL_INIT_VIDEO);
     _window = SDL_CreateWindow("nibbler", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _width, _height, 0);
@@ -17,21 +17,21 @@ SDLGraphicLib::SDLGraphicLib(int width, int height) : _width(width * TILE_SIZE),
         throw std::runtime_error("Error creating SDL Renderer");
 
     // Set up border walls rectangle
-    _borders[HORIZONTAL_TOP].h = TILE_SIZE;
+    _borders[HORIZONTAL_TOP].h = _TILE_SIZE;
     _borders[HORIZONTAL_TOP].w = _width;
     _borders[HORIZONTAL_TOP].x = 0;
     _borders[HORIZONTAL_TOP].y = 0;
-    _borders[HORIZONTAL_BOTTOM].h = TILE_SIZE;
+    _borders[HORIZONTAL_BOTTOM].h = _TILE_SIZE;
     _borders[HORIZONTAL_BOTTOM].w = _width;
     _borders[HORIZONTAL_BOTTOM].x = 0;
-    _borders[HORIZONTAL_BOTTOM].y = _height - TILE_SIZE;
+    _borders[HORIZONTAL_BOTTOM].y = _height - _TILE_SIZE;
     _borders[VERTICAL_RIGHT].h = _height;
-    _borders[VERTICAL_RIGHT].w = TILE_SIZE;
+    _borders[VERTICAL_RIGHT].w = _TILE_SIZE;
     _borders[VERTICAL_RIGHT].x = 0;
     _borders[VERTICAL_RIGHT].y = 0;
     _borders[VERTICAL_LEFT].h = _height;
-    _borders[VERTICAL_LEFT].w = TILE_SIZE;
-    _borders[VERTICAL_LEFT].x = _width - TILE_SIZE;
+    _borders[VERTICAL_LEFT].w = _TILE_SIZE;
+    _borders[VERTICAL_LEFT].x = _width - _TILE_SIZE;
     _borders[VERTICAL_LEFT].y = 0;
 }
 
@@ -49,18 +49,18 @@ void SDLGraphicLib::drawPlayer(const Player &player)
         SDL_RenderFillRect(_renderer, &border);
 
     // Render Player
-    if (player._playerIdx == 0)
+    if (player._idx == 0)
         SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
-    else
+    else if (player._idx == 1)
         SDL_SetRenderDrawColor(_renderer, 255, 255, 0, 0);
-    for (auto &point : player._body)
+    for (auto &point : player._body._deque)
     {
-        _rect.x = point.x * TILE_SIZE + TILE_SIZE;
-        _rect.y = point.y * TILE_SIZE + TILE_SIZE;
+        _rect.x = point.x * _TILE_SIZE;
+        _rect.y = point.y * _TILE_SIZE;
         SDL_RenderFillRect(_renderer, &_rect);
-        if (point == player._body.front())
+        if (point == player._body._deque.front())
         {
-            if (player._playerIdx == 0)
+            if (player._idx == 0)
                 SDL_SetRenderDrawColor(_renderer, 175, 0, 0, 0);
             else
                 SDL_SetRenderDrawColor(_renderer, 175, 175, 0, 0);
@@ -68,11 +68,11 @@ void SDLGraphicLib::drawPlayer(const Player &player)
     }
 }
 
-void SDLGraphicLib::drawFood(const point_t &point)
+void SDLGraphicLib::drawFood(const Food &food)
 {
     SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 0);
-    _rect.x = point.x * TILE_SIZE + TILE_SIZE;
-    _rect.y = point.y * TILE_SIZE + TILE_SIZE;
+    _rect.x = food._pos.x * _TILE_SIZE;
+    _rect.y = food._pos.y * _TILE_SIZE;
     SDL_RenderFillRect(_renderer, &_rect);
     SDL_RenderPresent(_renderer);
 }
@@ -83,7 +83,7 @@ void SDLGraphicLib::drawScores(int score, int highScore)
     (void)highScore;
 }
 
-void SDLGraphicLib::registerPlayerInput()
+void SDLGraphicLib::registerPlayerInput() noexcept
 {
     while (SDL_PollEvent(&_event) > 0)
     {
@@ -91,27 +91,27 @@ void SDLGraphicLib::registerPlayerInput()
         {
         case SDL_KEYDOWN:
             if (_event.key.keysym.scancode == SDL_SCANCODE_W)
-                _arrayPlayerInput[0] = UP;
+                _arrayPlayerInput[0] = INPUT_UP;
             if (_event.key.keysym.scancode == SDL_SCANCODE_S)
-                _arrayPlayerInput[0] = DOWN;
+                _arrayPlayerInput[0] = INPUT_DOWN;
             if (_event.key.keysym.scancode == SDL_SCANCODE_A)
-                _arrayPlayerInput[0] = LEFT;
+                _arrayPlayerInput[0] = INPUT_LEFT;
             if (_event.key.keysym.scancode == SDL_SCANCODE_D)
-                _arrayPlayerInput[0] = RIGHT;
+                _arrayPlayerInput[0] = INPUT_RIGHT;
             if (_event.key.keysym.scancode == SDL_SCANCODE_UP)
-                _arrayPlayerInput[1] = UP;
+                _arrayPlayerInput[1] = INPUT_UP;
             if (_event.key.keysym.scancode == SDL_SCANCODE_DOWN)
-                _arrayPlayerInput[1] = DOWN;
+                _arrayPlayerInput[1] = INPUT_DOWN;
             if (_event.key.keysym.scancode == SDL_SCANCODE_LEFT)
-                _arrayPlayerInput[1] = LEFT;
+                _arrayPlayerInput[1] = INPUT_LEFT;
             if (_event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
-                _arrayPlayerInput[1] = RIGHT;
+                _arrayPlayerInput[1] = INPUT_RIGHT;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_1)
-                _arrayPlayerInput[0] = SWAP_LIBNCURSES;
+                _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_3)
-                _arrayPlayerInput[0] = SWAP_LIBRAYLIB;
+                _arrayPlayerInput[0] = INPUT_SWAP_LIBRAYLIB;
             else if (_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                _arrayPlayerInput[0] = QUIT;
+                _arrayPlayerInput[0] = INPUT_QUIT;
             break;
         }
     }
@@ -124,8 +124,8 @@ player_input_t SDLGraphicLib::getPlayerInput(int playerIdx) const
 
 void SDLGraphicLib::resetPlayerInput()
 {
-    _arrayPlayerInput[0] = DEFAULT;
-    _arrayPlayerInput[1] = DEFAULT;
+    _arrayPlayerInput[0] = INPUT_DEFAULT;
+    _arrayPlayerInput[1] = INPUT_DEFAULT;
 }
 
 SDLGraphicLib::~SDLGraphicLib()
@@ -153,12 +153,15 @@ SDLGraphicLib &SDLGraphicLib::operator=(const SDLGraphicLib &other)
     return *this;
 }
 
-std::unique_ptr<SDLGraphicLib> makeGraphicLib(int width, int height)
+extern "C"
 {
-    return std::make_unique<SDLGraphicLib>(width, height);
-}
+    SDLGraphicLib *makeGraphicLib(int width, int height)
+    {
+        return new SDLGraphicLib(width, height);
+    }
 
-void destroyGraphicLib(std::unique_ptr<SDLGraphicLib> gLib)
-{
-    gLib.reset();
+    void destroyGraphicLib(SDLGraphicLib *gLib)
+    {
+        delete gLib;
+    }
 }
