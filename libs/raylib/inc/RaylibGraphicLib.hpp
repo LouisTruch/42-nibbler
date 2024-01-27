@@ -5,7 +5,6 @@
 #include "RaylibTexture.hpp"
 #include <algorithm>
 #include <deque>
-#include <memory>
 #include <string_view>
 #include <vector>
 

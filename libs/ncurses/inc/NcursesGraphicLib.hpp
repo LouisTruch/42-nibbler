@@ -1,7 +1,6 @@
 #pragma once
 
-#include "../../../inc/IGraphicLib.hpp"
-#include <memory>
+#include "../../../inc/Interface/IGraphicLib.hpp"
 #include <ncurses.h>
 
 #define PLAYER_0_PAIR 1
@@ -23,9 +22,9 @@ class NcursesGraphicLib : public IGraphicLib
     void clearBoard() const;
     player_input_t getPlayerInput(int) const;
     void resetPlayerInput();
-    void registerPlayerInput();
+    void registerPlayerInput() noexcept;
     void drawPlayer(const Player &);
-    void drawFood(const point_t &);
+    void drawFood(const Food &);
     void drawScores(int, int);
 
   private:
@@ -38,6 +37,6 @@ class NcursesGraphicLib : public IGraphicLib
 
 extern "C"
 {
-    std::unique_ptr<NcursesGraphicLib> makeGraphicLib(int width, int height);
-    void destroyGraphicLib(std::unique_ptr<NcursesGraphicLib> gLib);
+    NcursesGraphicLib *makeGraphicLib(int width, int height);
+    void destroyGraphicLib(NcursesGraphicLib *gLib);
 }

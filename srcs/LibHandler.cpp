@@ -11,13 +11,14 @@ LibHandler::LibHandler(board_size_t boardSize)
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBDEBUG);
+    openGraphicLib(LIBNCURSES);
 #endif
     loadSymbolsGraphicLib();
 }
 
 LibHandler::~LibHandler()
 {
+    closeCurrentGraphicLib();
     if (_graphicLibPtr)
     {
         dlclose(_graphicLibPtr);
@@ -89,24 +90,6 @@ void LibHandler::closeCurrentGraphicLib()
     _currentGraphicLib = NO_LIB;
 }
 
-void LibHandler::closeLib(lib_type_e type)
-{
-    if (type == GRAPHIC)
-    {
-        if (dlclose(_graphicLibPtr))
-            throw std::runtime_error("Error LibHandler->closeLib(): Couldnt close lib");
-        _graphicLibPtr = nullptr;
-        _currentGraphicLib = NO_LIB;
-    }
-    else if (type == SOUND)
-    {
-        if (dlclose(_soundLibPtr))
-            throw std::runtime_error("Error LibHandler->closeLib(): Could not close lib");
-        _soundLibPtr = nullptr;
-        _currentSoundLib = -1;
-    }
-}
-
 std::unique_ptr<IGraphicLib> LibHandler::switchGraphicLib(lib_graphic_e libChoice, std::unique_ptr<IGraphicLib> gLib)
 {
     LOG_DEBUG("Switching graphic lib to " + std::string(GRAPHIC_LIB_PATH[libChoice].data()) + ".so");
@@ -118,6 +101,10 @@ std::unique_ptr<IGraphicLib> LibHandler::switchGraphicLib(lib_graphic_e libChoic
     if (0 < libChoice && libChoice >= NB_GRAPHIC_LIBS)
         return gLib;
 
+    gLib.reset();
+
+    // Probably not needed
+    _deleterGraphicFunc(gLib.get());
     closeCurrentGraphicLib();
     openGraphicLib(libChoice);
     loadSymbolsGraphicLib();

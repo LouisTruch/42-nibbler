@@ -25,16 +25,11 @@ Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler)
     //     _libHandler->openLib(LibHandler::SOUND, LibHandler::LIBSOUND);
     //     _modeHandler->setSoundHandler(_libHandler->makeSoundLib());
     // }
-    // initPlayer();
 }
 
 Game::~Game()
 {
     LOG_DEBUG("Destructing Game");
-    // _libHandler->destroyGraphicLib(std::move(_graphicHandler)); HERE
-
-    // if (_modeHandler->getIsSound())
-    //     _libHandler->destroySoundLib(_modeHandler->getSoundHandler());
 }
 
 #include <iostream>
@@ -55,6 +50,7 @@ void Game::playTurn()
             _p0->growBody();
             if (_p0->_body._deque.size() == _totalFreeSpace)
                 throw std::runtime_error("Game Win");
+
             _modeHandler->resetHungerTimer(0, now);
             _food = generateFood();
         }

@@ -2,7 +2,6 @@
 
 #include "../../../inc/Interface/IGraphicLib.hpp"
 #include <SDL2/SDL.h>
-#include <memory>
 
 class SDLGraphicLib : public IGraphicLib
 {

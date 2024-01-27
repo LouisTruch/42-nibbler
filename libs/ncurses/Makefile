@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
 INCLUDES = -Iinc
-SRCS = src/NcursesGraphicLib.cpp 
+SRCS = srcs/NcursesGraphicLib.cpp 
 OBJS = $(SRCS:.c=.o)
 TARGET = libncurses.so
 

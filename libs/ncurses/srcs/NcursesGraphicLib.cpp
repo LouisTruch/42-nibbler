@@ -32,62 +32,60 @@ void NcursesGraphicLib::clearBoard() const
     box(_board, boxIcon, boxIcon);
 }
 
-void NcursesGraphicLib::registerPlayerInput()
+void NcursesGraphicLib::registerPlayerInput() noexcept
 {
     chtype input = wgetch(_board);
 
     switch (input)
     {
     case 'w':
-        _arrayPlayerInput[0] = UP;
+        _arrayPlayerInput[0] = INPUT_UP;
         break;
     case 's':
-        _arrayPlayerInput[0] = DOWN;
+        _arrayPlayerInput[0] = INPUT_DOWN;
         break;
     case 'a':
-        _arrayPlayerInput[0] = LEFT;
+        _arrayPlayerInput[0] = INPUT_LEFT;
         break;
     case 'd':
-        _arrayPlayerInput[0] = RIGHT;
+        _arrayPlayerInput[0] = INPUT_RIGHT;
         break;
     case '2':
-        _arrayPlayerInput[0] = SWAP_LIBSDL;
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
         break;
     case '3':
-        _arrayPlayerInput[0] = SWAP_LIBRAYLIB;
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBRAYLIB;
         break;
     case KEY_UP:
-        _arrayPlayerInput[1] = UP;
+        _arrayPlayerInput[1] = INPUT_UP;
         break;
     case KEY_DOWN:
-        _arrayPlayerInput[1] = DOWN;
+        _arrayPlayerInput[1] = INPUT_DOWN;
         break;
     case KEY_LEFT:
-        _arrayPlayerInput[1] = LEFT;
+        _arrayPlayerInput[1] = INPUT_LEFT;
         break;
     case KEY_RIGHT:
-        _arrayPlayerInput[1] = RIGHT;
+        _arrayPlayerInput[1] = INPUT_RIGHT;
         break;
     case 27:
-        _arrayPlayerInput[0] = QUIT;
+        _arrayPlayerInput[0] = INPUT_QUIT;
         break;
     }
 }
 
 void NcursesGraphicLib::drawPlayer(const Player &player)
 {
-    // if (has_colors())
-    // {
-    if (player._playerIdx == 0)
+    if (player._idx == 0)
         wattron(_board, COLOR_PAIR(PLAYER_0_PAIR));
-    else
+    else if (player._idx == 1)
         wattron(_board, COLOR_PAIR(PLAYER_1_PAIR));
-    for (auto &point : player._body)
+    for (auto &point : player._body._deque)
     {
-        if (point == player._body.front())
-            mvwaddch(_board, point.y + 1, point.x + 1, playerHeadIcon);
+        if (point == player._body._deque.front())
+            mvwaddch(_board, point.y, point.x, playerHeadIcon);
         else
-            mvwaddch(_board, point.y + 1, point.x + 1, playerIcon);
+            mvwaddch(_board, point.y, point.x, playerIcon);
     }
     wattroff(_board, COLOR_PAIR(PLAYER_0_PAIR));
     wattroff(_board, COLOR_PAIR(PLAYER_1_PAIR));
@@ -105,10 +103,10 @@ void NcursesGraphicLib::drawScores(int score, int highScore)
     wrefresh(_scoreBoard);
 }
 
-void NcursesGraphicLib::drawFood(const point_t &point)
+void NcursesGraphicLib::drawFood(const Food &food)
 {
     wattron(_board, COLOR_PAIR(FOOD_PAIR));
-    mvwaddch(_board, point.y + 1, point.x + 1, foodIcon);
+    mvwaddch(_board, food._pos.y, food._pos.x, foodIcon);
     wattroff(_board, COLOR_PAIR(FOOD_PAIR));
 }
 
@@ -119,8 +117,8 @@ player_input_t NcursesGraphicLib::getPlayerInput(int playerIdx) const
 
 void NcursesGraphicLib::resetPlayerInput()
 {
-    _arrayPlayerInput[0] = DEFAULT;
-    _arrayPlayerInput[1] = DEFAULT;
+    _arrayPlayerInput[0] = INPUT_DEFAULT;
+    _arrayPlayerInput[1] = INPUT_DEFAULT;
 }
 
 NcursesGraphicLib::~NcursesGraphicLib()
@@ -144,12 +142,15 @@ NcursesGraphicLib &NcursesGraphicLib::operator=(const NcursesGraphicLib &other)
     return *this;
 }
 
-std::unique_ptr<NcursesGraphicLib> makeGraphicLib(int width, int height)
+extern "C"
 {
-    return std::make_unique<NcursesGraphicLib>(width, height);
-}
+    NcursesGraphicLib *makeGraphicLib(int width, int height)
+    {
+        return new NcursesGraphicLib(width, height);
+    }
 
-void destroyGraphicLib(std::unique_ptr<NcursesGraphicLib> gLib)
-{
-    gLib.reset();
+    void destroyGraphicLib(NcursesGraphicLib *gLib)
+    {
+        delete gLib;
+    }
 }

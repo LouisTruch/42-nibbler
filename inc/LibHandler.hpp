@@ -1,6 +1,6 @@
 #pragma once
-#include "../inc/Interface/IGraphicLib.hpp"
 #include "../inc/ISoundLib.hpp"
+#include "../inc/Interface/IGraphicLib.hpp"
 #include <memory>
 #include <string>
 #include <string_view>
@@ -33,7 +33,6 @@ class LibHandler
     void openSoundLib(int);
     void closeCurrentGraphicLib();
 
-    void closeLib(lib_type_e);
     std::unique_ptr<IGraphicLib> makeGraphicLib();
     void destroyGraphicLib(IGraphicLib *);
     std::unique_ptr<IGraphicLib> switchGraphicLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
