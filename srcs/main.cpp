@@ -26,8 +26,15 @@ int main(int argc, char **argv)
         board_size_t boardSize = {10, 10};
         std::unique_ptr<ModeHandler> modeHandler = std::make_unique<ModeHandler>(0);
         std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(boardSize);
-        Client client(std::move(modeHandler), std::move(libHandler));
-        bool multiplayer = false;
+
+        bool online = true;
+        Client client(std::move(modeHandler), std::move(libHandler), online);
+        bool multiplayer;
+        if (online)
+            multiplayer = true;
+        else
+            multiplayer = false;
+
         client.createGame(boardSize, multiplayer);
         client.startGame();
     }

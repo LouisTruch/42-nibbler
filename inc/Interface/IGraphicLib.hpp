@@ -1,10 +1,9 @@
 #pragma once
 
-#include "../Food.hpp"
-#include "../Player/Player.hpp"
+#include "../Game/Food.hpp"
+#include "../Game/Player/Player.hpp"
 #include "../types.hpp"
-#include <array>
-#include <memory>
+#include <array> // std::array
 
 class IGraphicLib
 {

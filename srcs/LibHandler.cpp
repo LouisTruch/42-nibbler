@@ -16,17 +16,17 @@ LibHandler::LibHandler(board_size_t boardSize)
 #endif
     loadSymbolsGraphicLib();
 
-    try
-    {
-        // TODO : Fix leak coming from here (from dlopen())
-        openSoundLib(SOUNDRAYLIB);
-        loadSymbolsSoundLib();
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "In LibHandler(): " << e.what() << std::endl;
-        std::cerr << "Sound will not be enabled" << std::endl;
-    }
+    // try
+    // {
+    //     // TODO : Fix leak coming from here (from dlopen())
+    //     openSoundLib(SOUNDRAYLIB);
+    //     loadSymbolsSoundLib();
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "In LibHandler(): " << e.what() << std::endl;
+    //     std::cerr << "Sound will not be enabled" << std::endl;
+    // }
 }
 
 LibHandler::~LibHandler()

@@ -1,4 +1,5 @@
 #include "../inc/RaylibGraphicLib.hpp"
+#include <memory> // std::make_unique
 
 RaylibGraphicLib::RaylibGraphicLib(int width, int height) : _width(width * _TILE_SIZE), _height(height * _TILE_SIZE)
 {

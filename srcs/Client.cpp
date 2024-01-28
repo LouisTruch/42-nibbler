@@ -1,7 +1,7 @@
 #include "../inc/Client.hpp"
 #include "../inc/Log/Logger.hpp"
 
-Client::Client(std::unique_ptr<ModeHandler> modeHandler, std::unique_ptr<LibHandler> libHandler)
+Client::Client(std::unique_ptr<ModeHandler> modeHandler, std::unique_ptr<LibHandler> libHandler, bool online)
     : _modeHandler(std::move(modeHandler)), _libHandler(std::move(libHandler)),
       _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr), _soundLib(_libHandler->makeSoundLib())
 {
@@ -18,10 +18,14 @@ void Client::createGame(board_size_t boardSize, bool multiplayer)
     _game = std::make_unique<Game>(boardSize, std::move(_modeHandler), multiplayer);
 }
 
-// TODO : remove iostream
+// TODO : remove iostream and chrono
+#include <chrono>
 #include <iostream>
 void Client::startGame()
 {
+    // auto test1 = std::chrono::high_resolution_clock::now();
+    // size_t nbIterationPerSec = 0;
+
     while (1)
     {
         // TODO : Probably move this in something link HandleInput, maybe can do a class for it idk
@@ -33,6 +37,15 @@ void Client::startGame()
         _game->playTurn();
         render();
         handleSound();
+
+        // nbIterationPerSec++;
+        // auto test2 = std::chrono::high_resolution_clock::now();
+        // if (std::chrono::duration_cast<std::chrono::seconds>(test2 - test1).count() >= 1)
+        // {
+        //     std::cout << "Iter Per sec: " << nbIterationPerSec << std::endl;
+        //     test1 = std::chrono::high_resolution_clock::now();
+        //     nbIterationPerSec = 0;
+        // }
     }
     LOG_DEBUG("Exiting Client::startGame()");
 }
@@ -41,7 +54,7 @@ void Client::consumePlayerInput(const player_input_t playerInput, const std::siz
 {
     if (_game->getP(playerIdx) == nullptr)
         return;
-        
+
     if (playerInput == INPUT_DEFAULT)
         return;
     input_type_e inputType = checkPlayerInput(playerInput);

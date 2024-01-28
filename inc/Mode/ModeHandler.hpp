@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../Food.hpp"
 #include "../types.hpp"
 #include "ModeAcceleratingSpeed.hpp"
 #include "ModeHunger.hpp"

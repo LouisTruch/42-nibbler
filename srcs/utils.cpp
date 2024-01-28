@@ -1,4 +1,4 @@
-#include "../inc/Game.hpp"
+#include "../inc/types.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>

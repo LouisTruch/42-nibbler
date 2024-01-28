@@ -22,8 +22,9 @@ endif
 SRCS := $(wildcard srcs/*.cpp)
 SRCS += $(wildcard srcs/Menu/*.cpp)
 SRCS += $(wildcard srcs/Log/*.cpp)
-SRCS += $(wildcard srcs/Player/*.cpp)
 SRCS += $(wildcard srcs/Mode/*.cpp)
+SRCS += $(wildcard srcs/Game/*.cpp)
+SRCS += $(wildcard srcs/Game/Player/*.cpp)
 
 OBJS := $(patsubst %.cpp, %.o, $(SRCS))
 DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))

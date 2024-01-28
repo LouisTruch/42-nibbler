@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../types.hpp"
+#include "../../types.hpp"
 #include "Body.hpp"
 #include <bits/types/clock_t.h>
 #include <deque>

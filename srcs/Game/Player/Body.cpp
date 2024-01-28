@@ -1,5 +1,5 @@
-#include "../../inc/Player/Body.hpp"
-#include "../../inc/Log/Logger.hpp"
+#include "../../../inc/Game/Player/Body.hpp"
+#include "../../../inc/Log/Logger.hpp"
 
 Body::Body(point_t spawn, std::size_t size)
 {

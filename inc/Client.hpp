@@ -1,16 +1,16 @@
 #pragma once
 
+#include "./Game/Game.hpp"
 #include "./Interface/IGraphicLib.hpp"
 #include "./Interface/ISoundLib.hpp"
 #include "./Mode/ModeHandler.hpp"
-#include "Game.hpp"
 #include "LibHandler.hpp"
 #include "types.hpp"
 
 class Client
 {
   public:
-    Client(std::unique_ptr<ModeHandler>, std::unique_ptr<LibHandler>);
+    Client(std::unique_ptr<ModeHandler>, std::unique_ptr<LibHandler>, bool online);
     ~Client();
     void createGame(board_size_t boardSize, bool multipayer);
     void startGame();

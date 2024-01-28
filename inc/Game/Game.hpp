@@ -1,9 +1,9 @@
 #pragma once
-#include "./Mode/ModeHandler.hpp"
+#include "../Mode/ModeHandler.hpp"
+#include "../types.hpp"
 #include "./Player/Player.hpp"
 #include "Food.hpp"
 #include "Score.hpp"
-#include "types.hpp"
 #include <random> // std::mt19937
 
 class Game

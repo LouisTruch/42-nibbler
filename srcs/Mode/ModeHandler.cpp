@@ -1,9 +1,6 @@
 #include "../../inc/Mode/ModeHandler.hpp"
-#include "../../inc/Game.hpp"
 #include "../../inc/Log/Logger.hpp"
-#include "../../inc/Menu/MenuItem.hpp"
-#include <ctime>
-#include <memory>
+#include <memory> // std::make_unique
 
 // This constructor is for debugging purpose
 ModeHandler::ModeHandler() : _hungerHandler(nullptr), _movingFoodHandler(nullptr), _acceleratingSpeedHandler(nullptr)

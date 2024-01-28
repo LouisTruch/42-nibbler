@@ -1,5 +1,5 @@
-#include "../../inc/Player/Player.hpp"
-#include "../../inc/Log/Logger.hpp"
+#include "../../../inc/Game/Player/Player.hpp"
+#include "../../../inc/Log/Logger.hpp"
 
 Player::Player(std::size_t idx, int x, int y, int size)
     : _idx(idx), _body({x, y}, size), _nextDirection(DIRECTION_UP), _prevDirection(DIRECTION_UP)

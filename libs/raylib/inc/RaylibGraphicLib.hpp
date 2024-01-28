@@ -3,10 +3,11 @@
 #include "../../../inc/Interface/IGraphicLib.hpp"
 #include "../raylib/src/raylib.h"
 #include "RaylibTexture.hpp"
-#include <algorithm>
-#include <deque>
-#include <string_view>
-#include <vector>
+#include <algorithm> 
+#include <deque> // std::deque
+#include <string_view> // std::string_view
+#include <vector> // std::vector
+#include <memory> // std::unique_ptr
 
 class RaylibGraphicLib : public IGraphicLib
 {

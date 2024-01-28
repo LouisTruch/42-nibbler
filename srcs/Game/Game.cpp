@@ -1,5 +1,5 @@
-#include "../inc/Game.hpp"
-#include "../inc/Log/Logger.hpp"
+#include "../../inc/Game/Game.hpp"
+#include "../../inc/Log/Logger.hpp"
 #include <unistd.h> // getpid()
 
 Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, bool multiplayer)

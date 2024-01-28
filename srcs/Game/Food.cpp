@@ -1,5 +1,5 @@
-#include "../inc/Food.hpp"
-#include "../inc/Log/Logger.hpp"
+#include "../../inc/Game/Food.hpp"
+#include "../../inc/Log/Logger.hpp"
 
 Food::Food(point_t spawn) : _pos(spawn)
 {

@@ -1,5 +1,5 @@
-#include "../inc/Score.hpp"
-#include "../inc/Log/Logger.hpp"
+#include "../../inc/Game/Score.hpp"
+#include "../../inc/Log/Logger.hpp"
 
 #include <iostream>  // std::cerr
 #include <stdexcept> // std::runtime_error
