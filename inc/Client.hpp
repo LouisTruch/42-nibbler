@@ -12,7 +12,7 @@ class Client
   public:
     Client(std::unique_ptr<ModeHandler>, std::unique_ptr<LibHandler>);
     ~Client();
-    void createGame(board_size_t boardSize);
+    void createGame(board_size_t boardSize, bool multipayer);
     void startGame();
 
   private:
@@ -27,12 +27,15 @@ class Client
         QUIT,
         SWAP_LIB,
         DIRECTION,
+        MUTE,
     } input_type_e;
-    input_type_e checkPlayerInput(player_input_t playerInput) noexcept;
-    LibHandler::lib_graphic_e inputToLibNum(player_input_t) noexcept;
-    void handleLibSwitch(player_input_t playerInput);
-    bool checkIfOppositeDirection(player_input_t playerInput);
-    void render();
+    input_type_e checkPlayerInput(const player_input_t playerInput) noexcept;
+    LibHandler::lib_graphic_e inputToLibNum(const player_input_t) noexcept;
+    void consumePlayerInput(const player_input_t playerInput, const std::size_t playerIdx);
+    void handleLibSwitch(const player_input_t playerInput);
+    bool checkIfOppositeDirection(player_input_t playerInput, const std::size_t playerIdx) const noexcept;
+    void render() const;
+    void handleSound() const;
 
   private:
     std::unique_ptr<ModeHandler> _modeHandler;

@@ -54,6 +54,7 @@ class LibHandler
     void loadSymbolsSoundLib();
 
   private:
+    // TODO: Change those names (Creator,...) watch intra video if no idea
     typedef IGraphicLib *(*makeGraphicLibFunc)(int, int);
     typedef void (*destroyGraphicLibFunc)(IGraphicLib *);
     typedef ISoundLib *(*makeSoundLibFunc)();

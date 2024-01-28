@@ -18,7 +18,7 @@ class Player
     } player_direction;
 
   public:
-    Player(int idx, int x, int y, int size);
+    Player(std::size_t idx, int x, int y, int size);
     ~Player();
     Player(const Player &);
     Player &operator=(const Player &);
@@ -35,7 +35,7 @@ class Player
 
   public:
     // Have to make them public because of symbol lookup error when using getters
-    int _idx;
+    std::size_t _idx;
     Body _body;
     // This one only for Raylib
     player_direction _nextDirection;

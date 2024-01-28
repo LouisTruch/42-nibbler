@@ -2,32 +2,29 @@
 #include "../inc/Log/Logger.hpp"
 #include <unistd.h> // getpid()
 
-Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler)
+Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, bool multiplayer)
     : _modeHandler(std::move(modeHandler)), _width(boardSize.x), _height(boardSize.y),
       _totalFreeSpace((_width - 2) * (_height - 2)), _gameSpeed(_DEFAULT_GAME_SPEED_MS), _lastTurn(std::clock()),
       _p0(nullptr), _p1(nullptr), _food(nullptr), _scoreHandler(nullptr), _shouldPlayEatingSound(false)
 {
-    LOG_DEBUG("Constructing Game");
     if (_lastTurn == (std::clock_t)-1)
         throw std::runtime_error("Error Game::Game(): std::clock() failed");
 
     _rng.seed(getpid());
 
-    _p0 = std::make_shared<Player>(0, _width / 2, _height / 2, _DEFAULT_PLAYER_SIZE);
+    // Score is only active in singleplayer games
+    if (!multiplayer)
+    {
+        _p0 = std::make_shared<Player>(0, _width / 2, _height / 2, _DEFAULT_PLAYER_SIZE);
+        _scoreHandler = std::make_unique<Score>(_width, _height);
+    }
+    else
+    {
+        _p0 = std::make_shared<Player>(0, 1, _height / 2, _DEFAULT_PLAYER_SIZE);
+        _p1 = std::make_shared<Player>(1, _width - 2, _height / 2, _DEFAULT_PLAYER_SIZE);
+    }
     _food = generateFood();
-    // TODO : Make Score Handler only if singleplayer !
-    _scoreHandler = std::make_unique<Score>(_width, _height);
-
-    // _libHandler = std::make_unique<LibHandler>(_width, _height);
-    // +2 to includes border walls
-    // _graphicHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
-    // _food = std::make_unique<Food>(chooseRandomFoodPos());
-
-    // if (_modeHandler->getIsSound())
-    // {
-    //     _libHandler->openLib(LibHandler::SOUND, LibHandler::LIBSOUND);
-    //     _modeHandler->setSoundHandler(_libHandler->makeSoundLib());
-    // }
+    LOG_DEBUG("Game successfully constructed:" + getInfo());
 }
 
 Game::~Game()
@@ -46,27 +43,8 @@ void Game::playTurn()
         _lastTurn = now;
         movePlayers();
         setShouldPlayEatingSound(false);
-        // Can probably use the same one for both players in a switch
-        collision_type collision_p0 = checkPlayerCollision(_p0);
-        if (collision_p0 == COLLISION_P0_FOOD)
-        {
-
-            _p0->growBody();
-            updateScore();
-            setShouldPlayEatingSound(true);
-            if (_p0->_body._deque.size() == _totalFreeSpace)
-                throw std::runtime_error("Game Win");
-
-            _modeHandler->resetHungerTimer(0, now);
-            _food = generateFood();
-        }
-        else if (collision_p0 == COLLISION_P0_ITSELF || collision_p0 == COLLISION_P0_WALL)
-        {
-            throw std::runtime_error("Game Over");
-        }
+        handleCollisions(now);
         runModesRoutine(now);
-        // collision_type collision_p1 = checkPlayerCollision(_p1);
-        // Throw error if collision meaning game over
     }
 }
 
@@ -84,12 +62,24 @@ void Game::runModesRoutine(const std::clock_t &now)
     }
 }
 
+std::shared_ptr<Player> Game::getP(std::size_t idx)
+{
+    if (idx == 0)
+        return getP0();
+    else if (idx == 1)
+        return getP1();
+    return nullptr;
+}
+
 std::shared_ptr<Player> Game::getP0()
 {
     return _p0;
 }
 
-// std::shared_ptr<Player> Game::getP1()
+std::shared_ptr<Player> Game::getP1()
+{
+    return _p1;
+}
 
 std::shared_ptr<Food> Game::getFood()
 {
@@ -100,24 +90,82 @@ void Game::movePlayers() noexcept
 {
     if (_p0 != nullptr)
         _p0->move();
-    // if (_p1 != nullptr)
-    // _p1->move();
+    if (_p1 != nullptr)
+        _p1->move();
 }
 
-Game::collision_type Game::checkPlayerCollision(const std::shared_ptr<Player> &player) const noexcept
+// TODO : Clean this mess
+void Game::handleCollisions(const std::clock_t &now)
+{
+    if (_p0 == nullptr)
+        return;
+
+    collision_type collision_p0 = checkPlayerCollision(_p0, _p1);
+    collision_type collision_p1 = NO_COLLISION;
+    if (_p1 != nullptr)
+    {
+        collision_p1 = checkPlayerCollision(_p1, _p0);
+    }
+
+    if ((collision_p0 == COLLISION_ITSELF || collision_p0 == COLLISION_WALL || collision_p0 == COLLISION_OTHERPLAYER) &&
+        (collision_p1 == COLLISION_ITSELF || collision_p1 == COLLISION_WALL || collision_p1 == COLLISION_OTHERPLAYER))
+    {
+        // TODO : probably throw exception idk game draw
+        throw std::runtime_error("Game Draw");
+    }
+    if ((collision_p0 == COLLISION_ITSELF || collision_p0 == COLLISION_WALL || collision_p0 == COLLISION_OTHERPLAYER))
+    {
+        // TODO : GAME WIN P1
+        throw std::runtime_error("Game Over p0 nul");
+    }
+    if ((collision_p1 == COLLISION_ITSELF || collision_p1 == COLLISION_WALL || collision_p1 == COLLISION_OTHERPLAYER))
+    {
+        // TODO : GAME WIN P0
+        throw std::runtime_error("Game Over p1 nul");
+    }
+
+    if (collision_p0 == COLLISION_FOOD)
+    {
+        setShouldPlayEatingSound(true);
+        _p0->growBody();
+        updateScore();
+        if (_p0->_body._deque.size() == _totalFreeSpace)
+            throw std::runtime_error("Game Win");
+        _food = generateFood();
+        _modeHandler->resetHungerTimer(0, now);
+    }
+    if (collision_p1 == COLLISION_FOOD)
+    {
+        setShouldPlayEatingSound(true);
+        _p1->growBody();
+        _food = generateFood();
+        _modeHandler->resetHungerTimer(1, now);
+    }
+}
+
+Game::collision_type Game::checkPlayerCollision(const std::shared_ptr<Player> &player,
+                                                const std::shared_ptr<Player> &otherPlayer) const noexcept
 {
     if (checkCollisionPlayerWall(player))
     {
-        return COLLISION_P0_WALL;
+        return COLLISION_WALL;
     }
     if (checkCollisionPlayerFood(player))
     {
-        return COLLISION_P0_FOOD;
+        return COLLISION_FOOD;
     }
     if (checkCollisionPlayerItself(player))
     {
-        return COLLISION_P0_ITSELF;
+        return COLLISION_ITSELF;
     }
+    if (otherPlayer != nullptr)
+    {
+        if (checkCollisionOtherPlayer(player, otherPlayer))
+        {
+            return COLLISION_OTHERPLAYER;
+        }
+    }
+
     return NO_COLLISION;
 }
 
@@ -149,6 +197,19 @@ bool Game::checkCollisionPlayerItself(const std::shared_ptr<Player> &player) con
         if (player->_body._deque.front() == *it)
         {
             LOG_DEBUG("Player " + std::to_string(player->_idx) + " collided with itself");
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Game::checkCollisionOtherPlayer(const std::shared_ptr<Player> &player,
+                                     const std::shared_ptr<Player> &otherPlayer) const noexcept
+{
+    for (auto it = otherPlayer->_body._deque.begin(); it != otherPlayer->_body._deque.end(); ++it)
+    {
+        if (player->_body._deque.front() == *it)
+        {
             return true;
         }
     }
@@ -194,6 +255,8 @@ bool Game::isPointOccupied(const point_t &point) const noexcept
 
 void Game::updateScore() noexcept
 {
+    if (_scoreHandler == nullptr)
+        return;
     _scoreHandler->setCurrentScore(_p0->_body._deque.size());
 }
 
@@ -205,6 +268,23 @@ void Game::setShouldPlayEatingSound(bool shouldPlay) noexcept
 bool Game::getShouldPlayEatingSound() const noexcept
 {
     return _shouldPlayEatingSound;
+}
+
+std::string Game::getInfo() const noexcept
+{
+#ifndef DEBUG
+    return "";
+#else
+    std::string info = " Width:";
+    info += std::to_string(_width);
+    info += " Height:";
+    info += std::to_string(_height);
+    info += " GameSpeed:";
+    info += std::to_string(_gameSpeed);
+    info += " Multiplayer:";
+    info += (_p1 != nullptr) ? "On" : "Off";
+    return info;
+#endif
 }
 
 // OLD CODE

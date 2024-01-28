@@ -41,7 +41,7 @@ void LibHandler::openGraphicLib(lib_graphic_e libChoice)
     if (0 < libChoice && libChoice >= NB_GRAPHIC_LIBS)
         return;
     dlerror();
-    _graphicLibPtr = dlopen(GRAPHIC_LIB_PATH[libChoice].data(), RTLD_LAZY);
+    _graphicLibPtr = dlopen(GRAPHIC_LIB_PATH[libChoice].data(), RTLD_LAZY | RTLD_LOCAL);
     if (!_graphicLibPtr)
     {
         std::cerr << "Error LibHandler(): " << dlerror() << std::endl;
@@ -136,7 +136,7 @@ void LibHandler::openSoundLib(lib_sound_e libChoice)
         return;
 
     dlerror();
-    _soundLibPtr = dlopen(SOUND_LIB_PATH[libChoice].data(), RTLD_LAZY);
+    _soundLibPtr = dlopen(SOUND_LIB_PATH[libChoice].data(), RTLD_LAZY | RTLD_LOCAL);
     if (!_soundLibPtr)
     {
         std::cerr << "Error LibHandler(): " << dlerror() << std::endl;

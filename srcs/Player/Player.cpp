@@ -1,7 +1,7 @@
 #include "../../inc/Player/Player.hpp"
 #include "../../inc/Log/Logger.hpp"
 
-Player::Player(int idx, int x, int y, int size)
+Player::Player(std::size_t idx, int x, int y, int size)
     : _idx(idx), _body({x, y}, size), _nextDirection(DIRECTION_UP), _prevDirection(DIRECTION_UP)
 {
     LOG_DEBUG("Player constructor idx:" << idx << " x:" << x << " y:" << y << " size:" << size);

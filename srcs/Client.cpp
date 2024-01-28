@@ -13,44 +13,59 @@ Client::~Client()
     LOG_DEBUG("Destructing Client");
 }
 
-void Client::createGame(board_size_t boardSize)
+void Client::createGame(board_size_t boardSize, bool multiplayer)
 {
-    _game = std::make_unique<Game>(boardSize, std::move(_modeHandler));
+    _game = std::make_unique<Game>(boardSize, std::move(_modeHandler), multiplayer);
 }
 
+// TODO : remove iostream
+#include <iostream>
 void Client::startGame()
 {
     while (1)
     {
+        // TODO : Probably move this in something link HandleInput, maybe can do a class for it idk
         _graphicLib->registerPlayerInput();
-        player_input_t playerInput = _graphicLib->getPlayerInput(0);
-        input_type_e inputType = checkPlayerInput(playerInput);
-        if (inputType == QUIT)
-            break;
-        else if (inputType == SWAP_LIB)
-        {
-            handleLibSwitch(playerInput);
-        }
-        else if (inputType == DIRECTION)
-        {
-            if (!checkIfOppositeDirection(playerInput))
-                _game->getP0()->setNextDirection(playerInput);
-        }
+        consumePlayerInput(_graphicLib->getPlayerInput(0), 0);
+        consumePlayerInput(_graphicLib->getPlayerInput(1), 1);
+        _graphicLib->resetPlayerInput();
+
         _game->playTurn();
         render();
-        // TODO : move this
-        if (_soundLib != nullptr)
-        {
-            if (_game->getShouldPlayEatingSound())
-            {
-                _soundLib->playSound(ISoundLib::SOUND_EAT);
-            }
-        }
+        handleSound();
     }
     LOG_DEBUG("Exiting Client::startGame()");
 }
 
-Client::input_type_e Client::checkPlayerInput(player_input_t playerInput) noexcept
+void Client::consumePlayerInput(const player_input_t playerInput, const std::size_t playerIdx)
+{
+    if (_game->getP(playerIdx) == nullptr)
+        return;
+        
+    if (playerInput == INPUT_DEFAULT)
+        return;
+    input_type_e inputType = checkPlayerInput(playerInput);
+    if (inputType == QUIT)
+        // TODO : Change this exception
+        throw std::runtime_error("In Client::consumeP0Input(): QUIT received");
+    else if (inputType == SWAP_LIB)
+    {
+        handleLibSwitch(playerInput);
+    }
+    else if (inputType == DIRECTION)
+    {
+        if (!checkIfOppositeDirection(playerInput, playerIdx))
+            _game->getP(playerIdx)->setNextDirection(playerInput);
+    }
+    else if (inputType == MUTE)
+    {
+        // TODO : move this
+        _soundLib->inverseMute();
+        _graphicLib->resetPlayerInput();
+    }
+}
+
+Client::input_type_e Client::checkPlayerInput(const player_input_t playerInput) noexcept
 {
     switch (playerInput)
     {
@@ -77,6 +92,9 @@ Client::input_type_e Client::checkPlayerInput(player_input_t playerInput) noexce
     case INPUT_DOWN:
         return DIRECTION;
 
+    case INPUT_MUTE:
+        return MUTE;
+
     case INPUT_DEFAULT:
         [[fallthrough]];
     default:
@@ -85,7 +103,7 @@ Client::input_type_e Client::checkPlayerInput(player_input_t playerInput) noexce
     return UNHANDLED;
 }
 
-LibHandler::lib_graphic_e Client::inputToLibNum(player_input_t input) noexcept
+LibHandler::lib_graphic_e Client::inputToLibNum(const player_input_t input) noexcept
 {
     switch (input)
     {
@@ -104,25 +122,37 @@ LibHandler::lib_graphic_e Client::inputToLibNum(player_input_t input) noexcept
     }
 }
 
-void Client::handleLibSwitch(player_input_t playerInput)
+void Client::handleLibSwitch(const player_input_t playerInput)
 {
     LibHandler::lib_graphic_e libNum = inputToLibNum(playerInput);
     _graphicLib = _libHandler->switchGraphicLib(libNum, std::move(_graphicLib));
 }
 
-bool Client::checkIfOppositeDirection(player_input_t playerInput)
+bool Client::checkIfOppositeDirection(const player_input_t playerInput, const std::size_t playerIdx) const noexcept
 {
-    if (playerInput + (player_input_t)_game->getP0()->getPrevDirection() == 0)
+    if (playerInput + (player_input_t)_game->getP(playerIdx)->getPrevDirection() == 0)
         return true;
     return false;
 }
 
-void Client::render()
+void Client::render() const
 {
     _graphicLib->clearBoard();
     _graphicLib->drawPlayer(*_game->getP0());
-    // _graphicLib->drawPlayer(*_game->getP1());
+    if (_game->getP1() != nullptr)
+        _graphicLib->drawPlayer(*_game->getP1());
     _graphicLib->drawFood(*_game->getFood());
+}
+
+void Client::handleSound() const
+{
+    if (_soundLib != nullptr)
+    {
+        if (_game->getShouldPlayEatingSound())
+        {
+            _soundLib->playSound(ISoundLib::SOUND_EAT);
+        }
+    }
 }
 
 // Old Client class

@@ -125,6 +125,9 @@ void SDLGraphicLib::registerPlayerInput() noexcept
             case SDL_SCANCODE_RIGHT:
                 _arrayPlayerInput[1] = INPUT_RIGHT;
                 break;
+            case SDL_SCANCODE_M:
+                _arrayPlayerInput[0] = INPUT_MUTE;
+                break;
 #ifdef DEBUG
             case SDL_SCANCODE_2:
                 _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;

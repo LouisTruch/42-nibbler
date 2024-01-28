@@ -13,6 +13,7 @@ typedef enum
     INPUT_SWAP_LIBNCURSES,
     INPUT_SWAP_LIBSDL,
     INPUT_SWAP_LIBRAYLIB,
+    INPUT_MUTE,
     INPUT_QUIT
 } player_input_t;
 #else
@@ -26,6 +27,7 @@ typedef enum
     INPUT_SWAP_LIBNCURSES,
     INPUT_SWAP_LIBSDL,
     INPUT_SWAP_LIBRAYLIB,
+    INPUT_MUTE,
     INPUT_QUIT,
     INPUT_SWAP_LIBDEBUG,
 } player_input_t;

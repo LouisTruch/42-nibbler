@@ -10,6 +10,7 @@ class RaylibSoundLib : public ISoundLib
     RaylibSoundLib();
     ~RaylibSoundLib();
     void playSound(sound_type_e) const;
+    void inverseMute();
 
   private:
     RaylibSoundLib(const RaylibSoundLib &) = delete;

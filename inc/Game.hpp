@@ -12,29 +12,36 @@ class Game
     enum collision_type
     {
         NO_COLLISION,
-        COLLISION_P0_FOOD,
-        COLLISION_P0_ITSELF,
-        COLLISION_P0_WALL,
+        COLLISION_FOOD,
+        COLLISION_ITSELF,
+        COLLISION_WALL,
+        COLLISION_OTHERPLAYER
     };
 
   public:
-    Game(board_size_t boardSize, std::unique_ptr<ModeHandler>);
+    Game(board_size_t boardSize, std::unique_ptr<ModeHandler>, bool multiplayer);
     ~Game();
+
+  public:
     void playTurn();
     void setShouldPlayEatingSound(bool) noexcept;
     bool getShouldPlayEatingSound() const noexcept;
-
+    std::shared_ptr<Player> getP(std::size_t idx);
     std::shared_ptr<Player> getP0();
-    // std::shared_ptr<Player> getP1();
+    std::shared_ptr<Player> getP1();
     std::shared_ptr<Food> getFood();
 
   private:
     Game() = delete;
     void movePlayers() noexcept;
-    collision_type checkPlayerCollision(const std::shared_ptr<Player> &player) const noexcept;
+    void handleCollisions(const std::clock_t &now);
+    collision_type checkPlayerCollision(const std::shared_ptr<Player> &player,
+                                        const std::shared_ptr<Player> &otherPlayer) const noexcept;
     bool checkCollisionPlayerWall(const std::shared_ptr<Player> &player) const noexcept;
     bool checkCollisionPlayerFood(const std::shared_ptr<Player> &player) const noexcept;
     bool checkCollisionPlayerItself(const std::shared_ptr<Player> &player) const noexcept;
+    bool checkCollisionOtherPlayer(const std::shared_ptr<Player> &player,
+                                   const std::shared_ptr<Player> &otherPlayer) const noexcept;
     void runModesRoutine(const std::clock_t &now);
     std::shared_ptr<Food> generateFood();
     // These 2 functions cannot be marked const because of std::uniform_int_distribution works
@@ -42,6 +49,7 @@ class Game
     const point_t generateRandomPoint() noexcept;
     bool isPointOccupied(const point_t &point) const noexcept;
     void updateScore() noexcept;
+    std::string getInfo() const noexcept;
 
   private:
     std::unique_ptr<ModeHandler> _modeHandler;

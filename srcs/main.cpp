@@ -27,7 +27,8 @@ int main(int argc, char **argv)
         std::unique_ptr<ModeHandler> modeHandler = std::make_unique<ModeHandler>(0);
         std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(boardSize);
         Client client(std::move(modeHandler), std::move(libHandler));
-        client.createGame(boardSize);
+        bool multiplayer = false;
+        client.createGame(boardSize, multiplayer);
         client.startGame();
     }
     catch (const std::exception &e)
