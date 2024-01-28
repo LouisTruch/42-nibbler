@@ -180,6 +180,12 @@ void RaylibGraphicLib::registerPlayerInput() noexcept
         _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
     else if (IsKeyDown(KEY_TWO))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
+#ifdef DEBUG
+    else if (IsKeyDown(KEY_THREE))
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBRAYLIB;
+    else if (IsKeyDown(KEY_FOUR))
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
+#endif
 }
 
 player_input_t RaylibGraphicLib::getPlayerInput(int playerIdx) const

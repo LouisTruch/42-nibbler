@@ -2,7 +2,7 @@
 #include "../inc/LibHandler.hpp"
 #include "../inc/Mode/ModeHandler.hpp"
 #include "../inc/types.hpp"
-#include <iostream>
+#include <iostream> // std::cerr
 
 std::string_view parseIp(const std::string &input);
 board_size_t parseInput(const std::string &width, const std::string &height);
@@ -11,7 +11,7 @@ void printFormat();
 int main(int argc, char **argv)
 {
 #ifdef DEBUG
-    std::cout << "DEBUG MODE" << std::endl;
+    std::cerr << "DEBUG MODE" << std::endl;
 #endif
     if (argc < 2 || argc > 3)
     {

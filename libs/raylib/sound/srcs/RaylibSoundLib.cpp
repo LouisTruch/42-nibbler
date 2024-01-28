@@ -1,11 +1,10 @@
 #include "../inc/RaylibSoundLib.hpp"
 
-RaylibSoundLib::RaylibSoundLib(const Game &game)
+RaylibSoundLib::RaylibSoundLib()
 {
     SetTraceLogLevel(LOG_ERROR);
     InitAudioDevice();
     _sfxEating = LoadSound("./libs/raylib/sound/assets/eating.wav");
-    (void)game;
 }
 
 RaylibSoundLib::~RaylibSoundLib()
@@ -24,12 +23,15 @@ void RaylibSoundLib::playSound(sound_type_e soundType) const
     }
 }
 
-std::unique_ptr<RaylibSoundLib> makeSoundLib(const Game &game)
+extern "C"
 {
-    return std::make_unique<RaylibSoundLib>(game);
-}
+    RaylibSoundLib *makeSoundLib()
+    {
+        return new RaylibSoundLib();
+    }
 
-void destroySoundLib(std::unique_ptr<RaylibSoundLib> sLib)
-{
-    sLib.reset();
+    void destroySoundLib(RaylibSoundLib *sLib)
+    {
+        delete sLib;
+    }
 }

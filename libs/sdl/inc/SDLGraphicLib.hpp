@@ -8,8 +8,6 @@ class SDLGraphicLib : public IGraphicLib
   public:
     SDLGraphicLib(int, int);
     ~SDLGraphicLib();
-    SDLGraphicLib(const SDLGraphicLib &);
-    SDLGraphicLib &operator=(const SDLGraphicLib &);
 
   public:
     void clearBoard() const;
@@ -22,6 +20,8 @@ class SDLGraphicLib : public IGraphicLib
 
   private:
     SDLGraphicLib() = delete;
+    SDLGraphicLib(const SDLGraphicLib &) = delete;
+    SDLGraphicLib &operator=(const SDLGraphicLib &) = delete;
 
   private:
     int _width;

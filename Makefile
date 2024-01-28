@@ -2,6 +2,7 @@ MAKEFLAGS := -j9
 
 NAME = nibbler
 CXXFLAGS	:=	-Wall -Wextra -Werror -std=c++20 -DNDEBUG
+LDFLAGS		:=	-lncurses
 
 ifeq ($(VALGRIND), 1)
 	VALGRIND := valgrind --leak-check=full --show-leak-kinds=all
@@ -13,6 +14,9 @@ ifeq ($(DEBUG), 1)
 	CXXFLAGS := $(filter-out -DNDEBUG, $(CXXFLAGS))
 	CXXFLAGS := $(filter-out -Werror, $(CXXFLAGS))
 	CXXFLAGS += -DDEBUG -g
+	DEBUG_ENV := DEBUG=1
+else
+	DEBUG_ENV := DEBUG=0
 endif
 
 SRCS := $(wildcard srcs/*.cpp)
@@ -30,11 +34,13 @@ RM			= 	rm -f
 %.o : %.cpp Makefile
 	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
-
-all		:	${NAME}
+green = /bin/echo -e "\x1B[32m$1\x1b[0m"
+all		:  +subtargets ${NAME}
+			@$(call green,"Successfully compiled Nibbler.")
 
 ${NAME}	:	${OBJS}
-			${CXX} ${CXXFLAGS} $^ -o $@ -lncurses
+			${CXX} ${CXXFLAGS} $^ -o $@ $(LDFLAGS)
+
 
 -include $(DEPENDS)
 
@@ -50,19 +56,19 @@ uninstall: fclean
 			rm -rf ./libs/raylib/raylib/
 
 clean	:	
-			make -C libs/debug/ clean
-			make -C libs/sdl/ clean
-			make -C libs/ncurses/ clean
-			make -C libs/raylib/ clean
-			make -C libs/raylib/sound/ clean
+			$(MAKE) -C libs/debug/ clean
+			$(MAKE) -C libs/sdl/ clean
+			$(MAKE) -C libs/ncurses/ clean
+			$(MAKE) -C libs/raylib/ clean
+			$(MAKE) -C libs/raylib/sound/ clean
 			${RM} ${OBJS} ${DEPENDS}
 
 fclean	:	clean
-			make -C libs/debug/ fclean
-			make -C libs/sdl/ fclean
-			make -C libs/ncurses/ fclean
-			make -C libs/raylib/ fclean
-			make -C libs/raylib/sound/ fclean
+			$(MAKE) -C libs/debug/ fclean
+			$(MAKE) -C libs/sdl/ fclean
+			$(MAKE) -C libs/ncurses/ fclean
+			$(MAKE) -C libs/raylib/ fclean
+			$(MAKE) -C libs/raylib/sound/ fclean
 			${RM} ${NAME}
 
 re		:	fclean all lib
@@ -70,12 +76,13 @@ re		:	fclean all lib
 r 	:	all
 			${VALGRIND} ./nibbler 10 10
 
-lib		: raylib
-			make -C libs/debug/
-			make -C libs/sdl/
-			make -C libs/ncurses/
-			make -C libs/raylib/
-			make -C libs/raylib/sound/
++subtargets: 
+			@$(call green,"Compiling subtargets")
+			$(DEBUG_ENV) $(MAKE) -C libs/debug
+			$(DEBUG_ENV) $(MAKE) -C libs/sdl
+			$(DEBUG_ENV) $(MAKE) -C libs/ncurses
+			$(DEBUG_ENV) $(MAKE) -C libs/raylib
+			$(DEBUG_ENV) $(MAKE) -C libs/raylib/sound
 
 #make raylib.a
 raylib:

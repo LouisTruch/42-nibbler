@@ -1,6 +1,6 @@
 #pragma once
-#include "../inc/ISoundLib.hpp"
 #include "../inc/Interface/IGraphicLib.hpp"
+#include "../inc/Interface/ISoundLib.hpp"
 #include <memory>
 #include <string>
 #include <string_view>
@@ -23,22 +23,24 @@ class LibHandler
 
     typedef enum
     {
-        GRAPHIC,
-        SOUND,
-    } lib_type_e;
+        NO_SOUND = -1,
+        SOUNDRAYLIB,
+    } lib_sound_e;
 
+  public:
     // For loading graphic lib
     LibHandler(board_size_t);
     void openGraphicLib(lib_graphic_e);
-    void openSoundLib(int);
+    void openSoundLib(lib_sound_e);
     void closeCurrentGraphicLib();
-
     std::unique_ptr<IGraphicLib> makeGraphicLib();
     void destroyGraphicLib(IGraphicLib *);
     std::unique_ptr<IGraphicLib> switchGraphicLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
 
     std::unique_ptr<ISoundLib> makeSoundLib();
-    void destroySoundLib(std::unique_ptr<ISoundLib>);
+    void destroySoundLib(ISoundLib *);
+    // TODO :
+    // std::unique_ptr<ISoundLib> switchGraphicLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
 
     ~LibHandler();
     LibHandler(const LibHandler &) = delete;
@@ -50,23 +52,23 @@ class LibHandler
     void loadSymbolsSoundLib();
 
   private:
+    typedef IGraphicLib *(*makeGraphicLibFunc)(int, int);
+    typedef void (*destroyGraphicLibFunc)(IGraphicLib *);
+    typedef ISoundLib *(*makeSoundLibFunc)();
+    typedef void (*destroySoundLibFunc)(ISoundLib *);
+
+  private:
     int _width;
     int _height;
+
     lib_graphic_e _currentGraphicLib;
-    int _currentSoundLib;
     void *_graphicLibPtr;
-    void *_soundLibPtr;
-
-    typedef IGraphicLib *(*makeGraphicLibFunc)(int, int);
     makeGraphicLibFunc _makerGraphicFunc;
-
-    typedef void (*destroyGraphicLibFunc)(IGraphicLib *);
     destroyGraphicLibFunc _deleterGraphicFunc;
 
-    typedef std::unique_ptr<ISoundLib> (*makeSoundLibFunc)();
+    lib_sound_e _currentSoundLib;
+    void *_soundLibPtr;
     makeSoundLibFunc _makerSoundFunc;
-
-    typedef void (*destroySoundLibFunc)(std::unique_ptr<ISoundLib>);
     destroySoundLibFunc _deleterSoundFunc;
 
 #ifndef DEBUG
@@ -86,15 +88,20 @@ class LibHandler
     };
 #endif
 
-  public:
-    class LibException : public std::exception
-    {
-      private:
-        std::string _msg;
-
-      public:
-        LibException(std::string_view);
-        virtual const char *what() const throw();
-        ~LibException() throw() = default;
+    static constexpr int NB_SOUND_LIBS = 1;
+    static constexpr std::string_view SOUND_LIB_PATH[1] = {
+        "./libs/raylib/sound/libsoundraylib.so",
     };
+
+    // public:
+    //   class LibException : public std::exception
+    //   {
+    //     private:
+    //       std::string _msg;
+
+    //     public:
+    //       LibException(std::string_view);
+    //       virtual const char *what() const throw();
+    //       ~LibException() throw() = default;
+    //   };
 };

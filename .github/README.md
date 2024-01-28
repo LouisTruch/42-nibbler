@@ -31,3 +31,6 @@ Use "./nibbler" <br />
 
 ## Assets
 The assets used in Raylib are from [**here**](https://opengameart.org/content/snake-game-assets).
+
+## Useful links
+[**Cool pdf**](https://tldp.org/HOWTO/pdf/C++-dlopen.pdf) about using dlfcn.h in C++.

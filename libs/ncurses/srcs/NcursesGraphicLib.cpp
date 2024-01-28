@@ -74,6 +74,14 @@ void NcursesGraphicLib::registerPlayerInput() noexcept
     case 27:
         _arrayPlayerInput[0] = INPUT_QUIT;
         break;
+#ifdef DEBUG
+    case '1':
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
+        break;
+    case '4':
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
+        break;
+#endif
     }
 }
 

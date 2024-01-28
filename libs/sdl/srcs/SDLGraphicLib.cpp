@@ -90,28 +90,53 @@ void SDLGraphicLib::registerPlayerInput() noexcept
         switch (_event.type)
         {
         case SDL_KEYDOWN:
-            if (_event.key.keysym.scancode == SDL_SCANCODE_W)
-                _arrayPlayerInput[0] = INPUT_UP;
-            if (_event.key.keysym.scancode == SDL_SCANCODE_S)
-                _arrayPlayerInput[0] = INPUT_DOWN;
-            if (_event.key.keysym.scancode == SDL_SCANCODE_A)
-                _arrayPlayerInput[0] = INPUT_LEFT;
-            if (_event.key.keysym.scancode == SDL_SCANCODE_D)
-                _arrayPlayerInput[0] = INPUT_RIGHT;
-            if (_event.key.keysym.scancode == SDL_SCANCODE_UP)
-                _arrayPlayerInput[1] = INPUT_UP;
-            if (_event.key.keysym.scancode == SDL_SCANCODE_DOWN)
-                _arrayPlayerInput[1] = INPUT_DOWN;
-            if (_event.key.keysym.scancode == SDL_SCANCODE_LEFT)
-                _arrayPlayerInput[1] = INPUT_LEFT;
-            if (_event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
-                _arrayPlayerInput[1] = INPUT_RIGHT;
-            else if (_event.key.keysym.scancode == SDL_SCANCODE_1)
+            switch (_event.key.keysym.scancode)
+            {
+            case SDL_SCANCODE_1:
                 _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
-            else if (_event.key.keysym.scancode == SDL_SCANCODE_3)
+                break;
+            case SDL_SCANCODE_3:
                 _arrayPlayerInput[0] = INPUT_SWAP_LIBRAYLIB;
-            else if (_event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                break;
+            case SDL_SCANCODE_ESCAPE:
                 _arrayPlayerInput[0] = INPUT_QUIT;
+                break;
+            case SDL_SCANCODE_W:
+                _arrayPlayerInput[0] = INPUT_UP;
+                break;
+            case SDL_SCANCODE_S:
+                _arrayPlayerInput[0] = INPUT_DOWN;
+                break;
+            case SDL_SCANCODE_A:
+                _arrayPlayerInput[0] = INPUT_LEFT;
+                break;
+            case SDL_SCANCODE_D:
+                _arrayPlayerInput[0] = INPUT_RIGHT;
+                break;
+            case SDL_SCANCODE_UP:
+                _arrayPlayerInput[1] = INPUT_UP;
+                break;
+            case SDL_SCANCODE_DOWN:
+                _arrayPlayerInput[1] = INPUT_DOWN;
+                break;
+            case SDL_SCANCODE_LEFT:
+                _arrayPlayerInput[1] = INPUT_LEFT;
+                break;
+            case SDL_SCANCODE_RIGHT:
+                _arrayPlayerInput[1] = INPUT_RIGHT;
+                break;
+#ifdef DEBUG
+            case SDL_SCANCODE_2:
+                _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
+                break;
+            case SDL_SCANCODE_4:
+                _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
+                break;
+#endif
+            default:
+                // Unutilized key
+                break;
+            }
             break;
         }
     }
@@ -133,24 +158,6 @@ SDLGraphicLib::~SDLGraphicLib()
     SDL_DestroyRenderer(_renderer);
     SDL_DestroyWindow(_window);
     SDL_Quit();
-}
-
-SDLGraphicLib::SDLGraphicLib(const SDLGraphicLib &other)
-{
-    *this = other;
-}
-
-SDLGraphicLib &SDLGraphicLib::operator=(const SDLGraphicLib &other)
-{
-    if (&other == this)
-        return *this;
-    _window = other._window;
-    _renderer = other._renderer;
-    _event = other._event;
-    _rect = other._rect;
-    for (int i = 0; auto &border : other._borders)
-        _borders[i++] = border;
-    return *this;
 }
 
 extern "C"

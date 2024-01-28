@@ -29,7 +29,7 @@ void Score::readScoreFile()
 {
     try
     {
-        LOG_DEBUG("Reading score file");
+        LOG_DEBUG("Reading Score File");
         std::string highScoreStr = HIGH_SCORE_PLACEHOLDER;
         size_t widthPos = highScoreStr.find("$width");
         if (widthPos == std::string::npos)
@@ -73,7 +73,7 @@ void Score::updateScoreFile()
 {
     try
     {
-        LOG_DEBUG("Updating score file with score: " + std::to_string(_currentScore));
+        LOG_DEBUG("Updating Score file with score: " + std::to_string(_currentScore));
         _outFile.open(HIGH_SCORE_FILE, std::ios::out);
         if (!_outFile)
             throw std::runtime_error("can't open outfile");

@@ -1,23 +1,33 @@
 CC = g++
-CFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
+CXXFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
+LDFLAGS	:=	-lncurses
 INCLUDES = -Iinc
-SRCS = srcs/NcursesGraphicLib.cpp 
-OBJS = $(SRCS:.c=.o)
+SRCS = $(wildcard srcs/*.cpp)
+OBJS := $(patsubst %.cpp, %.o, $(SRCS))
+DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))
 TARGET = libncurses.so
 
+ifeq ($(DEBUG), 1)
+	CXXFLAGS += -g
+	CXXFLAGS += -DDEBUG
+endif
+
 .PHONY: clean fclean re
-    
+
+yellow = /bin/echo -e "\x1B[33m$1\x1b[0m"
 all:    $(TARGET)
-	@echo  Successfully compiled a ncurse shared object.
+	@$(call yellow,"Successfully compiled Ncurses shared object.")
+
+-include $(DEPENDS)
 
 $(TARGET): $(OBJS) 
-	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -lncurses
+	$(CXX) $(INCLUDES) -shared -o $(TARGET) $(OBJS) $(LDFLAGS)
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -cpp $<  -o $@
+%.o : %.cpp Makefile
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 clean:
-	$(RM) *.o 
+	$(RM) $(OBJS) $(DEPENDS)
 
 fclean: clean
 	$(RM) $(TARGET)

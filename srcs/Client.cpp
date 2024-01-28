@@ -39,7 +39,6 @@ void Client::startGame()
 
         _game->playTurn();
         render();
-        // Render
     }
     LOG_DEBUG("Exiting Client::startGame()");
 }
@@ -52,7 +51,7 @@ Client::input_type_e Client::checkPlayerInput(player_input_t playerInput) noexce
         return QUIT;
 
 #ifdef DEBUG
-    case (player_input_t)8:
+    case INPUT_SWAP_LIBDEBUG:
         [[fallthrough]];
 #endif
     case INPUT_SWAP_LIBNCURSES:
@@ -90,7 +89,7 @@ LibHandler::lib_graphic_e Client::inputToLibNum(player_input_t input) noexcept
     case INPUT_SWAP_LIBRAYLIB:
         return LibHandler::LIBRAYLIB;
 #ifdef DEBUG
-    case (player_input_t)8:
+    case INPUT_SWAP_LIBDEBUG:
         return LibHandler::LIBDEBUG;
 #endif
     default:

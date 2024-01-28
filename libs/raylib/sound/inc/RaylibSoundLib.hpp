@@ -1,16 +1,19 @@
 #pragma once
 
 #include "../../../../inc/Game.hpp"
-#include "../../../../inc/ISoundLib.hpp"
+#include "../../../../inc/Interface/ISoundLib.hpp"
 #include "../../raylib/src/raylib.h"
-#include <memory>
 
 class RaylibSoundLib : public ISoundLib
 {
   public:
-    RaylibSoundLib(const Game &);
+    RaylibSoundLib();
     ~RaylibSoundLib();
     void playSound(sound_type_e) const;
+
+  private:
+    RaylibSoundLib(const RaylibSoundLib &) = delete;
+    RaylibSoundLib &operator=(const RaylibSoundLib &) = delete;
 
   private:
     Sound _sfxEating;
@@ -18,6 +21,6 @@ class RaylibSoundLib : public ISoundLib
 
 extern "C"
 {
-    std::unique_ptr<RaylibSoundLib> makeSoundLib(const Game &game);
-    void destroySoundLib(std::unique_ptr<RaylibSoundLib> sLib);
+    RaylibSoundLib *makeSoundLib();
+    void destroySoundLib(RaylibSoundLib *sLib);
 }

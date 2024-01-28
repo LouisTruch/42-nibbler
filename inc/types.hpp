@@ -2,6 +2,7 @@
 
 #include <deque>
 
+#ifndef DEBUG
 typedef enum
 {
     INPUT_UP = -1,
@@ -14,6 +15,21 @@ typedef enum
     INPUT_SWAP_LIBRAYLIB,
     INPUT_QUIT
 } player_input_t;
+#else
+typedef enum
+{
+    INPUT_UP = -1,
+    INPUT_DOWN = 1,
+    INPUT_DEFAULT = 0,
+    INPUT_LEFT = -2,
+    INPUT_RIGHT = 2,
+    INPUT_SWAP_LIBNCURSES,
+    INPUT_SWAP_LIBSDL,
+    INPUT_SWAP_LIBRAYLIB,
+    INPUT_QUIT,
+    INPUT_SWAP_LIBDEBUG,
+} player_input_t;
+#endif
 
 struct point
 {

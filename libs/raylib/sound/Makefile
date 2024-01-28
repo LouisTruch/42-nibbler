@@ -1,29 +1,35 @@
 CC = g++
-CFLAGS = -Wall -Werror -Wextra -std=c++20 -fPIC
+CXXFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
+LDFLAGS := -L../raylib/src -lraylib
 INCLUDES = -Iinc
-SRCS = src/RaylibSoundLib.cpp \
-
-OBJS = $(SRCS:.c=.o)
+SRCS = $(wildcard srcs/*.cpp)
+OBJS := $(patsubst %.cpp, %.o, $(SRCS))
+DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))
 TARGET = libsoundraylib.so
 
+ifeq ($(DEBUG), 1)
+	CXXFLAGS += -g
+	CXXFLAGS += -DDEBUG
+endif
+
 .PHONY: clean fclean re
-    
+
+yellow = /bin/echo -e "\x1B[33m$1\x1b[0m"
 all:    $(TARGET)
-	@echo  Successfully compiled Raylib Sound shared object.
+	@$(call yellow,"Successfully compiled SoundRaylib shared object.")
+
+-include $(DEPENDS)
 
 $(TARGET): $(OBJS) 
-	$(CC) $(CFLAGS) $(INCLUDES) -shared -o $(TARGET) $(OBJS) -L../raylib/src -lraylib
+	$(CXX) $(INCLUDES) -shared -o $(TARGET) $(OBJS) $(LDFLAGS)
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -cpp $<  -o $@
+%.o : %.cpp Makefile
+	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
 
 clean:
-	$(RM) *.o 
+	$(RM) $(OBJS) $(DEPENDS)
 
 fclean: clean
 	$(RM) $(TARGET)
 
 re: fclean all
-
-# g++ -c test.cpp -Iinclude
-# g++ test.o -o sfml-app -Llib -lsfml-graphics -lsfml-window -lsfml-system

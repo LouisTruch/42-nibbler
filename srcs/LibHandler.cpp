@@ -1,29 +1,39 @@
 #include "../inc/LibHandler.hpp"
-
 #include "../inc/Log/Logger.hpp"
-
-#include <dlfcn.h>
-#include <stdexcept>
+#include <dlfcn.h>   // dlopen(), dlsym(), dlclose()
+#include <iostream>  // std::cerr
+#include <stdexcept> // std::runtime_error
 
 LibHandler::LibHandler(board_size_t boardSize)
-    : _width(boardSize.x), _height(boardSize.y), _currentGraphicLib(NO_LIB), _currentSoundLib(-1),
-      _graphicLibPtr(nullptr), _soundLibPtr(nullptr)
+    : _width(boardSize.x), _height(boardSize.y), _currentGraphicLib(NO_LIB), _graphicLibPtr(nullptr),
+      _makerGraphicFunc(nullptr), _deleterGraphicFunc(nullptr), _currentSoundLib(NO_SOUND), _soundLibPtr(nullptr),
+      _makerSoundFunc(nullptr), _deleterSoundFunc(nullptr)
 {
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBRAYLIB);
+    openGraphicLib(LIBDEBUG);
 #endif
     loadSymbolsGraphicLib();
+
+    // try
+    // {
+    //     openSoundLib(SOUNDRAYLIB);
+    //     loadSymbolsSoundLib();
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "In LibHandler(): " << e.what() << std::endl;
+    // }
 }
 
 LibHandler::~LibHandler()
 {
     closeCurrentGraphicLib();
-    if (_graphicLibPtr)
-    {
-        dlclose(_graphicLibPtr);
-    }
+    // if (_graphicLibPtr)
+    // {
+    //     dlclose(_graphicLibPtr);
+    // }
     if (_soundLibPtr)
     {
         dlclose(_soundLibPtr);
@@ -63,29 +73,9 @@ void LibHandler::openGraphicLib(lib_graphic_e libChoice)
     LOG_DEBUG("Successfully loaded " + info + ".so object");
 }
 
-void LibHandler::openSoundLib(int libChoice)
-{
-    _soundLibPtr = dlopen(GRAPHIC_LIB_PATH[libChoice].data(), RTLD_LAZY);
-    if (!_soundLibPtr)
-        throw std::runtime_error("Error LibHandler(): couldnt load .so object");
-    _currentSoundLib = libChoice;
-    loadSymbolsSoundLib();
-    LOG_DEBUG("Successfully loaded SOUND .so object");
-    // if (libChoice == _currentSoundLib)
-    //     return;
-
-    // if (0 < libChoice && libChoice >= NB_SOUND_LIBS)
-    //     return;
-
-    // if (_soundLibPtr)
-    //     closeLib(SOUND);
-    // openLib(SOUND, libChoice);
-    // loadSymbolsSoundLib();
-}
-
 void LibHandler::closeCurrentGraphicLib()
 {
-    if (dlclose(_graphicLibPtr))
+    if (_graphicLibPtr && dlclose(_graphicLibPtr))
         throw std::runtime_error("Error LibHandler->closeLib(): Couldnt close lib");
     _graphicLibPtr = nullptr;
     _currentGraphicLib = NO_LIB;
@@ -110,35 +100,11 @@ std::unique_ptr<IGraphicLib> LibHandler::switchGraphicLib(lib_graphic_e libChoic
     openGraphicLib(libChoice);
     loadSymbolsGraphicLib();
     return makeGraphicLib();
-    // _deleterGraphicFunc(gLib);
-    // closeLib(GRAPHIC);
-    // openGraphicLib(libChoice);
-    // loadSymbolsGraphicLib();
-    // return _makerGraphicFunc(_width + 2, _height + 2);
-}
-
-void LibHandler::loadSymbolsGraphicLib(void)
-{
-    _makerGraphicFunc = (makeGraphicLibFunc)dlsym(_graphicLibPtr, "makeGraphicLib");
-    _deleterGraphicFunc = (destroyGraphicLibFunc)dlsym(_graphicLibPtr, "destroyGraphicLib");
-    if (!_makerGraphicFunc || !_deleterGraphicFunc)
-        throw std::runtime_error("Error LibHandler loadSymbols: couldnt load lib functions");
-    LOG_DEBUG("Successfully loaded graphic symbols");
-}
-
-void LibHandler::loadSymbolsSoundLib(void)
-{
-    _makerSoundFunc = (makeSoundLibFunc)dlsym(_soundLibPtr, "makeSoundLib");
-    _deleterSoundFunc = (destroySoundLibFunc)dlsym(_soundLibPtr, "destroySoundLib");
-    if (!_makerSoundFunc || !_deleterSoundFunc)
-        throw std::runtime_error("Error LibHandler loadSymbols: couldnt load lib functions");
-    LOG_DEBUG("Successfully loaded sound symbols");
 }
 
 std::unique_ptr<IGraphicLib> LibHandler::makeGraphicLib(void)
 {
     return std::unique_ptr<IGraphicLib>(_makerGraphicFunc(_width, _height));
-    // return _makerGraphicFunc(_width, _height);
 }
 
 void LibHandler::destroyGraphicLib(IGraphicLib *gLib)
@@ -146,12 +112,56 @@ void LibHandler::destroyGraphicLib(IGraphicLib *gLib)
     _deleterGraphicFunc(gLib);
 }
 
-std::unique_ptr<ISoundLib> LibHandler::makeSoundLib()
+void LibHandler::loadSymbolsGraphicLib(void)
 {
-    return _makerSoundFunc();
+    _makerGraphicFunc = (makeGraphicLibFunc)dlsym(_graphicLibPtr, "makeGraphicLib");
+    _deleterGraphicFunc = (destroyGraphicLibFunc)dlsym(_graphicLibPtr, "destroyGraphicLib");
+    if (!_makerGraphicFunc || !_deleterGraphicFunc)
+    {
+        closeCurrentGraphicLib();
+        throw std::runtime_error("Error LibHandler loadSymbols: couldnt load graphic lib functions");
+    }
+    LOG_DEBUG("Successfully loaded graphic symbols");
 }
 
-void LibHandler::destroySoundLib(std::unique_ptr<ISoundLib> sLib)
+void LibHandler::openSoundLib(lib_sound_e libChoice)
 {
-    _deleterSoundFunc(std::move(sLib));
+    _soundLibPtr = dlopen(GRAPHIC_LIB_PATH[libChoice].data(), RTLD_LAZY);
+    if (!_soundLibPtr)
+        throw std::runtime_error("Error LibHandler(): couldnt load .so object");
+    _currentSoundLib = libChoice;
+    LOG_DEBUG("Successfully loaded SOUND .so object");
+    // if (libChoice == _currentSoundLib)
+    //     return;
+
+    // if (0 < libChoice && libChoice >= NB_SOUND_LIBS)
+    //     return;
+
+    // if (_soundLibPtr)
+    //     closeLib(SOUND);
+    // openLib(SOUND, libChoice);
+    // loadSymbolsSoundLib();
+}
+
+void LibHandler::loadSymbolsSoundLib(void)
+{
+    _makerSoundFunc = (makeSoundLibFunc)dlsym(_soundLibPtr, "makeSoundLib");
+    _deleterSoundFunc = (destroySoundLibFunc)dlsym(_soundLibPtr, "destroySoundLib");
+    if (!_makerSoundFunc || !_deleterSoundFunc)
+    {
+        // TODO :
+        // closeCurrentSoundLib();
+        throw std::runtime_error("Error LibHandler loadSymbols: couldnt load sound lib functions");
+    }
+    LOG_DEBUG("Successfully loaded sound symbols");
+}
+
+std::unique_ptr<ISoundLib> LibHandler::makeSoundLib()
+{
+    return std::unique_ptr<ISoundLib>(_makerSoundFunc());
+}
+
+void LibHandler::destroySoundLib(ISoundLib *sLib)
+{
+    _deleterSoundFunc(sLib);
 }

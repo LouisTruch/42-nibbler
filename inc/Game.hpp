@@ -1,9 +1,9 @@
 #pragma once
 #include "./Interface/IGraphicLib.hpp"
+#include "./Interface/ISoundLib.hpp"
 #include "./Mode/ModeHandler.hpp"
 #include "./Player/Player.hpp"
 #include "Food.hpp"
-#include "ISoundLib.hpp"
 #include "LibHandler.hpp"
 #include "Score.hpp"
 #include "types.hpp"
