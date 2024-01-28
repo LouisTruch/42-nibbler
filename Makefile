@@ -25,6 +25,7 @@ SRCS += $(wildcard srcs/Log/*.cpp)
 SRCS += $(wildcard srcs/Mode/*.cpp)
 SRCS += $(wildcard srcs/Game/*.cpp)
 SRCS += $(wildcard srcs/Game/Player/*.cpp)
+SRCS += $(wildcard srcs/Network/*.cpp)
 
 OBJS := $(patsubst %.cpp, %.o, $(SRCS))
 DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))

@@ -1,11 +1,34 @@
 #pragma once
 
+#include <netinet/in.h> // struct sockaddr_in
+#include <string>       // std::string
+
 class Server
 {
   public:
     Server();
     ~Server();
+
+  public:
+    void waitConnection();
     // TODO or not: copy constructor and assignement operator
+
+  private:
+    std::string getLocalIp() const noexcept;
+
+  private:
+    static constexpr u_int16_t _PORT = 7777;
+    static constexpr long _TIMEOUT_SEC = 5;
+    static constexpr long _TIMEOUT_USEC = 0;
+
+  private:
+    int _fd;
+    struct sockaddr_in _addr;
+    int _clientFd;
+    int _byteRead;
+    int _maxFds;
+    fd_set _masterSet;
+    fd_set _selectSet;
 };
 
 // Old Class Server

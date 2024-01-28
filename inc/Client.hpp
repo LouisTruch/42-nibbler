@@ -4,6 +4,7 @@
 #include "./Interface/IGraphicLib.hpp"
 #include "./Interface/ISoundLib.hpp"
 #include "./Mode/ModeHandler.hpp"
+#include "./Network/Server.hpp"
 #include "LibHandler.hpp"
 #include "types.hpp"
 
@@ -43,6 +44,7 @@ class Client
     std::unique_ptr<IGraphicLib> _graphicLib;
     std::unique_ptr<Game> _game;
     std::unique_ptr<ISoundLib> _soundLib;
+    std::unique_ptr<Server> _server;
 
     // Old Client class
     // public:

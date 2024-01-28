@@ -1,10 +1,20 @@
 #include "../inc/Client.hpp"
 #include "../inc/Log/Logger.hpp"
 
+#include <memory> // std::unique_ptr
+
 Client::Client(std::unique_ptr<ModeHandler> modeHandler, std::unique_ptr<LibHandler> libHandler, bool online)
     : _modeHandler(std::move(modeHandler)), _libHandler(std::move(libHandler)),
-      _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr), _soundLib(_libHandler->makeSoundLib())
+      _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr), _soundLib(_libHandler->makeSoundLib()),
+      _server(nullptr)
 {
+    if (online)
+    {
+        _server = std::make_unique<Server>();
+        _server->waitConnection();
+    }
+    else
+        _server = nullptr;
     LOG_DEBUG("Constructing Client");
 }
 
@@ -25,7 +35,6 @@ void Client::startGame()
 {
     // auto test1 = std::chrono::high_resolution_clock::now();
     // size_t nbIterationPerSec = 0;
-
     while (1)
     {
         // TODO : Probably move this in something link HandleInput, maybe can do a class for it idk
