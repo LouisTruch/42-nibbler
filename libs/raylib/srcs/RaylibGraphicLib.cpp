@@ -200,18 +200,6 @@ RaylibGraphicLib::~RaylibGraphicLib()
     CloseWindow();
 }
 
-RaylibGraphicLib::RaylibGraphicLib(const RaylibGraphicLib &other)
-{
-    *this = other;
-}
-
-RaylibGraphicLib &RaylibGraphicLib::operator=(const RaylibGraphicLib &other)
-{
-    if (&other == this)
-        return *this;
-    return *this;
-}
-
 extern "C"
 {
     RaylibGraphicLib *makeGraphicLib(int width, int height)

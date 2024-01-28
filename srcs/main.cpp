@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     // menu.printMenu(boardSize);
     try
     {
-        board_size_t boardSize = {5, 5};
+        board_size_t boardSize = {10, 10};
         std::unique_ptr<ModeHandler> modeHandler = std::make_unique<ModeHandler>(0);
         std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(boardSize);
         Client client(std::move(modeHandler), std::move(libHandler));

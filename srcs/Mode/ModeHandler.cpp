@@ -30,7 +30,7 @@ ModeHandler::ModeHandler(int_gameConfig_t config)
     // New + Have to check config
     _hungerHandler = nullptr;
     _movingFoodHandler = nullptr;
-    _acceleratingSpeedHandler = std::make_unique<ModeAcceleratingSpeed>();
+    _acceleratingSpeedHandler = nullptr;
 
     // Old
     // _isHunger = config & (int)(std::pow(2, (int)MenuItem::HUNGER)) ? true : false;

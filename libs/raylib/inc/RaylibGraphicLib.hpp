@@ -13,8 +13,6 @@ class RaylibGraphicLib : public IGraphicLib
   public:
     RaylibGraphicLib(int, int);
     ~RaylibGraphicLib();
-    RaylibGraphicLib(const RaylibGraphicLib &);
-    RaylibGraphicLib &operator=(const RaylibGraphicLib &);
     void clearBoard() const;
     player_input_t getPlayerInput(int) const;
     void resetPlayerInput();
@@ -25,6 +23,10 @@ class RaylibGraphicLib : public IGraphicLib
 
   private:
     RaylibGraphicLib() = delete;
+    RaylibGraphicLib(const RaylibGraphicLib &) = delete;
+    RaylibGraphicLib &operator=(const RaylibGraphicLib &) = delete;
+
+  private:
     void drawHead(int, int, int, Color);
     void drawTail(std::deque<point_t>::const_iterator &, Color);
     void drawBody(std::deque<point_t>::const_iterator &, Color);

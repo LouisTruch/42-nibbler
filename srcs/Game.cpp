@@ -5,7 +5,7 @@
 Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler)
     : _modeHandler(std::move(modeHandler)), _width(boardSize.x), _height(boardSize.y),
       _totalFreeSpace((_width - 2) * (_height - 2)), _gameSpeed(DEFAULT_GAME_SPEED_MS), _lastTurn(std::clock()),
-      _p0(nullptr), _p1(nullptr), _food(nullptr)
+      _p0(nullptr), _p1(nullptr), _food(nullptr), _scoreHandler(nullptr)
 {
     LOG_DEBUG("Constructing Game");
     if (_lastTurn == (std::clock_t)-1)
@@ -15,6 +15,9 @@ Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler)
 
     _p0 = std::make_shared<Player>(0, _width / 2, _height / 2, DEFAULT_PLAYER_SIZE);
     _food = generateFood();
+    // TODO : Make Score Handler only if singleplayer !
+    _scoreHandler = std::make_unique<Score>(_width, _height);
+
     // _libHandler = std::make_unique<LibHandler>(_width, _height);
     // +2 to includes border walls
     // _graphicHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
@@ -32,7 +35,6 @@ Game::~Game()
     LOG_DEBUG("Destructing Game");
 }
 
-#include <iostream>
 void Game::playTurn()
 {
     std::clock_t now = std::clock();
@@ -48,6 +50,7 @@ void Game::playTurn()
         if (collision_p0 == COLLISION_P0_FOOD)
         {
             _p0->growBody();
+            updateScore();
             if (_p0->_body._deque.size() == _totalFreeSpace)
                 throw std::runtime_error("Game Win");
 
@@ -70,7 +73,6 @@ void Game::runModesRoutine(const std::clock_t &now)
     // Need to handle hunger, probably throw some exceptions
     if (retMode & 0x4)
     {
-        std::cout << "Moving food" << std::endl;
         _food = generateFood();
     }
     if (retMode & 0x8)
@@ -185,6 +187,11 @@ bool Game::isPointOccupied(const point_t &point) const noexcept
     if (_p1 != nullptr && _p1->doesPointIntersectP(point))
         return true;
     return false;
+}
+
+void Game::updateScore() noexcept
+{
+    _scoreHandler->setCurrentScore(_p0->_body._deque.size());
 }
 
 // OLD CODE

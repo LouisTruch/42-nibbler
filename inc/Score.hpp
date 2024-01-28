@@ -10,7 +10,7 @@ class Score
     ~Score();
     void readScoreFile();
     void updateScoreFile();
-    void setCurrentScore(int);
+    void setCurrentScore(size_t);
     int getCurrentScore() const;
     int getHighScoreFile() const;
 

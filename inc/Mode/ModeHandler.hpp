@@ -20,6 +20,7 @@ class ModeHandler
     size_t checkRoutine(const std::clock_t &now);
     void resetHungerTimer(int playerIdx, const std::clock_t &now) noexcept;
     void modifyGameSpeed(size_t &) noexcept;
+    void updateScore(size_t &);
     // Old
     // void changeGameSpeed(double, Game &);
     // std::unique_ptr<Food> handleDisappearingFood(Game &, std::unique_ptr<Food>, clock_t);

@@ -5,6 +5,7 @@
 #include "Food.hpp"
 #include "ISoundLib.hpp"
 #include "LibHandler.hpp"
+#include "Score.hpp"
 #include "types.hpp"
 #include <random> // std::mt19937
 
@@ -49,6 +50,7 @@ class Game
     const point_t choseRandomUnoccupiedPoint() noexcept;
     const point_t generateRandomPoint() noexcept;
     bool isPointOccupied(const point_t &point) const noexcept;
+    void updateScore() noexcept;
 
   private:
     std::unique_ptr<ModeHandler> _modeHandler;
@@ -61,6 +63,7 @@ class Game
     std::shared_ptr<Player> _p0;
     std::shared_ptr<Player> _p1;
     std::shared_ptr<Food> _food;
+    std::unique_ptr<Score> _scoreHandler;
 
     // Old Game class
     // Game(const Game &);

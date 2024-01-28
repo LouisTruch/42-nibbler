@@ -1,10 +1,12 @@
 #include "../inc/Score.hpp"
+#include "../inc/Log/Logger.hpp"
 
-#include <iostream>
-#include <stdexcept>
+#include <iostream>  // std::cerr
+#include <stdexcept> // std::runtime_error
 
 Score::Score(int width, int height) : _highScoreWidth(width), _highScoreHeight(height), _highScore(0), _currentScore(0)
 {
+    LOG_DEBUG("Constructing Score");
     _outFile.open(HIGH_SCORE_FILE, std::ios::app);
     _outFile.close();
     _inFile.open(HIGH_SCORE_FILE, std::ios::in | std::ios::out);
@@ -18,6 +20,7 @@ Score::Score(int width, int height) : _highScoreWidth(width), _highScoreHeight(h
 
 Score::~Score()
 {
+    LOG_DEBUG("Destructing Score");
     if (_currentScore > _highScore)
         updateScoreFile();
 }
@@ -26,6 +29,7 @@ void Score::readScoreFile()
 {
     try
     {
+        LOG_DEBUG("Reading score file");
         std::string highScoreStr = HIGH_SCORE_PLACEHOLDER;
         size_t widthPos = highScoreStr.find("$width");
         if (widthPos == std::string::npos)
@@ -69,6 +73,7 @@ void Score::updateScoreFile()
 {
     try
     {
+        LOG_DEBUG("Updating score file with score: " + std::to_string(_currentScore));
         _outFile.open(HIGH_SCORE_FILE, std::ios::out);
         if (!_outFile)
             throw std::runtime_error("can't open outfile");
@@ -96,7 +101,7 @@ void Score::updateScoreFile()
     }
 }
 
-void Score::setCurrentScore(int score)
+void Score::setCurrentScore(size_t score)
 {
     _currentScore = score;
 }

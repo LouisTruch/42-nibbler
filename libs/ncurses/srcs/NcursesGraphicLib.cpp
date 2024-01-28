@@ -2,6 +2,9 @@
 #include <curses.h>
 #include <string>
 
+#define PLAYER_0_PAIR 1
+#define PLAYER_1_PAIR 2
+#define FOOD_PAIR 2
 NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _height(height)
 {
     initscr();
@@ -22,14 +25,14 @@ NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _he
     keypad(_board, true);
     // nodelay(_board, TRUE);
     wtimeout(_board, 0); // Set non blocking call of user input
-    box(_board, boxIcon, boxIcon);
+    box(_board, _boxIcon, _boxIcon);
     wrefresh(_board);
 }
 
 void NcursesGraphicLib::clearBoard() const
 {
     wclear(_board);
-    box(_board, boxIcon, boxIcon);
+    box(_board, _boxIcon, _boxIcon);
 }
 
 void NcursesGraphicLib::registerPlayerInput() noexcept
@@ -83,9 +86,9 @@ void NcursesGraphicLib::drawPlayer(const Player &player)
     for (auto &point : player._body._deque)
     {
         if (point == player._body._deque.front())
-            mvwaddch(_board, point.y, point.x, playerHeadIcon);
+            mvwaddch(_board, point.y, point.x, _playerHeadIcon);
         else
-            mvwaddch(_board, point.y, point.x, playerIcon);
+            mvwaddch(_board, point.y, point.x, _playerIcon);
     }
     wattroff(_board, COLOR_PAIR(PLAYER_0_PAIR));
     wattroff(_board, COLOR_PAIR(PLAYER_1_PAIR));
@@ -106,7 +109,7 @@ void NcursesGraphicLib::drawScores(int score, int highScore)
 void NcursesGraphicLib::drawFood(const Food &food)
 {
     wattron(_board, COLOR_PAIR(FOOD_PAIR));
-    mvwaddch(_board, food._pos.y, food._pos.x, foodIcon);
+    mvwaddch(_board, food._pos.y, food._pos.x, _foodIcon);
     wattroff(_board, COLOR_PAIR(FOOD_PAIR));
 }
 
@@ -126,20 +129,6 @@ NcursesGraphicLib::~NcursesGraphicLib()
     delwin(_board);
     delwin(_scoreBoard);
     endwin();
-}
-
-NcursesGraphicLib::NcursesGraphicLib(const NcursesGraphicLib &other)
-{
-    *this = other;
-}
-
-NcursesGraphicLib &NcursesGraphicLib::operator=(const NcursesGraphicLib &other)
-{
-    if (&other == this)
-        return *this;
-    _width = other._width;
-    _height = other._height;
-    return *this;
 }
 
 extern "C"

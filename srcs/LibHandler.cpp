@@ -1,7 +1,8 @@
 #include "../inc/LibHandler.hpp"
+
 #include "../inc/Log/Logger.hpp"
+
 #include <dlfcn.h>
-#include <iostream>
 #include <stdexcept>
 
 LibHandler::LibHandler(board_size_t boardSize)
@@ -11,7 +12,7 @@ LibHandler::LibHandler(board_size_t boardSize)
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBNCURSES);
+    openGraphicLib(LIBSDL);
 #endif
     loadSymbolsGraphicLib();
 }
