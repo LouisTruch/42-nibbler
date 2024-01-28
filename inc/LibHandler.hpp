@@ -28,26 +28,28 @@ class LibHandler
     } lib_sound_e;
 
   public:
-    // For loading graphic lib
     LibHandler(board_size_t);
+
+  public:
     void openGraphicLib(lib_graphic_e);
-    void openSoundLib(lib_sound_e);
     void closeCurrentGraphicLib();
     std::unique_ptr<IGraphicLib> makeGraphicLib();
     void destroyGraphicLib(IGraphicLib *);
     std::unique_ptr<IGraphicLib> switchGraphicLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
 
+    void openSoundLib(lib_sound_e);
+    void closeCurrentSoundLib();
     std::unique_ptr<ISoundLib> makeSoundLib();
     void destroySoundLib(ISoundLib *);
     // TODO :
-    // std::unique_ptr<ISoundLib> switchGraphicLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
+    // std::unique_ptr<ISoundLib> switchSoundLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
 
     ~LibHandler();
-    LibHandler(const LibHandler &) = delete;
-    LibHandler &operator=(const LibHandler &) = delete;
 
   private:
     LibHandler() = delete;
+    LibHandler(const LibHandler &) = delete;
+    LibHandler &operator=(const LibHandler &) = delete;
     void loadSymbolsGraphicLib();
     void loadSymbolsSoundLib();
 

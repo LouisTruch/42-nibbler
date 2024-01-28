@@ -3,7 +3,7 @@
 
 Client::Client(std::unique_ptr<ModeHandler> modeHandler, std::unique_ptr<LibHandler> libHandler)
     : _modeHandler(std::move(modeHandler)), _libHandler(std::move(libHandler)),
-      _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr)
+      _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr), _soundLib(_libHandler->makeSoundLib())
 {
     LOG_DEBUG("Constructing Client");
 }
@@ -36,9 +36,16 @@ void Client::startGame()
             if (!checkIfOppositeDirection(playerInput))
                 _game->getP0()->setNextDirection(playerInput);
         }
-
         _game->playTurn();
         render();
+        // TODO : move this
+        if (_soundLib != nullptr)
+        {
+            if (_game->getShouldPlayEatingSound())
+            {
+                _soundLib->playSound(ISoundLib::SOUND_EAT);
+            }
+        }
     }
     LOG_DEBUG("Exiting Client::startGame()");
 }

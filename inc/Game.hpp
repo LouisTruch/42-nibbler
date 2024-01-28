@@ -1,21 +1,10 @@
 #pragma once
-#include "./Interface/IGraphicLib.hpp"
-#include "./Interface/ISoundLib.hpp"
 #include "./Mode/ModeHandler.hpp"
 #include "./Player/Player.hpp"
 #include "Food.hpp"
-#include "LibHandler.hpp"
 #include "Score.hpp"
 #include "types.hpp"
 #include <random> // std::mt19937
-
-constexpr int MIN_WIDTH = 5;
-constexpr int MAX_WIDTH = 47;
-constexpr int MIN_HEIGHT = 5;
-constexpr int MAX_HEIGHT = 24;
-
-constexpr int DEFAULT_PLAYER_SIZE = 4;
-constexpr size_t DEFAULT_GAME_SPEED_MS = 500000;
 
 class Game
 {
@@ -32,6 +21,8 @@ class Game
     Game(board_size_t boardSize, std::unique_ptr<ModeHandler>);
     ~Game();
     void playTurn();
+    void setShouldPlayEatingSound(bool) noexcept;
+    bool getShouldPlayEatingSound() const noexcept;
 
     std::shared_ptr<Player> getP0();
     // std::shared_ptr<Player> getP1();
@@ -64,7 +55,16 @@ class Game
     std::shared_ptr<Player> _p1;
     std::shared_ptr<Food> _food;
     std::unique_ptr<Score> _scoreHandler;
+    bool _shouldPlayEatingSound;
 
+  private:
+    static inline constexpr int _MIN_WIDTH = 5;
+    static inline constexpr int _MAX_WIDTH = 47;
+    static inline constexpr int _MIN_HEIGHT = 5;
+    static inline constexpr int _MAX_HEIGHT = 24;
+
+    static inline constexpr int _DEFAULT_PLAYER_SIZE = 4;
+    static inline constexpr size_t _DEFAULT_GAME_SPEED_MS = 500000;
     // Old Game class
     // Game(const Game &);
     // Game &operator=(const Game &);

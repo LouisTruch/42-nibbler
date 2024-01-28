@@ -4,8 +4,8 @@
 
 Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler)
     : _modeHandler(std::move(modeHandler)), _width(boardSize.x), _height(boardSize.y),
-      _totalFreeSpace((_width - 2) * (_height - 2)), _gameSpeed(DEFAULT_GAME_SPEED_MS), _lastTurn(std::clock()),
-      _p0(nullptr), _p1(nullptr), _food(nullptr), _scoreHandler(nullptr)
+      _totalFreeSpace((_width - 2) * (_height - 2)), _gameSpeed(_DEFAULT_GAME_SPEED_MS), _lastTurn(std::clock()),
+      _p0(nullptr), _p1(nullptr), _food(nullptr), _scoreHandler(nullptr), _shouldPlayEatingSound(false)
 {
     LOG_DEBUG("Constructing Game");
     if (_lastTurn == (std::clock_t)-1)
@@ -13,7 +13,7 @@ Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler)
 
     _rng.seed(getpid());
 
-    _p0 = std::make_shared<Player>(0, _width / 2, _height / 2, DEFAULT_PLAYER_SIZE);
+    _p0 = std::make_shared<Player>(0, _width / 2, _height / 2, _DEFAULT_PLAYER_SIZE);
     _food = generateFood();
     // TODO : Make Score Handler only if singleplayer !
     _scoreHandler = std::make_unique<Score>(_width, _height);
@@ -45,12 +45,15 @@ void Game::playTurn()
     {
         _lastTurn = now;
         movePlayers();
+        setShouldPlayEatingSound(false);
         // Can probably use the same one for both players in a switch
         collision_type collision_p0 = checkPlayerCollision(_p0);
         if (collision_p0 == COLLISION_P0_FOOD)
         {
+
             _p0->growBody();
             updateScore();
+            setShouldPlayEatingSound(true);
             if (_p0->_body._deque.size() == _totalFreeSpace)
                 throw std::runtime_error("Game Win");
 
@@ -192,6 +195,16 @@ bool Game::isPointOccupied(const point_t &point) const noexcept
 void Game::updateScore() noexcept
 {
     _scoreHandler->setCurrentScore(_p0->_body._deque.size());
+}
+
+void Game::setShouldPlayEatingSound(bool shouldPlay) noexcept
+{
+    _shouldPlayEatingSound = shouldPlay;
+}
+
+bool Game::getShouldPlayEatingSound() const noexcept
+{
+    return _shouldPlayEatingSound;
 }
 
 // OLD CODE

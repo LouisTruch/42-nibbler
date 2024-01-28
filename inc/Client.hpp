@@ -1,6 +1,7 @@
 #pragma once
 
 #include "./Interface/IGraphicLib.hpp"
+#include "./Interface/ISoundLib.hpp"
 #include "./Mode/ModeHandler.hpp"
 #include "Game.hpp"
 #include "LibHandler.hpp"
@@ -38,6 +39,7 @@ class Client
     std::unique_ptr<LibHandler> _libHandler;
     std::unique_ptr<IGraphicLib> _graphicLib;
     std::unique_ptr<Game> _game;
+    std::unique_ptr<ISoundLib> _soundLib;
 
     // Old Client class
     // public:
