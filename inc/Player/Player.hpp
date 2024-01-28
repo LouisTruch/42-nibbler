@@ -29,15 +29,17 @@ class Player
     void growBody() noexcept;
 
   public:
-    void setDirection(player_input_t input);
-    player_direction getDirection() const;
+    void setNextDirection(player_input_t input);
+    player_direction getNextDirection() const;
+    player_direction getPrevDirection() const;
 
   public:
     // Have to make them public because of symbol lookup error when using getters
     int _idx;
     Body _body;
     // This one only for Raylib
-    player_direction _direction;
+    player_direction _nextDirection;
+    player_direction _prevDirection;
 
   private:
     Player() = delete;

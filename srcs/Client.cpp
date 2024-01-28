@@ -34,7 +34,7 @@ void Client::startGame()
         else if (inputType == DIRECTION)
         {
             if (!checkIfOppositeDirection(playerInput))
-                _game->getP0()->setDirection(playerInput);
+                _game->getP0()->setNextDirection(playerInput);
         }
 
         _game->playTurn();
@@ -106,7 +106,7 @@ void Client::handleLibSwitch(player_input_t playerInput)
 
 bool Client::checkIfOppositeDirection(player_input_t playerInput)
 {
-    if (playerInput + (player_input_t)_game->getP0()->getDirection() == 0)
+    if (playerInput + (player_input_t)_game->getP0()->getPrevDirection() == 0)
         return true;
     return false;
 }

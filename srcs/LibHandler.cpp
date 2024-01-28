@@ -12,7 +12,7 @@ LibHandler::LibHandler(board_size_t boardSize)
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBSDL);
+    openGraphicLib(LIBRAYLIB);
 #endif
     loadSymbolsGraphicLib();
 }

@@ -26,7 +26,7 @@ void RaylibGraphicLib::drawPlayer(const Player &player)
     for (auto current = player._body._deque.begin(); current != player._body._deque.end(); current++)
     {
         if (current == player._body._deque.begin())
-            drawHead(player._body._deque.front().x, player._body._deque.front().y, player._direction, playerColor);
+            drawHead(player._body._deque.front().x, player._body._deque.front().y, player._nextDirection, playerColor);
         else if (current == player._body._deque.end() - 1)
             drawTail(current, playerColor);
         else

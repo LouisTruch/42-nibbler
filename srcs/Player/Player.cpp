@@ -1,7 +1,8 @@
 #include "../../inc/Player/Player.hpp"
 #include "../../inc/Log/Logger.hpp"
 
-Player::Player(int idx, int x, int y, int size) : _idx(idx), _body({x, y}, size), _direction(DIRECTION_UP)
+Player::Player(int idx, int x, int y, int size)
+    : _idx(idx), _body({x, y}, size), _nextDirection(DIRECTION_UP), _prevDirection(DIRECTION_UP)
 {
     LOG_DEBUG("Player constructor idx:" << idx << " x:" << x << " y:" << y << " size:" << size);
 }
@@ -11,7 +12,8 @@ Player::~Player()
     LOG_DEBUG("Player destructor");
 }
 
-Player::Player(const Player &other) : _body(other._body), _direction(other._direction)
+Player::Player(const Player &other)
+    : _body(other._body), _nextDirection(other._nextDirection), _prevDirection(other._prevDirection)
 {
     LOG_DEBUG("Player copy constructor");
 }
@@ -22,12 +24,15 @@ Player &Player::operator=(const Player &other)
     if (this == &other)
         return *this;
     _body = other._body;
+    _nextDirection = other._nextDirection;
+    _prevDirection = other._prevDirection;
     return *this;
 }
 
 void Player::move() noexcept
 {
-    _body.move((Body::player_direction)_direction);
+    _prevDirection = _nextDirection;
+    _body.move((Body::player_direction)_nextDirection);
 }
 
 bool Player::doesPointIntersectP(const point_t &point) const noexcept
@@ -40,14 +45,19 @@ void Player::growBody() noexcept
     _body.grow();
 }
 
-void Player::setDirection(player_input_t input)
+void Player::setNextDirection(player_input_t input)
 {
-    _direction = playerInputToPlayerDirection(input);
+    _nextDirection = playerInputToPlayerDirection(input);
 }
 
-Player::player_direction Player::getDirection() const
+Player::player_direction Player::getNextDirection() const
 {
-    return _direction;
+    return _nextDirection;
+}
+
+Player::player_direction Player::getPrevDirection() const
+{
+    return _prevDirection;
 }
 
 Player::player_direction Player::playerInputToPlayerDirection(player_input_t input) noexcept
