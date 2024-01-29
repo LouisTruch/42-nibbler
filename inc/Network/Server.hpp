@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../types.hpp"
+#include "PacketManager.hpp"
+#include <memory>       // std::unique_ptr
 #include <netinet/in.h> // struct sockaddr_in
 #include <string>       // std::string
 
@@ -11,14 +14,17 @@ class Server
 
   public:
     void waitConnection();
+    void sendBoardSize(board_size_t) const;
+    void sendGameData(std::string_view) const;
+    player_input_t recvPlayerInput() const;
     // TODO or not: copy constructor and assignement operator
 
   private:
-    std::string getLocalIp() const noexcept;
+    void setupFdSocket();
 
   private:
     static constexpr u_int16_t _PORT = 7777;
-    static constexpr long _TIMEOUT_SEC = 5;
+    static constexpr long _TIMEOUT_SEC = 100;
     static constexpr long _TIMEOUT_USEC = 0;
 
   private:
@@ -27,8 +33,11 @@ class Server
     int _clientFd;
     int _byteRead;
     int _maxFds;
-    fd_set _masterSet;
-    fd_set _selectSet;
+    std::unique_ptr<PacketManager> _packetManager;
+
+  private:
+    Server(const Server &) = delete;
+    Server &operator=(const Server &) = delete;
 };
 
 // Old Class Server

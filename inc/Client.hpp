@@ -5,15 +5,17 @@
 #include "./Interface/ISoundLib.hpp"
 #include "./Mode/ModeHandler.hpp"
 #include "./Network/Server.hpp"
+#include "./Network/SocketClient.hpp"
 #include "LibHandler.hpp"
 #include "types.hpp"
 
 class Client
 {
   public:
-    Client(std::unique_ptr<ModeHandler>, std::unique_ptr<LibHandler>, bool online);
+    Client(std::unique_ptr<LibHandler>, std::unique_ptr<Server>);
+    Client(std::unique_ptr<LibHandler>, std::unique_ptr<SocketClient>);
     ~Client();
-    void createGame(board_size_t boardSize, bool multipayer);
+    void createGame(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, bool multipayer);
     void startGame();
 
   private:
@@ -39,12 +41,12 @@ class Client
     void handleSound() const;
 
   private:
-    std::unique_ptr<ModeHandler> _modeHandler;
     std::unique_ptr<LibHandler> _libHandler;
     std::unique_ptr<IGraphicLib> _graphicLib;
     std::unique_ptr<Game> _game;
     std::unique_ptr<ISoundLib> _soundLib;
     std::unique_ptr<Server> _server;
+    std::unique_ptr<SocketClient> _socketClient;
 
     // Old Client class
     // public:

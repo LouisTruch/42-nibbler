@@ -1,10 +1,12 @@
 #pragma once
+
 #include "../Mode/ModeHandler.hpp"
 #include "../types.hpp"
 #include "./Player/Player.hpp"
 #include "Food.hpp"
 #include "Score.hpp"
-#include <random> // std::mt19937
+#include <random>      // std::mt19937
+#include <string_view> // std::string_view
 
 class Game
 {
@@ -30,6 +32,7 @@ class Game
     std::shared_ptr<Player> getP0();
     std::shared_ptr<Player> getP1();
     std::shared_ptr<Food> getFood();
+    const std::string exportData() const;
 
   private:
     Game() = delete;

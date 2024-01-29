@@ -5,9 +5,9 @@
 #include <stdexcept> // std::runtime_error
 
 LibHandler::LibHandler(board_size_t boardSize)
-    : _width(boardSize.x), _height(boardSize.y), _currentGraphicLib(NO_LIB), _graphicLibPtr(nullptr),
-      _makerGraphicFunc(nullptr), _deleterGraphicFunc(nullptr), _currentSoundLib(NO_SOUND), _soundLibPtr(nullptr),
-      _makerSoundFunc(nullptr), _deleterSoundFunc(nullptr)
+    : _boardSize(boardSize), _currentGraphicLib(NO_LIB), _graphicLibPtr(nullptr), _makerGraphicFunc(nullptr),
+      _deleterGraphicFunc(nullptr), _currentSoundLib(NO_SOUND), _soundLibPtr(nullptr), _makerSoundFunc(nullptr),
+      _deleterSoundFunc(nullptr)
 {
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
@@ -110,7 +110,7 @@ std::unique_ptr<IGraphicLib> LibHandler::switchGraphicLib(lib_graphic_e libChoic
 
 std::unique_ptr<IGraphicLib> LibHandler::makeGraphicLib(void)
 {
-    return std::unique_ptr<IGraphicLib>(_makerGraphicFunc(_width, _height));
+    return std::unique_ptr<IGraphicLib>(_makerGraphicFunc(_boardSize.x, _boardSize.y));
 }
 
 void LibHandler::destroyGraphicLib(IGraphicLib *gLib)
@@ -184,4 +184,9 @@ std::unique_ptr<ISoundLib> LibHandler::makeSoundLib()
 void LibHandler::destroySoundLib(ISoundLib *sLib)
 {
     _deleterSoundFunc(sLib);
+}
+
+board_size_t LibHandler::getBoardSize() const
+{
+    return _boardSize;
 }

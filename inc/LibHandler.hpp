@@ -29,6 +29,7 @@ class LibHandler
 
   public:
     LibHandler(board_size_t);
+    ~LibHandler();
 
   public:
     void openGraphicLib(lib_graphic_e);
@@ -43,8 +44,7 @@ class LibHandler
     void destroySoundLib(ISoundLib *);
     // TODO :
     // std::unique_ptr<ISoundLib> switchSoundLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
-
-    ~LibHandler();
+    board_size_t getBoardSize() const;
 
   private:
     LibHandler() = delete;
@@ -61,8 +61,7 @@ class LibHandler
     typedef void (*destroySoundLibFunc)(ISoundLib *);
 
   private:
-    int _width;
-    int _height;
+    board_size_t _boardSize;
 
     lib_graphic_e _currentGraphicLib;
     void *_graphicLibPtr;

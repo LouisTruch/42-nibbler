@@ -3,18 +3,26 @@
 
 #include <memory> // std::unique_ptr
 
-Client::Client(std::unique_ptr<ModeHandler> modeHandler, std::unique_ptr<LibHandler> libHandler, bool online)
-    : _modeHandler(std::move(modeHandler)), _libHandler(std::move(libHandler)),
-      _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr), _soundLib(_libHandler->makeSoundLib()),
-      _server(nullptr)
+// TODO : constructor for single player
+
+// Constructor for multiplayer local and multiplayer online when hosting
+Client::Client(std::unique_ptr<LibHandler> libHandler, std::unique_ptr<Server> server)
+    : _libHandler(std::move(libHandler)), _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr),
+      _soundLib(_libHandler->makeSoundLib()), _server(std::move(server)), _socketClient(nullptr)
 {
-    if (online)
+    LOG_DEBUG("Constructing Client");
+    if (_server != nullptr)
     {
-        _server = std::make_unique<Server>();
         _server->waitConnection();
+        _server->sendBoardSize(_libHandler->getBoardSize());
     }
-    else
-        _server = nullptr;
+}
+
+// Constructor for multiplayer online when joining
+Client::Client(std::unique_ptr<LibHandler> libHandler, std::unique_ptr<SocketClient> socketClient)
+    : _libHandler(std::move(libHandler)), _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr),
+      _soundLib(_libHandler->makeSoundLib()), _server(nullptr), _socketClient(std::move(socketClient))
+{
     LOG_DEBUG("Constructing Client");
 }
 
@@ -23,12 +31,16 @@ Client::~Client()
     LOG_DEBUG("Destructing Client");
 }
 
-void Client::createGame(board_size_t boardSize, bool multiplayer)
+void Client::createGame(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, bool multiplayer)
 {
-    _game = std::make_unique<Game>(boardSize, std::move(_modeHandler), multiplayer);
+    _game = std::make_unique<Game>(boardSize, std::move(modeHandler), multiplayer);
+    if (_server != nullptr)
+    {
+        _server->sendGameData(_game->exportData());
+    }
 }
 
-// TODO : remove iostream and chrono
+// TODO : remove iostream and Replace clock by chrono
 #include <chrono>
 #include <iostream>
 void Client::startGame()
@@ -40,13 +52,25 @@ void Client::startGame()
         // TODO : Probably move this in something link HandleInput, maybe can do a class for it idk
         _graphicLib->registerPlayerInput();
         consumePlayerInput(_graphicLib->getPlayerInput(0), 0);
-        consumePlayerInput(_graphicLib->getPlayerInput(1), 1);
+
+        {
+            player_input_t inputP1 = INPUT_DEFAULT;
+            if (_server != nullptr)
+            {
+                inputP1 = _server->recvPlayerInput();
+            }
+            else
+            {
+                inputP1 = _graphicLib->getPlayerInput(1);
+            }
+            consumePlayerInput(inputP1, 1);
+        }
         _graphicLib->resetPlayerInput();
 
-        _game->playTurn();
+        if (_game != nullptr)
+            _game->playTurn();
         render();
         handleSound();
-
         // nbIterationPerSec++;
         // auto test2 = std::chrono::high_resolution_clock::now();
         // if (std::chrono::duration_cast<std::chrono::seconds>(test2 - test1).count() >= 1)
@@ -170,7 +194,7 @@ void Client::handleSound() const
 {
     if (_soundLib != nullptr)
     {
-        if (_game->getShouldPlayEatingSound())
+        if (_game != nullptr && _game->getShouldPlayEatingSound())
         {
             _soundLib->playSound(ISoundLib::SOUND_EAT);
         }

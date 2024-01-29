@@ -34,6 +34,7 @@ Game::~Game()
 
 void Game::playTurn()
 {
+    // TODO : Change std::clock by std::chrono::high_resolution_clock
     std::clock_t now = std::clock();
     if (now == (std::clock_t)-1)
         throw std::runtime_error("Error Game::playTurn(): std::clock() failed");
@@ -285,6 +286,65 @@ std::string Game::getInfo() const noexcept
     info += (_p1 != nullptr) ? "On" : "Off";
     return info;
 #endif
+}
+
+const std::string Game::exportData() const
+{
+    std::string data;
+    if (_p0 != nullptr)
+    {
+        data += "p0d";
+        if (_p0->getNextDirection() > 0)
+            data += "+";
+        data += std::to_string(_p0->getNextDirection());
+        data += ":";
+        for (auto &playerBody : _p0->_body._deque)
+        {
+            if (playerBody.x < 10)
+                data += "0";
+            data += std::to_string(playerBody.x);
+            data += " ";
+            if (playerBody.y < 10)
+                data += "0";
+            data += std::to_string(playerBody.y);
+            data += "|";
+        }
+        data += "\n";
+    }
+    if (_p1 != nullptr)
+    {
+        data += "p1d";
+        if (_p1->getNextDirection() > 0)
+            data += "+";
+        data += std::to_string(_p1->getNextDirection());
+        data += ":";
+        for (auto &playerBody : _p1->_body._deque)
+        {
+            if (playerBody.x < 10)
+                data += "0";
+            data += std::to_string(playerBody.x);
+            data += " ";
+            if (playerBody.y < 10)
+                data += "0";
+            data += std::to_string(playerBody.y);
+            data += "|";
+        }
+        data += "\n";
+    }
+    if (_food != nullptr)
+    {
+        data += "f:";
+        if (_food->getPos().x < 10)
+            data += "0";
+        data += std::to_string(_food->getPos().x);
+        data += " ";
+        if (_food->getPos().y < 10)
+            data += "0";
+        data += std::to_string(_food->getPos().y);
+        data += "\n";
+    }
+    // TODO : Add sound
+    return data;
 }
 
 // OLD CODE

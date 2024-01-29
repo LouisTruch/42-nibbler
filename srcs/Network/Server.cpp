@@ -3,9 +3,15 @@
 #include <cstring>      // memset()
 #include <sys/socket.h> // socket() bind() listen() accept()
 
-Server::Server() : _fd(socket(AF_INET, SOCK_STREAM, 0)), _clientFd(-1), _byteRead(-1), _maxFds(-1)
+Server::Server() : _fd(-1), _clientFd(0), _byteRead(1), _maxFds(-1)
 {
     LOG_DEBUG("Constructing");
+    setupFdSocket();
+}
+
+void Server::setupFdSocket()
+{
+    _fd = socket(AF_INET, SOCK_STREAM, 0);
     if (_fd < 0)
         throw std::runtime_error("socket() failed");
 
@@ -21,12 +27,7 @@ Server::Server() : _fd(socket(AF_INET, SOCK_STREAM, 0)), _clientFd(-1), _byteRea
 
     if (listen(_fd, 10) == -1)
         throw std::runtime_error("listen() failed");
-
-    _clientFd = 0;
-    _byteRead = 1;
     _maxFds = _fd;
-    FD_ZERO(&_masterSet);
-    FD_SET(_fd, &_masterSet);
 }
 
 #include <unistd.h> // close()
@@ -39,13 +40,19 @@ Server::~Server()
         close(_clientFd);
 }
 
+// TODO : Find a way to wake from a select call without using a timeout
 #include <iostream> // std::cout
+const std::string getLocalIp();
 void Server::waitConnection()
 {
     std::cout << "Waiting for another player to join on IP: " << getLocalIp() << std::endl;
+    fd_set selectSet, masterSet;
+    FD_ZERO(&masterSet);
+    FD_SET(_fd, &masterSet);
+    // Not needed because we only accept one client
+    selectSet = masterSet;
     struct timeval timeout = {.tv_sec = _TIMEOUT_SEC, .tv_usec = _TIMEOUT_USEC};
-    _selectSet = _masterSet;
-    int ret = select(_maxFds + 1, &_selectSet, NULL, NULL, &timeout);
+    int ret = select(_maxFds + 1, &selectSet, NULL, NULL, &timeout);
     if (ret < 0)
     {
         throw std::runtime_error("WaitConnection: select() failed");
@@ -57,13 +64,13 @@ void Server::waitConnection()
 
     for (int i = 0; i <= _maxFds; i++)
     {
-        if (FD_ISSET(i, &_selectSet) && i == _fd)
+        if (FD_ISSET(i, &selectSet) && i == _fd)
         {
             socklen_t addrLen = sizeof(_addr);
             _clientFd = accept(_fd, (struct sockaddr *)&_addr, &addrLen);
             if (_clientFd == -1)
                 throw std::runtime_error("accept() failed");
-            FD_SET(_clientFd, &_masterSet);
+            FD_SET(_clientFd, &masterSet);
             // _vecClientFd.push_back(_clientFd);
             _maxFds = _clientFd > _maxFds ? _clientFd : _maxFds;
             LOG_DEBUG("A player joined, starting game...");
@@ -71,33 +78,19 @@ void Server::waitConnection()
     }
 }
 
-#include <arpa/inet.h> // inet_ntop
-#include <ifaddrs.h>   // getifaddrs()
-std::string Server::getLocalIp() const noexcept
+void Server::sendBoardSize(board_size_t boardSize) const
 {
-    struct ifaddrs *ifAddrStruct = NULL;
-    struct ifaddrs *ifa = NULL;
-    void *tmpAddrPtr = NULL;
-    std::string localIp;
-    if (getifaddrs(&ifAddrStruct) == -1)
-    {
-        if (ifAddrStruct != NULL)
-            freeifaddrs(ifAddrStruct);
-        return localIp;
-    }
-    for (ifa = ifAddrStruct; ifa != NULL; ifa = ifa->ifa_next)
-    {
-        std::string ifaNameStr(ifa->ifa_name);
-        if (ifa->ifa_addr->sa_family == AF_INET && ifaNameStr == "eno2")
-        {
-            tmpAddrPtr = &((struct sockaddr_in *)ifa->ifa_addr)->sin_addr;
-            char addressBuffer[INET_ADDRSTRLEN];
-            inet_ntop(AF_INET, tmpAddrPtr, addressBuffer, INET_ADDRSTRLEN);
-            localIp += addressBuffer;
-        }
-    }
-    freeifaddrs(ifAddrStruct);
-    return localIp;
+    _packetManager->sendPacket(_clientFd, Packet(boardSize));
+}
+
+void Server::sendGameData(std::string_view data) const
+{
+    _packetManager->sendPacket(_clientFd, Packet(data));
+}
+
+player_input_t Server::recvPlayerInput() const
+{
+    return _packetManager->recvPacket(_clientFd);
 }
 
 // Old implementation of Server class
