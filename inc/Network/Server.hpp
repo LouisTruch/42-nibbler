@@ -15,7 +15,7 @@ class Server
   public:
     void waitConnection();
     void sendBoardSize(board_size_t) const;
-    void sendGameData(std::string_view) const;
+    void sendGameData(const GameData_t &) const;
     player_input_t recvPlayerInput() const;
     // TODO or not: copy constructor and assignement operator
 

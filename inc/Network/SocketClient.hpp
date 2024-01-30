@@ -13,7 +13,9 @@ class SocketClient
     ~SocketClient();
 
   public:
-    board_size_t recvBoardData() ;
+    board_size_t recvBoardData();
+    GameData_t recvGameData();
+    void sendPlayerInput(const player_input_t &playerInput) const;
 
   private:
     void setupFdSocket();

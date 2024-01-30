@@ -8,15 +8,6 @@
 class Player
 {
   public:
-    typedef enum
-    {
-        DIRECTION_UP = -1,
-        DIRECTION_DOWN = 1,
-        NO_DIRECTION = 0,
-        DIRECTION_LEFT = -2,
-        DIRECTION_RIGHT = 2
-    } player_direction;
-
   public:
     Player(std::size_t idx, int x, int y, int size);
     ~Player();
@@ -37,6 +28,7 @@ class Player
     // Have to make them public because of symbol lookup error when using getters
     std::size_t _idx;
     Body _body;
+    Snake_t _snake;
     // This one only for Raylib
     player_direction _nextDirection;
     player_direction _prevDirection;

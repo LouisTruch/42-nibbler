@@ -50,17 +50,17 @@ void Player::setNextDirection(player_input_t input)
     _nextDirection = playerInputToPlayerDirection(input);
 }
 
-Player::player_direction Player::getNextDirection() const
+player_direction Player::getNextDirection() const
 {
     return _nextDirection;
 }
 
-Player::player_direction Player::getPrevDirection() const
+player_direction Player::getPrevDirection() const
 {
     return _prevDirection;
 }
 
-Player::player_direction Player::playerInputToPlayerDirection(player_input_t input) noexcept
+player_direction Player::playerInputToPlayerDirection(player_input_t input) noexcept
 {
     switch (input)
     {

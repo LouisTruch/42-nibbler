@@ -12,13 +12,13 @@ LibHandler::LibHandler(board_size_t boardSize)
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBDEBUG);
+    openGraphicLib(LIBSDL);
 #endif
     loadSymbolsGraphicLib();
 
+    //     // TODO : Fix leak coming from here (from dlopen()) maybe try closing other .so first idk
     // try
     // {
-    //     // TODO : Fix leak coming from here (from dlopen())
     //     openSoundLib(SOUNDRAYLIB);
     //     loadSymbolsSoundLib();
     // }

@@ -83,14 +83,16 @@ void Server::sendBoardSize(board_size_t boardSize) const
     _packetManager->sendPacket(_clientFd, Packet(boardSize));
 }
 
-void Server::sendGameData(std::string_view data) const
+void Server::sendGameData(const GameData_t &gameData) const
 {
-    _packetManager->sendPacket(_clientFd, Packet(data));
+    _packetManager->sendPacket(_clientFd, Packet(gameData));
 }
 
 player_input_t Server::recvPlayerInput() const
 {
-    return _packetManager->recvPacket(_clientFd);
+    Packet packet(50);
+    _packetManager->recvPacket(_clientFd, packet);
+    return _packetManager->getPlayerInputFromPacket(packet);
 }
 
 // Old implementation of Server class

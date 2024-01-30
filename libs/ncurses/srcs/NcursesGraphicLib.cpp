@@ -85,15 +85,15 @@ void NcursesGraphicLib::registerPlayerInput() noexcept
     }
 }
 
-void NcursesGraphicLib::drawPlayer(const Player &player)
+void NcursesGraphicLib::drawPlayer(const Snake_t &player)
 {
-    if (player._idx == 0)
+    if (player.idx == 0)
         wattron(_board, COLOR_PAIR(PLAYER_0_PAIR));
-    else if (player._idx == 1)
+    else if (player.idx == 1)
         wattron(_board, COLOR_PAIR(PLAYER_1_PAIR));
-    for (auto &point : player._body._deque)
+    for (auto &point : player.body)
     {
-        if (point == player._body._deque.front())
+        if (point == player.body.front())
             mvwaddch(_board, point.y, point.x, _playerHeadIcon);
         else
             mvwaddch(_board, point.y, point.x, _playerIcon);
@@ -114,10 +114,10 @@ void NcursesGraphicLib::drawScores(int score, int highScore)
     wrefresh(_scoreBoard);
 }
 
-void NcursesGraphicLib::drawFood(const Food &food)
+void NcursesGraphicLib::drawFood(const point_t &point)
 {
     wattron(_board, COLOR_PAIR(FOOD_PAIR));
-    mvwaddch(_board, food._pos.y, food._pos.x, _foodIcon);
+    mvwaddch(_board, point.y, point.x, _foodIcon);
     wattroff(_board, COLOR_PAIR(FOOD_PAIR));
 }
 

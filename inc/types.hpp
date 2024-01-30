@@ -1,7 +1,5 @@
 #pragma once
 
-#include <deque>
-
 #ifndef DEBUG
 typedef enum
 {
@@ -44,6 +42,31 @@ struct point
     }
 };
 typedef struct point point_t;
-typedef struct point board_size_t; // Only for parsing
+typedef struct point board_size_t;
 
 typedef int int_gameConfig_t;
+
+typedef enum
+{
+    DIRECTION_UP = -1,
+    DIRECTION_DOWN = 1,
+    NO_DIRECTION = 0,
+    DIRECTION_LEFT = -2,
+    DIRECTION_RIGHT = 2
+} player_direction;
+
+#include <deque>
+typedef struct
+{
+    int idx;
+    player_direction dir;
+    std::deque<point_t> body;
+} Snake_t;
+#include <optional>
+typedef struct
+{
+    Snake_t p0;
+    std::optional<Snake_t> p1;
+    point_t food;
+    bool playEatingSound;
+} GameData_t;

@@ -41,46 +41,71 @@ void Client::createGame(board_size_t boardSize, std::unique_ptr<ModeHandler> mod
 }
 
 // TODO : remove iostream and Replace clock by chrono
-#include <chrono>
+#include <chrono> // std::chrono
 #include <iostream>
+#include <thread> // std::this_thread::sleep_for
 void Client::startGame()
 {
     // auto test1 = std::chrono::high_resolution_clock::now();
     // size_t nbIterationPerSec = 0;
-    while (1)
+    try
     {
-        // TODO : Probably move this in something link HandleInput, maybe can do a class for it idk
-        _graphicLib->registerPlayerInput();
-        consumePlayerInput(_graphicLib->getPlayerInput(0), 0);
-
+        while (1)
         {
-            player_input_t inputP1 = INPUT_DEFAULT;
+            // TODO : Probably move this in something link HandleInput, maybe can do a class for it idk
+            _graphicLib->registerPlayerInput();
+            consumePlayerInput(_graphicLib->getPlayerInput(0), 0);
+
+            if (_game->getP1() != nullptr)
+            {
+                player_input_t inputP1 = INPUT_DEFAULT;
+                if (_server != nullptr)
+                    inputP1 = _server->recvPlayerInput();
+                else
+                    inputP1 = _graphicLib->getPlayerInput(1);
+                consumePlayerInput(inputP1, 1);
+            }
+            _graphicLib->resetPlayerInput();
+
+            _game->playTurn();
+            GameData_t gameData = _game->exportData();
             if (_server != nullptr)
             {
-                inputP1 = _server->recvPlayerInput();
+                _server->sendGameData(gameData);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-            else
-            {
-                inputP1 = _graphicLib->getPlayerInput(1);
-            }
-            consumePlayerInput(inputP1, 1);
+            render(gameData);
+            handleSound(gameData);
+            // nbIterationPerSec++;
+            // auto test2 = std::chrono::high_resolution_clock::now();
+            // if (std::chrono::duration_cast<std::chrono::seconds>(test2 - test1).count() >= 1)
+            // {
+            //     std::cout << "Iter Per sec: " << nbIterationPerSec << std::endl;
+            //     test1 = std::chrono::high_resolution_clock::now();
+            //     nbIterationPerSec = 0;
+            // }
         }
-        _graphicLib->resetPlayerInput();
-
-        if (_game != nullptr)
-            _game->playTurn();
-        render();
-        handleSound();
-        // nbIterationPerSec++;
-        // auto test2 = std::chrono::high_resolution_clock::now();
-        // if (std::chrono::duration_cast<std::chrono::seconds>(test2 - test1).count() >= 1)
-        // {
-        //     std::cout << "Iter Per sec: " << nbIterationPerSec << std::endl;
-        //     test1 = std::chrono::high_resolution_clock::now();
-        //     nbIterationPerSec = 0;
-        // }
+    }
+    catch (const Game::GameOverException &e)
+    {
+        if (_server != nullptr)
+        {
+            // _server->sendEndGame();
+        }
+        std::cout << e.what() << std::endl;
     }
     LOG_DEBUG("Exiting Client::startGame()");
+}
+
+void Client::joinGame()
+{
+    while (1)
+    {
+        _graphicLib->registerPlayerInput();
+        _socketClient->sendPlayerInput(_graphicLib->getPlayerInput(0));
+        GameData_t gameData = _socketClient->recvGameData();
+        render(gameData);
+    }
 }
 
 void Client::consumePlayerInput(const player_input_t playerInput, const std::size_t playerIdx)
@@ -106,8 +131,8 @@ void Client::consumePlayerInput(const player_input_t playerInput, const std::siz
     else if (inputType == MUTE)
     {
         // TODO : move this
-        _soundLib->inverseMute();
-        _graphicLib->resetPlayerInput();
+        if (_soundLib != nullptr)
+            _soundLib->inverseMute();
     }
 }
 
@@ -181,20 +206,20 @@ bool Client::checkIfOppositeDirection(const player_input_t playerInput, const st
     return false;
 }
 
-void Client::render() const
+void Client::render(const GameData_t &gameData) const
 {
     _graphicLib->clearBoard();
-    _graphicLib->drawPlayer(*_game->getP0());
-    if (_game->getP1() != nullptr)
-        _graphicLib->drawPlayer(*_game->getP1());
-    _graphicLib->drawFood(*_game->getFood());
+    _graphicLib->drawPlayer(gameData.p0);
+    if (gameData.p1.has_value())
+        _graphicLib->drawPlayer(gameData.p1.value());
+    _graphicLib->drawFood(gameData.food);
 }
 
-void Client::handleSound() const
+void Client::handleSound(const GameData_t &gameData) const
 {
     if (_soundLib != nullptr)
     {
-        if (_game != nullptr && _game->getShouldPlayEatingSound())
+        if (gameData.playEatingSound)
         {
             _soundLib->playSound(ISoundLib::SOUND_EAT);
         }

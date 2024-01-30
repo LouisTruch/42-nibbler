@@ -41,7 +41,7 @@ void SDLGraphicLib::clearBoard() const
     SDL_RenderClear(_renderer);
 }
 
-void SDLGraphicLib::drawPlayer(const Player &player)
+void SDLGraphicLib::drawPlayer(const Snake_t &player)
 {
     // Clear screen and render border walls
     SDL_SetRenderDrawColor(_renderer, 0, 0, 255, 0);
@@ -49,18 +49,18 @@ void SDLGraphicLib::drawPlayer(const Player &player)
         SDL_RenderFillRect(_renderer, &border);
 
     // Render Player
-    if (player._idx == 0)
+    if (player.idx == 0)
         SDL_SetRenderDrawColor(_renderer, 255, 0, 0, 0);
-    else if (player._idx == 1)
+    else if (player.idx == 1)
         SDL_SetRenderDrawColor(_renderer, 255, 255, 0, 0);
-    for (auto &point : player._body._deque)
+    for (auto &point : player.body)
     {
         _rect.x = point.x * _TILE_SIZE;
         _rect.y = point.y * _TILE_SIZE;
         SDL_RenderFillRect(_renderer, &_rect);
-        if (point == player._body._deque.front())
+        if (point == player.body.front())
         {
-            if (player._idx == 0)
+            if (player.idx == 0)
                 SDL_SetRenderDrawColor(_renderer, 175, 0, 0, 0);
             else
                 SDL_SetRenderDrawColor(_renderer, 175, 175, 0, 0);
@@ -68,11 +68,11 @@ void SDLGraphicLib::drawPlayer(const Player &player)
     }
 }
 
-void SDLGraphicLib::drawFood(const Food &food)
+void SDLGraphicLib::drawFood(const point_t &point)
 {
     SDL_SetRenderDrawColor(_renderer, 0, 255, 0, 0);
-    _rect.x = food._pos.x * _TILE_SIZE;
-    _rect.y = food._pos.y * _TILE_SIZE;
+    _rect.x = point.x * _TILE_SIZE;
+    _rect.y = point.y * _TILE_SIZE;
     SDL_RenderFillRect(_renderer, &_rect);
     SDL_RenderPresent(_renderer);
 }

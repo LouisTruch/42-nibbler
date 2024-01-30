@@ -8,15 +8,29 @@ class Packet
 {
   public:
     Packet(std::string::size_type size);
-    Packet(board_size_t boardSize);
-    Packet(std::string_view data);
+    Packet(const board_size_t &boardSize);
+    Packet(const GameData_t &gameData);
+    Packet(const player_input_t &playerInput);
     ~Packet();
     Packet(const Packet &);
     Packet &operator=(const Packet &);
+    Packet() = delete;
 
   public:
-    static inline const std::string_view _MANDATORY_HEADER[1] = {
+    static inline const std::string_view _HEADERS_BOARDSIZE[3] = {
         "board_size",
+        "width:",
+        "height:",
+    };
+    static inline const std::string_view _HEADERS_GAMEDATA[4] = {
+        "game_data",
+        "player0:",
+        "player1:",
+        "food:",
+    };
+    static inline const std::string_view _HEADERS_INPUT[2] = {
+        "player_input",
+        "direction:",
     };
 
   public:

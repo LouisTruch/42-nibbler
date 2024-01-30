@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IMode.hpp"
-#include <ctime> // std::clock_t
+#include <chrono> // std::chrono
 
 class ModeHunger : public IMode
 {
@@ -12,11 +12,10 @@ class ModeHunger : public IMode
     ModeHunger &operator=(const ModeHunger &);
 
   public:
-    bool check(const std::clock_t) noexcept override;
-    void resetHungerTimer(int playerIdex, const std::clock_t &now);
+    bool check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept override;
+    void resetHungerTimer(int playerIdex, const std::chrono::time_point<std::chrono::high_resolution_clock> &);
 
   private:
-    static inline constexpr long int _MAX_HUNGER_TIMER_MS = 1000;
-    std::clock_t _hungerTimerP0;
-    std::clock_t _hungerTimerP1;
+    static inline constexpr long int _MAX_HUNGER_TIMER_MS = 4000000;
+    std::chrono::time_point<std::chrono::high_resolution_clock> _internalClock2;
 };

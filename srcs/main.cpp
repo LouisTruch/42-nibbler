@@ -20,9 +20,11 @@ int main(int argc, char **argv)
         {
             std::unique_ptr<SocketClient> socketClient = std::make_unique<SocketClient>();
             board_size_t boardSize = socketClient->recvBoardData();
+            // TODO : Delete this + Check if boardSize is valid within game limit
+            std::cout << "Board size: " << boardSize.x << "x" << boardSize.y << std::endl;
             std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(boardSize);
             Client client(std::move(libHandler), std::move(socketClient));
-            client.startGame();
+            client.joinGame();
         }
         catch (const std::exception &e)
         {
@@ -39,16 +41,10 @@ int main(int argc, char **argv)
             std::unique_ptr<ModeHandler> modeHandler = std::make_unique<ModeHandler>(0);
             std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(boardSize);
             std::unique_ptr<Server> server = std::make_unique<Server>();
+            server = nullptr;
 
             Client client(std::move(libHandler), std::move(server));
-            if (server != nullptr)
-            {
-                client.createGame(boardSize, std::move(modeHandler), true);
-            }
-            else
-            {
-                client.createGame(boardSize, std::move(modeHandler), false);
-            }
+            client.createGame(boardSize, std::move(modeHandler), false);
             client.startGame();
         }
         catch (const std::exception &e)

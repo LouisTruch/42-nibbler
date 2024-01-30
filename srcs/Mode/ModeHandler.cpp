@@ -1,60 +1,21 @@
 #include "../../inc/Mode/ModeHandler.hpp"
 #include "../../inc/Log/Logger.hpp"
-#include <memory> // std::make_unique
 
 // This constructor is for debugging purpose
 ModeHandler::ModeHandler() : _hungerHandler(nullptr), _movingFoodHandler(nullptr), _acceleratingSpeedHandler(nullptr)
 {
-    // if (_isMultiNetwork)
-    // {
-    //     try
-    //     {
-    //         _server = std::make_unique<Server>();
-    //         serverAction(Server::WAIT_CONNECTION);
-    //         serverAction(Server::SEND_DATA, constructGameInitData());
-    //     }
-    //     catch (const std::exception &e)
-    //     {
-    //         std::cerr << "In ModeHandler():" << e.what() << std::endl;
-    //         _server = nullptr;
-    //     }
-    // }
-    // LOG_DEBUG("Constructing ModeHandler " + this->getInfo());
 }
 
+#include <memory> // std::make_unique
 ModeHandler::ModeHandler(int_gameConfig_t config)
 {
     // New + Have to check config
-    _hungerHandler = nullptr;
+    // _hungerHandler = nullptr;
     _movingFoodHandler = nullptr;
     _acceleratingSpeedHandler = nullptr;
-
-    // Old
-    // _isHunger = config & (int)(std::pow(2, (int)MenuItem::HUNGER)) ? true : false;
-    // _isChangingSpeed = config & (int)(std::pow(2, (int)MenuItem::CHANGING_SPEED)) ? true : false;
-    // _isDisappearingFood = config & (int)(std::pow(2, (int)MenuItem::DISAPPEARING_FOOD)) ? true : false;
-    // if (_isDisappearingFood)
-    //     _foodTimer = std::clock();
-    // if (_isHunger)
-    //     _hungerTimer = std::clock();
-    // _isSinglePlayer = config & (int)(std::pow(2, (int)MenuItem::SINGLE_PLAYER)) ? true : false;
-    // if (!_isSinglePlayer)
-    // {
-    //     if (config & (int)(std::pow(2, (int)MenuItem::SCORE)))
-    //         std::cout << "Score is disabled in multiplayer\n";
-    //     _scoreHandler = nullptr;
-    // }
-    // else
-    //     _scoreHandler =
-    //         config & (int)(std::pow(2, (int)MenuItem::SCORE)) ? std::make_unique<Score>(_width, _height) : nullptr;
-    // _isMultiLocal = config & (int)(std::pow(2, (int)MenuItem::MULTI_LOCAL)) ? true : false;
-    // _isSound = config & (int)(std::pow(2, (int)MenuItem::SOUND)) ? true : false;
-    // _soundHandler = nullptr;
-    // _isMultiNetwork = config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)) ? true : false;
-    // if (config & (int)(std::pow(2, (int)MenuItem::MULTI_NETWORK)))
-    //     instantiateServer();
-    // else
-    //     _server = nullptr;
+    // _acceleratingSpeedHandler = std::make_unique<ModeAcceleratingSpeed>();
+    // _movingFoodHandler = std::make_unique<ModeMovingFood>();
+    _hungerHandler = std::make_unique<ModeHunger>();
     LOG_DEBUG("Constructing ModeHandler " + this->getInfo());
 }
 
@@ -63,21 +24,22 @@ ModeHandler::~ModeHandler()
     LOG_DEBUG("Destructing ModeHandler");
 }
 
-size_t ModeHandler::checkRoutine(const std::clock_t &now)
+size_t ModeHandler::checkRoutine(const std::chrono::time_point<std::chrono::high_resolution_clock> &now)
 {
     size_t ret = 0;
-    // if (_hungerHandler != nullptr)
-    // {
-    //     if (_hungerHandler->check(now))
-    //     {
-
-    //         std::cout << "Hunger death" << std::endl;
-    //     }
-    //     else
-    //     {
-    //         std::cout << "No hunger death" << std::endl;
-    //     }
-    // }
+    // TODO : change type I think
+    if (_hungerHandler != nullptr)
+    {
+        int hungerRet = _hungerHandler->check(now);
+        if (hungerRet & 0x1)
+        {
+            ret |= 0x1;
+        }
+        if (hungerRet & 0x2)
+        {
+            ret |= 0x2;
+        }
+    }
     if (_movingFoodHandler != nullptr)
     {
         ret |= (_movingFoodHandler->check(now) * 0x4);
@@ -86,10 +48,12 @@ size_t ModeHandler::checkRoutine(const std::clock_t &now)
     {
         ret |= (_acceleratingSpeedHandler->check(now) * 0x8);
     }
+    LOG_DEBUG("ret: " << std::to_string(ret));
     return ret;
 }
 
-void ModeHandler::resetHungerTimer(int playerIndex, const std::clock_t &now) noexcept
+void ModeHandler::resetHungerTimer(int playerIndex,
+                                   const std::chrono::time_point<std::chrono::high_resolution_clock> &now) noexcept
 {
     if (_hungerHandler != nullptr)
     {
@@ -97,7 +61,7 @@ void ModeHandler::resetHungerTimer(int playerIndex, const std::clock_t &now) noe
     }
 }
 
-void ModeHandler::modifyGameSpeed(size_t &gameSpeed) noexcept
+void ModeHandler::modifyGameSpeed(long int &gameSpeed) noexcept
 {
     if (_acceleratingSpeedHandler != nullptr)
     {

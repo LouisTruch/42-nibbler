@@ -17,6 +17,7 @@ class Client
     ~Client();
     void createGame(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, bool multipayer);
     void startGame();
+    void joinGame();
 
   private:
     Client() = delete;
@@ -37,8 +38,8 @@ class Client
     void consumePlayerInput(const player_input_t playerInput, const std::size_t playerIdx);
     void handleLibSwitch(const player_input_t playerInput);
     bool checkIfOppositeDirection(player_input_t playerInput, const std::size_t playerIdx) const noexcept;
-    void render() const;
-    void handleSound() const;
+    void render(const GameData_t &gameData) const;
+    void handleSound(const GameData_t &gameData) const;
 
   private:
     std::unique_ptr<LibHandler> _libHandler;

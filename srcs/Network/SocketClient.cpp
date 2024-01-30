@@ -78,9 +78,23 @@ SocketClient::~SocketClient()
 board_size_t SocketClient::recvBoardData()
 {
     Packet packet(RECV_BUFFER_SIZE);
-    _byteRead = recv(_fd, &packet.getBufferRecv()[0], packet.getBufferRecv().size(), 0);
-    if (_byteRead == -1)
-        throw std::runtime_error("SocketClient::recvBoardData: recv() failed");
+    _packetManager->recvPacket(_fd, packet);
     board_size_t boardSize = _packetManager->getBoardSizeFromPacket(packet);
     return boardSize;
+}
+
+GameData_t SocketClient::recvGameData()
+{
+    static size_t i = 0;
+    Packet packet(RECV_BUFFER_SIZE);
+    _packetManager->recvPacket(_fd, packet);
+    GameData_t gameData = _packetManager->getGameDataFromPacket(packet);
+    std::cout << "i = " << i++ << std::endl;
+    return gameData;
+}
+
+void SocketClient::sendPlayerInput(const player_input_t &playerInput) const
+{
+    Packet packet(playerInput);
+    _packetManager->sendPacket(_fd, packet);
 }

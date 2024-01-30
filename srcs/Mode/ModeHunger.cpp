@@ -1,14 +1,11 @@
 #include "../../inc/Mode/ModeHunger.hpp"
 #include "../../inc/Log/Logger.hpp"
-#include <stdexcept> // std::runtime_error
 
-ModeHunger::ModeHunger() : _hungerTimerP0(std::clock()), _hungerTimerP1(std::clock())
+ModeHunger::ModeHunger()
 {
-    LOG_DEBUG("ModeHunger constructor " + std::to_string(_MAX_HUNGER_TIMER_MS) + "ms");
-    if (_hungerTimerP0 == (clock_t)(-1))
-        throw std::runtime_error("ModeHunger(): std::clock() failed");
-    if (_hungerTimerP1 == (clock_t)(-1))
-        throw std::runtime_error("ModeHunger(): std::clock() failed");
+    LOG_DEBUG("Constructor");
+    _internalClock = std::chrono::high_resolution_clock::now();
+    _internalClock2 = std::chrono::high_resolution_clock::now();
 }
 
 ModeHunger::~ModeHunger()
@@ -24,32 +21,39 @@ ModeHunger &ModeHunger::operator=(const ModeHunger &other)
 {
     if (&other == this)
         return *this;
-    _hungerTimerP0 = other._hungerTimerP0;
+    _internalClock = other._internalClock;
     return *this;
 }
 
 #include <iostream>
-bool ModeHunger::check(const std::clock_t time) noexcept
+bool ModeHunger::check(const std::chrono::time_point<std::chrono::high_resolution_clock> &now) noexcept
 {
-    std::cout << "ModeHunger::check(" << time << ")" << std::endl;
-    if (time - _hungerTimerP0 >= _MAX_HUNGER_TIMER_MS)
+    if (getElapsedTimeInMs(now, _internalClock) > _MAX_HUNGER_TIMER_MS)
     {
+        LOG_DEBUG("Hunger timer 0 expired");
         return true;
     }
-    if (time - _hungerTimerP1 >= _MAX_HUNGER_TIMER_MS)
+    if (getElapsedTimeInMs(now, _internalClock2) > _MAX_HUNGER_TIMER_MS)
     {
+        LOG_DEBUG("Hunger timer 1 expired");
         return true | 0x2;
     }
     return false;
 }
 
-void ModeHunger::resetHungerTimer(int playerIdex, const std::clock_t &now)
+void ModeHunger::resetHungerTimer(int playerIdx,
+                                  const std::chrono::time_point<std::chrono::high_resolution_clock> &now)
 {
-    std::cout << "ModeHunger::resetHungerTimer(" << now << ")" << std::endl;
-    if (playerIdex == 0)
-        _hungerTimerP0 = now;
-    else if (playerIdex == 1)
-        _hungerTimerP1 = now;
+    if (playerIdx == 0)
+    {
+        LOG_DEBUG("Resetting hunger timer 0")
+        _internalClock = now;
+    }
+    else if (playerIdx == 1)
+    {
+        LOG_DEBUG("Resetting hunger timer 1")
+        _internalClock2 = now;
+    }
     else
         throw std::runtime_error("ModeHunger::resetHungerTimer(): playerIdex is not 0 or 1");
 }

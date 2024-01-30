@@ -14,8 +14,8 @@ class SDLGraphicLib : public IGraphicLib
     player_input_t getPlayerInput(int) const;
     void resetPlayerInput();
     void registerPlayerInput() noexcept;
-    void drawPlayer(const Player &);
-    void drawFood(const Food &);
+    void drawPlayer(const Snake_t &snake);
+    void drawFood(const point_t &point);
     void drawScores(int, int);
 
   private:

@@ -5,6 +5,7 @@
 #include "./Player/Player.hpp"
 #include "Food.hpp"
 #include "Score.hpp"
+#include <chrono>      // std::chrono::system_clock
 #include <random>      // std::mt19937
 #include <string_view> // std::string_view
 
@@ -23,6 +24,9 @@ class Game
   public:
     Game(board_size_t boardSize, std::unique_ptr<ModeHandler>, bool multiplayer);
     ~Game();
+    Game() = delete;
+    Game(const Game &) = delete;
+    Game &operator=(const Game &) = delete;
 
   public:
     void playTurn();
@@ -32,12 +36,23 @@ class Game
     std::shared_ptr<Player> getP0();
     std::shared_ptr<Player> getP1();
     std::shared_ptr<Food> getFood();
-    const std::string exportData() const;
+    const GameData_t exportData() const;
+
+  public:
+    class GameOverException : public std::exception
+    {
+      public:
+        std::string msg;
+        GameOverException(const std::string msg) noexcept;
+        ~GameOverException() throw();
+        virtual const char *what() const noexcept;
+        GameOverException(const GameOverException &) = delete;
+        GameOverException &operator=(const GameOverException &) = delete;
+    };
 
   private:
-    Game() = delete;
     void movePlayers() noexcept;
-    void handleCollisions(const std::clock_t &now);
+    void handleCollisions(const std::chrono::time_point<std::chrono::high_resolution_clock> &now);
     collision_type checkPlayerCollision(const std::shared_ptr<Player> &player,
                                         const std::shared_ptr<Player> &otherPlayer) const noexcept;
     bool checkCollisionPlayerWall(const std::shared_ptr<Player> &player) const noexcept;
@@ -45,7 +60,7 @@ class Game
     bool checkCollisionPlayerItself(const std::shared_ptr<Player> &player) const noexcept;
     bool checkCollisionOtherPlayer(const std::shared_ptr<Player> &player,
                                    const std::shared_ptr<Player> &otherPlayer) const noexcept;
-    void runModesRoutine(const std::clock_t &now);
+    void runModesRoutine(const std::chrono::time_point<std::chrono::high_resolution_clock> &now);
     std::shared_ptr<Food> generateFood();
     // These 2 functions cannot be marked const because of std::uniform_int_distribution works
     const point_t choseRandomUnoccupiedPoint() noexcept;
@@ -59,8 +74,9 @@ class Game
     int _width;
     int _height;
     size_t _totalFreeSpace;
-    size_t _gameSpeed;
+    long int _gameSpeed;
     double _lastTurn;
+    std::chrono::time_point<std::chrono::high_resolution_clock> _clock;
     std::mt19937 _rng;
     std::shared_ptr<Player> _p0;
     std::shared_ptr<Player> _p1;
@@ -75,55 +91,7 @@ class Game
     static inline constexpr int _MAX_HEIGHT = 24;
 
     static inline constexpr int _DEFAULT_PLAYER_SIZE = 4;
-    static inline constexpr size_t _DEFAULT_GAME_SPEED_MS = 500000;
-    // Old Game class
-    // Game(const Game &);
-    // Game &operator=(const Game &);
-
-    // void initPlayer();
-    // void loop();
-    // void playersAction(player_action_e);
-    // void checkCollisions() const;
-    // void checkPlayerState();
-    // int handleLibSwitch();
-    // point_t chooseRandomFoodPos();
-    // point_t generateRandomPoint();
-    // bool isTileFree(point_t);
-    // void throwGameOverScore(std::string_view) const;
-    // double getGameSpeed() const;
-    // void setGameSpeed(double);
-    // std::string constructGameData() const;
-    // int handleMultiplayerInput();
-    // void handleGameOver(std::string, int);
-
-    // private:
-    //   std::unique_ptr<ModeHandler> _modeHandler;
-    //   std::unique_ptr<LibHandler> _libHandler;
-    //   std::unique_ptr<IGraphicLib> _graphicHandler;
-    //   std::array<std::unique_ptr<Player>, 2> _arrayPlayer;
-    //   std::unique_ptr<Food> _food;
-    //   std::mt19937 _rng;
-    //   int _width;
-    //   int _height;
-    //   int _totalSpace;
-    //   double _gameSpeed;
-    //   double _turn;
-    //   clock_t _turnStart;
-
-    // public:
-    //   class GameOverException : public std::exception
-    //   {
-    //     private:
-    //       std::string _msg;
-    //       inline static constexpr std::string_view PLAYER_SCORE_STR = {"\nPlayer Score: "};
-    //       inline static constexpr std::string_view MAP_WIDTH_STR = {"\nMap width: "};
-    //       inline static constexpr std::string_view MAP_HEIGHT_STR = {"\nMap height: "};
-
-    //     public:
-    //       GameOverException(std::string_view, int, int, int, Score *);
-    //       virtual const char *what() const throw();
-    //       ~GameOverException() throw() = default;
-    //   };
+    static inline constexpr long int _DEFAULT_GAME_SPEED_MS = 500000;
 };
 
 void checkArgs(int, char **);

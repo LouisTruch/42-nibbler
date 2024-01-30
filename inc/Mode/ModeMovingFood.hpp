@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IMode.hpp"
-#include <ctime> // std::clock_t
+#include <chrono> // std::chrono
 
 class ModeMovingFood : public IMode
 {
@@ -12,9 +12,8 @@ class ModeMovingFood : public IMode
     ModeMovingFood &operator=(const ModeMovingFood &);
 
   public:
-    bool check(const std::clock_t) noexcept override;
+    bool check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept override;
 
   private:
-    static inline constexpr long int _MOVING_INTERVAL_MS = 5000;
-    std::clock_t _internalTimer;
+    static inline constexpr long int _MOVING_INTERVAL_MS = 5000000;
 };

@@ -71,11 +71,11 @@ void DebugGraphicLib::registerPlayerInput() noexcept
 
 #include <vector>
 
-void DebugGraphicLib::drawPlayer(const Player &player)
+void DebugGraphicLib::drawPlayer(const Snake_t &player)
 {
-    _pBody = player._body._deque;
+    _pBody = player.body;
     std::cout << "DebugGraphicLib::drawPlayer()" << std::endl;
-    std::cout << "Player " << player._idx << " :\n";
+    std::cout << "Player " << player.idx << " :\n";
     // drawPlayerInSquare(player);
     // for (auto it = player._body._deque.begin(); it != player._body._deque.end(); ++it)
     // {
@@ -123,12 +123,11 @@ void DebugGraphicLib::drawPlayerFoodInSquare(std::deque<point_t> &pBody, point_t
     std::cout << std::endl;
 }
 
-void DebugGraphicLib::drawFood(const Food &point)
+void DebugGraphicLib::drawFood(const point_t &point)
 {
-    (void)point;
-    _pFood = point._pos;
+    _pFood = point;
     // std::cout << "DebugGraphicLib::drawFood()" << std::endl;
-    std::cout << "Food : " << point._pos.x << ", " << point._pos.y << std::endl;
+    std::cout << "Food : " << point.x << ", " << point.y << std::endl;
     drawPlayerFoodInSquare(_pBody, _pFood);
 }
 

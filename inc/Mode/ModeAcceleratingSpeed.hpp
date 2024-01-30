@@ -1,7 +1,8 @@
 #pragma once
 
 #include "IMode.hpp"
-#include <ctime> // std::clock_t
+#include <chrono> // std::chrono
+#include <ctime>  // std::clock_t
 
 class ModeAcceleratingSpeed : public IMode
 {
@@ -12,12 +13,11 @@ class ModeAcceleratingSpeed : public IMode
     ModeAcceleratingSpeed &operator=(const ModeAcceleratingSpeed &);
 
   public:
-    bool check(const std::clock_t) noexcept override;
-    void modifyGameSpeed(size_t &) noexcept;
+    bool check(const std::chrono::time_point<std::chrono::high_resolution_clock> &now) noexcept override;
+    void modifyGameSpeed(long int &) noexcept;
 
   private:
-    static inline constexpr long int _ACCELERATING_INTERVAL_MS = 5000;
-    static inline constexpr std::size_t _GAME_SPEED_MODIFIER = 50;
-    static inline constexpr std::size_t _GAME_SPEED_MIN = 200;
-    std::clock_t _internalTimer;
+    static inline constexpr long int _ACCELERATING_INTERVAL_MS = 10000000;
+    static inline constexpr long int _GAME_SPEED_MODIFIER = 50000;
+    static inline constexpr long int _MIN_GAME_SPEED_MS = 100000;
 };

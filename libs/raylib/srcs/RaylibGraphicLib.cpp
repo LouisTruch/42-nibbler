@@ -17,18 +17,18 @@ void RaylibGraphicLib::clearBoard() const
     drawTextureTileSize(_background->getTexture(), 0, 0, WHITE);
 }
 
-void RaylibGraphicLib::drawPlayer(const Player &player)
+void RaylibGraphicLib::drawPlayer(const Snake_t &player)
 {
     Color playerColor;
-    if (player._idx == 0)
+    if (player.idx == 0)
         playerColor = {255, 0, 0, 255};
-    else if (player._idx == 1)
+    else if (player.idx == 1)
         playerColor = {255, 255, 0, 255};
-    for (auto current = player._body._deque.begin(); current != player._body._deque.end(); current++)
+    for (auto current = player.body.begin(); current != player.body.end(); current++)
     {
-        if (current == player._body._deque.begin())
-            drawHead(player._body._deque.front().x, player._body._deque.front().y, player._nextDirection, playerColor);
-        else if (current == player._body._deque.end() - 1)
+        if (current == player.body.begin())
+            drawHead(player.body.front().x, player.body.front().y, player.dir, playerColor);
+        else if (current == player.body.end() - 1)
             drawTail(current, playerColor);
         else
             drawBody(current, playerColor);
@@ -39,16 +39,16 @@ void RaylibGraphicLib::drawHead(int x, int y, int dir, Color playerColor)
 {
     switch (dir)
     {
-    case Player::DIRECTION_UP:
+    case DIRECTION_UP:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_UP].getTexture(), x, y, playerColor);
         break;
-    case Player::DIRECTION_DOWN:
+    case DIRECTION_DOWN:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_DOWN].getTexture(), x, y, playerColor);
         break;
-    case Player::DIRECTION_LEFT:
+    case DIRECTION_LEFT:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_LEFT].getTexture(), x, y, playerColor);
         break;
-    case Player::DIRECTION_RIGHT:
+    case DIRECTION_RIGHT:
         drawTextureTileSize(_vecTexture[RaylibTexture::HEAD_RIGHT].getTexture(), x, y, playerColor);
         break;
     default:
@@ -138,9 +138,9 @@ void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current, Co
 //                     it_body->y * _TILE_SIZE, WHITE);
 // }
 
-void RaylibGraphicLib::drawFood(const Food &food)
+void RaylibGraphicLib::drawFood(const point_t &point)
 {
-    drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), food._pos.x, food._pos.y, WHITE);
+    drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x, point.y, WHITE);
     EndDrawing();
 }
 
