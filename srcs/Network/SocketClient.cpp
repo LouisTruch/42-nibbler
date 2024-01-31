@@ -1,18 +1,32 @@
 #include "../../inc/Network/SocketClient.hpp"
 #include "../../inc/Log/Logger.hpp"
 
+#include <iostream> // std::cout std::cin std::cerr
+#include <unistd.h> // close()
 const std::string getLocalIp();
-
 SocketClient::SocketClient() : _fd(-1), _byteRead(-1), _maxFds(-1), _localIp(getLocalIp())
 {
     LOG_DEBUG("Constructing");
-    setupFdSocket();
-    if (askIfConnectLocalIp())
-        tryConnectingToIp(_localIp);
-    else
+    try
     {
-        std::string ip = askForDesiredIp();
-        tryConnectingToIp(ip);
+        setupFdSocket();
+        if (askIfConnectLocalIp())
+            tryConnectingToIp(_localIp);
+        else
+        {
+            std::string ip = askForDesiredIp();
+            tryConnectingToIp(ip);
+        }
+    }
+    catch (const std::exception &e)
+    {
+        if (_fd > 0)
+        {
+            close(_fd);
+            _fd = -1;
+        }
+        std::cerr << "In SocketClient.cpp: " << e.what() << std::endl;
+        throw e;
     }
 }
 
@@ -24,7 +38,6 @@ void SocketClient::setupFdSocket()
         throw std::runtime_error("socket() failed");
 }
 
-#include <iostream> // std::cout std::cin
 bool SocketClient::askIfConnectLocalIp() const noexcept
 {
     char answer;
@@ -35,12 +48,15 @@ bool SocketClient::askIfConnectLocalIp() const noexcept
     return false;
 }
 
-// TODO : Check if ip is valid
 const std::string SocketClient::askForDesiredIp() const
 {
     std::string ip;
     std::cout << "Enter the IPv4 you want to connect to: " << std::endl;
     std::cin >> ip;
+    if (!parseIp(ip))
+    {
+        throw std::runtime_error("Invalid IPv4");
+    }
     return ip;
 }
 
@@ -65,12 +81,11 @@ void SocketClient::tryConnectingToIp(const std::string &ip)
     LOG_DEBUG("Connection successful");
 }
 
-#include <unistd.h> // close()
 SocketClient::~SocketClient()
 {
+    LOG_DEBUG("Destructing");
     if (_fd > 0)
         close(_fd);
-    LOG_DEBUG("Destructing");
 }
 
 #include "../../inc/Network/Packet.hpp"
@@ -85,11 +100,9 @@ board_size_t SocketClient::recvBoardData()
 
 GameData_t SocketClient::recvGameData()
 {
-    static size_t i = 0;
     Packet packet(RECV_BUFFER_SIZE);
     _packetManager->recvPacket(_fd, packet);
     GameData_t gameData = _packetManager->getGameDataFromPacket(packet);
-    std::cout << "i = " << i++ << std::endl;
     return gameData;
 }
 

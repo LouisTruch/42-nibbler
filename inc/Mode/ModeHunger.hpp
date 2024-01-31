@@ -8,11 +8,11 @@ class ModeHunger : public IMode
   public:
     ModeHunger();
     ~ModeHunger();
-    ModeHunger(const ModeHunger &);
-    ModeHunger &operator=(const ModeHunger &);
+    ModeHunger(const ModeHunger &) = delete;
+    ModeHunger &operator=(const ModeHunger &) = delete;
 
   public:
-    bool check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept override;
+    std::uint16_t check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept override;
     void resetHungerTimer(int playerIdex, const std::chrono::time_point<std::chrono::high_resolution_clock> &);
 
   private:

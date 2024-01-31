@@ -8,11 +8,11 @@ class ModeMovingFood : public IMode
   public:
     ModeMovingFood();
     ~ModeMovingFood();
-    ModeMovingFood(const ModeMovingFood &);
-    ModeMovingFood &operator=(const ModeMovingFood &);
+    ModeMovingFood(const ModeMovingFood &) = delete;
+    ModeMovingFood &operator=(const ModeMovingFood &) = delete;
 
   public:
-    bool check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept override;
+    std::uint16_t check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept override;
 
   private:
     static inline constexpr long int _MOVING_INTERVAL_MS = 5000000;

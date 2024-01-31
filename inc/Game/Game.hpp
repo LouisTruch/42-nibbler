@@ -62,12 +62,15 @@ class Game
                                    const std::shared_ptr<Player> &otherPlayer) const noexcept;
     void runModesRoutine(const std::chrono::time_point<std::chrono::high_resolution_clock> &now);
     std::shared_ptr<Food> generateFood();
+    void handlePlayerDeath(int playerIdx, const std::string str) const;
+    void handleGameOver(const std::string str) const;
     // These 2 functions cannot be marked const because of std::uniform_int_distribution works
     const point_t choseRandomUnoccupiedPoint() noexcept;
     const point_t generateRandomPoint() noexcept;
     bool isPointOccupied(const point_t &point) const noexcept;
     void updateScore() noexcept;
     std::string getInfo() const noexcept;
+    const std::string collisionToString(collision_type) const noexcept;
 
   private:
     std::unique_ptr<ModeHandler> _modeHandler;
@@ -85,11 +88,6 @@ class Game
     bool _shouldPlayEatingSound;
 
   private:
-    static inline constexpr int _MIN_WIDTH = 5;
-    static inline constexpr int _MAX_WIDTH = 47;
-    static inline constexpr int _MIN_HEIGHT = 5;
-    static inline constexpr int _MAX_HEIGHT = 24;
-
     static inline constexpr int _DEFAULT_PLAYER_SIZE = 4;
     static inline constexpr long int _DEFAULT_GAME_SPEED_MS = 500000;
 };

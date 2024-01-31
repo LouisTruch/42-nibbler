@@ -11,6 +11,8 @@ class SocketClient
   public:
     SocketClient();
     ~SocketClient();
+    SocketClient(const SocketClient &) = delete;
+    SocketClient &operator=(const SocketClient &) = delete;
 
   public:
     board_size_t recvBoardData();
@@ -32,9 +34,13 @@ class SocketClient
     int _maxFds;
     std::string _localIp;
     std::unique_ptr<PacketManager> _packetManager;
-
-  private:
-    // TODO : Implement copy constructor and assignement operator
-    SocketClient(const SocketClient &) = delete;
-    SocketClient &operator=(const SocketClient &) = delete;
 };
+
+#include <regex>
+inline bool parseIp(const std::string &input)
+{
+    std::regex ipv4Pattern("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+    if (std::regex_match(input, ipv4Pattern))
+        return true;
+    return false;
+}

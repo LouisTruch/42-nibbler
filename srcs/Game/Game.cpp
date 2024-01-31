@@ -37,51 +37,44 @@ Game::~Game()
 #include <iostream>
 void Game::playTurn()
 {
-    // TODO : Change std::clock by std::chrono::high_resolution_clock in mods AND DELETE THIS
-    // std::clock_t now = std::clock();
-    // if (now == (std::clock_t)-1)
-    //     throw std::runtime_error("Error Game::playTurn(): std::clock() failed");
-
-    auto now2 = std::chrono::high_resolution_clock::now();
-    if (getElapsedTimeInMs(now2, _clock) > _gameSpeed)
+    auto now = std::chrono::high_resolution_clock::now();
+    if (getElapsedTimeInMs(now, _clock) > _gameSpeed)
     {
         LOG_DEBUG("speed: " + std::to_string(_gameSpeed));
         _clock = std::chrono::high_resolution_clock::now();
         movePlayers();
         setShouldPlayEatingSound(false);
-        handleCollisions(now2);
-        runModesRoutine(now2);
+        handleCollisions(now);
+        runModesRoutine(now);
     }
 }
 
 void Game::runModesRoutine(const std::chrono::time_point<std::chrono::high_resolution_clock> &now)
 {
-    size_t retMode = _modeHandler->checkRoutine(now);
-    // TODO : redo this probably
-    if ((retMode & 0x1) && (retMode & 0x2))
+    _modeHandler->doCheckRoutine(now);
+    if (_modeHandler->getHungerState(0) == ModeHandler::CONDITION_MET)
     {
-        throw Game::GameOverException("Game Draw: Both players died of hunger");
+        if (_modeHandler->getHungerState(1) == ModeHandler::CONDITION_MET)
+        {
+            if (_p1 != nullptr)
+                handleGameOver("Both players died of hunger");
+        }
+        handlePlayerDeath(0, "of hunger :(");
     }
-    else if (retMode & 0x1)
+    if (_modeHandler->getHungerState(1) == ModeHandler::CONDITION_MET)
     {
-        if (_p1 == nullptr)
-            throw Game::GameOverException("Game Over: You died of hunger :(");
-        else
-            throw Game::GameOverException("Game Over: Player 0 died of hunger, player 1 wins");
+        if (_p1 != nullptr)
+            handlePlayerDeath(1, "of hunger :(");
     }
-    else if (retMode & 0x2 && _p1 != nullptr)
-    {
-        throw Game::GameOverException("Game Over: Player 1 died of hunger, player 0 wins");
-    }
-    // Need to handle hunger, probably throw some exceptions
-    if (retMode & 0x4)
+    if (_modeHandler->getMovingFoodState() == ModeHandler::CONDITION_MET)
     {
         _food = generateFood();
     }
-    if (retMode & 0x8)
+    if (_modeHandler->getAcceleratingSpeedState() == ModeHandler::CONDITION_MET)
     {
         _modeHandler->modifyGameSpeed(_gameSpeed);
     }
+    _modeHandler->resetModeStates();
 }
 
 std::shared_ptr<Player> Game::getP(std::size_t idx)
@@ -116,7 +109,6 @@ void Game::movePlayers() noexcept
         _p1->move();
 }
 
-// TODO : Clean this mess
 void Game::handleCollisions(const std::chrono::time_point<std::chrono::high_resolution_clock> &now)
 {
     if (_p0 == nullptr)
@@ -129,25 +121,21 @@ void Game::handleCollisions(const std::chrono::time_point<std::chrono::high_reso
         collision_p1 = checkPlayerCollision(_p1, _p0);
     }
 
-    // TODO : Redo this
     if ((collision_p0 == COLLISION_ITSELF || collision_p0 == COLLISION_WALL || collision_p0 == COLLISION_OTHERPLAYER) &&
         (collision_p1 == COLLISION_ITSELF || collision_p1 == COLLISION_WALL || collision_p1 == COLLISION_OTHERPLAYER))
     {
         if (_p1 != nullptr)
-            throw Game::GameOverException("Game Draw: Players died at the same time");
+            handleGameOver("Both players died");
         else
-            throw Game::GameOverException("Game Over: You died :(");
+            handlePlayerDeath(0, "of " + collisionToString(collision_p0));
     }
     if ((collision_p0 == COLLISION_ITSELF || collision_p0 == COLLISION_WALL || collision_p0 == COLLISION_OTHERPLAYER))
     {
-        if (_p1 != nullptr)
-            throw Game::GameOverException("Game Over: Player 0 died, player 1 wins");
-        else
-            throw Game::GameOverException("Game Over: You died :(");
+        handlePlayerDeath(0, "of " + collisionToString(collision_p0));
     }
     if ((collision_p1 == COLLISION_ITSELF || collision_p1 == COLLISION_WALL || collision_p1 == COLLISION_OTHERPLAYER))
     {
-        throw Game::GameOverException("Game Over: Player 1 died, player 0 wins");
+        handlePlayerDeath(1, "of " + collisionToString(collision_p1));
     }
 
     if (collision_p0 == COLLISION_FOOD)
@@ -170,7 +158,7 @@ void Game::handleCollisions(const std::chrono::time_point<std::chrono::high_reso
         spaceTakenByPlayers += _p1->_body._deque.size();
     if (spaceTakenByPlayers == _totalFreeSpace)
     {
-        throw Game::GameOverException("Game Draw: Players filled the entiere map, GJ :)");
+        handleGameOver("No more free space, gg :)");
     }
 }
 
@@ -247,6 +235,16 @@ bool Game::checkCollisionOtherPlayer(const std::shared_ptr<Player> &player,
     return false;
 }
 
+void Game::handlePlayerDeath(int playerIdx, const std::string str) const
+{
+    throw Game::GameOverException("Game Over: Player " + std::to_string(playerIdx) + " died " + str);
+}
+
+void Game::handleGameOver(const std::string str) const
+{
+    throw Game::GameOverException("Game Over: " + str);
+}
+
 std::shared_ptr<Food> Game::generateFood()
 {
     point_t pos = choseRandomUnoccupiedPoint();
@@ -318,7 +316,6 @@ std::string Game::getInfo() const noexcept
 #endif
 }
 
-// TODO : Need to add direction to gameData because of raylib
 // TODO : Add sound somehow
 const GameData_t Game::exportData() const
 {
@@ -347,6 +344,23 @@ const GameData_t Game::exportData() const
     }
     gameData.playEatingSound = _shouldPlayEatingSound;
     return gameData;
+}
+
+const std::string Game::collisionToString(collision_type collision) const noexcept
+{
+    switch (collision)
+    {
+    case COLLISION_WALL:
+        return "colliding with wall";
+    case COLLISION_FOOD:
+        return "COLLISION_FOOD";
+    case COLLISION_ITSELF:
+        return "colliding with itself";
+    case COLLISION_OTHERPLAYER:
+        return "colliding with other player";
+    default:
+        return "UNKNOWN";
+    }
 }
 
 Game::GameOverException::GameOverException(const std::string msg) noexcept : msg(msg)

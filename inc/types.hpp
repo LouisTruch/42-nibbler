@@ -44,7 +44,7 @@ struct point
 typedef struct point point_t;
 typedef struct point board_size_t;
 
-typedef int int_gameConfig_t;
+typedef int int_GameConfig_t;
 
 typedef enum
 {

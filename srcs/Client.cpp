@@ -3,8 +3,6 @@
 
 #include <memory> // std::unique_ptr
 
-// TODO : constructor for single player
-
 // Constructor for multiplayer local and multiplayer online when hosting
 Client::Client(std::unique_ptr<LibHandler> libHandler, std::unique_ptr<Server> server)
     : _libHandler(std::move(libHandler)), _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr),
@@ -40,33 +38,18 @@ void Client::createGame(board_size_t boardSize, std::unique_ptr<ModeHandler> mod
     }
 }
 
-// TODO : remove iostream and Replace clock by chrono
-#include <chrono> // std::chrono
-#include <iostream>
-#include <thread> // std::this_thread::sleep_for
-void Client::startGame()
+#include <chrono>   // std::chrono
+#include <iostream> // std::cout
+#include <thread>   // std::this_thread::sleep_for
+void Client::startGameLoop()
 {
     // auto test1 = std::chrono::high_resolution_clock::now();
     // size_t nbIterationPerSec = 0;
-    try
+    while (1)
     {
-        while (1)
+        try
         {
-            // TODO : Probably move this in something link HandleInput, maybe can do a class for it idk
-            _graphicLib->registerPlayerInput();
-            consumePlayerInput(_graphicLib->getPlayerInput(0), 0);
-
-            if (_game->getP1() != nullptr)
-            {
-                player_input_t inputP1 = INPUT_DEFAULT;
-                if (_server != nullptr)
-                    inputP1 = _server->recvPlayerInput();
-                else
-                    inputP1 = _graphicLib->getPlayerInput(1);
-                consumePlayerInput(inputP1, 1);
-            }
-            _graphicLib->resetPlayerInput();
-
+            handleInput();
             _game->playTurn();
             GameData_t gameData = _game->exportData();
             if (_server != nullptr)
@@ -76,24 +59,27 @@ void Client::startGame()
             }
             render(gameData);
             handleSound(gameData);
-            // nbIterationPerSec++;
-            // auto test2 = std::chrono::high_resolution_clock::now();
-            // if (std::chrono::duration_cast<std::chrono::seconds>(test2 - test1).count() >= 1)
-            // {
-            //     std::cout << "Iter Per sec: " << nbIterationPerSec << std::endl;
-            //     test1 = std::chrono::high_resolution_clock::now();
-            //     nbIterationPerSec = 0;
-            // }
         }
-    }
-    catch (const Game::GameOverException &e)
-    {
-        if (_server != nullptr)
+        catch (const Game::GameOverException &e)
         {
-            // _server->sendEndGame();
+            if (_server != nullptr)
+            {
+                // TODO :
+                // _server->sendEndGame();
+            }
+            std::cout << e.what() << std::endl;
+            break;
         }
-        std::cout << e.what() << std::endl;
+        // nbIterationPerSec++;
+        // auto test2 = std::chrono::high_resolution_clock::now();
+        // if (std::chrono::duration_cast<std::chrono::seconds>(test2 - test1).count() >= 1)
+        // {
+        //     std::cout << "Iter Per sec: " << nbIterationPerSec << std::endl;
+        //     test1 = std::chrono::high_resolution_clock::now();
+        //     nbIterationPerSec = 0;
+        // }
     }
+
     LOG_DEBUG("Exiting Client::startGame()");
 }
 
@@ -103,9 +89,26 @@ void Client::joinGame()
     {
         _graphicLib->registerPlayerInput();
         _socketClient->sendPlayerInput(_graphicLib->getPlayerInput(0));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
         GameData_t gameData = _socketClient->recvGameData();
         render(gameData);
     }
+}
+
+void Client::handleInput()
+{
+    _graphicLib->registerPlayerInput();
+    consumePlayerInput(_graphicLib->getPlayerInput(0), 0);
+    if (_game->getP1() != nullptr)
+    {
+        player_input_t inputP1 = INPUT_DEFAULT;
+        if (_server != nullptr)
+            inputP1 = _server->recvPlayerInput();
+        else
+            inputP1 = _graphicLib->getPlayerInput(1);
+        consumePlayerInput(inputP1, 1);
+    }
+    _graphicLib->resetPlayerInput();
 }
 
 void Client::consumePlayerInput(const player_input_t playerInput, const std::size_t playerIdx)
@@ -117,8 +120,7 @@ void Client::consumePlayerInput(const player_input_t playerInput, const std::siz
         return;
     input_type_e inputType = checkPlayerInput(playerInput);
     if (inputType == QUIT)
-        // TODO : Change this exception
-        throw std::runtime_error("In Client::consumeP0Input(): QUIT received");
+        throw std::runtime_error("In Client:: INPUT_QUIT received");
     else if (inputType == SWAP_LIB)
     {
         handleLibSwitch(playerInput);
@@ -130,7 +132,6 @@ void Client::consumePlayerInput(const player_input_t playerInput, const std::siz
     }
     else if (inputType == MUTE)
     {
-        // TODO : move this
         if (_soundLib != nullptr)
             _soundLib->inverseMute();
     }
@@ -209,7 +210,8 @@ bool Client::checkIfOppositeDirection(const player_input_t playerInput, const st
 void Client::render(const GameData_t &gameData) const
 {
     _graphicLib->clearBoard();
-    _graphicLib->drawPlayer(gameData.p0);
+    if (gameData.p0.body.size())
+        _graphicLib->drawPlayer(gameData.p0);
     if (gameData.p1.has_value())
         _graphicLib->drawPlayer(gameData.p1.value());
     _graphicLib->drawFood(gameData.food);
@@ -225,206 +227,3 @@ void Client::handleSound(const GameData_t &gameData) const
         }
     }
 }
-
-// Old Client class
-// Client::Client(std::string_view ip)
-//     : _isSound(false), _libHandler(nullptr), _graphicHandler(nullptr), _soundHandler(nullptr)
-// {
-//     _fd = socket(AF_INET, SOCK_STREAM, 0);
-//     if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-//         throw std::runtime_error("In Client(): socket() error");
-
-//     struct sockaddr_in servAddr;
-//     memset(&servAddr, 0, sizeof(servAddr));
-//     servAddr.sin_family = AF_INET;
-//     servAddr.sin_port = htons(PORT);
-
-//     // Change address below by argv1
-//     if (inet_pton(AF_INET, ip.data(), &servAddr.sin_addr) <= 0)
-//         throw std::runtime_error("In Client(): inet_pton() error");
-//     if (connect(_fd, (struct sockaddr *)&servAddr, sizeof(servAddr)))
-//         throw std::runtime_error("In Client(): connect() error");
-
-//     // Ignore SIGPIPE to end properly execution when server closed and recv() sends a SIGPIPE
-//     signal(SIGPIPE, SIG_IGN);
-// }
-// void Client::instantiatePtrs()
-// {
-//     // _libHandler = std::make_unique<LibHandler>(_width, _height);
-//     // _graphicHandler = _libHandler->makeGraphicLib(_width + 2, _height + 2);
-//     if (_isSound)
-//     {
-//         // _libHandler->openLib(LibHandler::SOUND, LibHandler::LIBSOUND);
-//         _soundHandler = _libHandler->makeSoundLib();
-//     }
-// }
-
-// void Client::readData()
-// {
-//     std::string bufferRecv, bufferSend;
-//     int byteRead = 1;
-//     int byteSent;
-//     bufferRecv.resize(5000);
-//     while (byteRead > 0)
-//     {
-//         byteRead = recv(_fd, &bufferRecv[0], bufferRecv.size(), 0);
-//         if (byteRead < 0)
-//             throw std::runtime_error("In Client::readData(): recv() host is probably offline");
-
-//         if (bufferRecv[0] == 'i')
-//         {
-//             readInitData(bufferRecv);
-//             instantiatePtrs();
-//             continue;
-//         }
-//         else if (bufferRecv[0] == 'm')
-//         {
-//             readMessage(bufferRecv);
-//             break;
-//         }
-//         try
-//         {
-//             if (bufferRecv[0] == 'p' && _graphicHandler != nullptr)
-//                 readGameData(bufferRecv);
-//         }
-//         catch (const std::exception &e)
-//         {
-//             std::cerr << "In Client::readData(): " << e.what() << std::endl;
-//         }
-
-//         _graphicHandler->registerPlayerInput();
-//         if (_graphicHandler->getPlayerInput(0) == QUIT)
-//             break;
-//         else if (_graphicHandler->getPlayerInput(0) >= SWAP_LIBNCURSES &&
-//                  _graphicHandler->getPlayerInput(0) <= SWAP_LIBRAYLIB)
-//         {
-//             if (handleLibSwitch())
-//                 break;
-//         }
-//         else
-//         {
-//             bufferSend += std::to_string(_graphicHandler->getPlayerInput(0));
-//             byteSent = send(_fd, bufferSend.c_str(), 2, 0);
-//             if (byteSent < 0)
-//                 throw std::runtime_error("In Client::readData(): send() host is probably offline");
-//             bufferSend.clear();
-//         }
-//     }
-// }
-
-// // Read first data sent by the host which are width height and a bool to know if sound is ON or not
-// // Format received is "i:w h s"
-// void Client::readInitData(std::string &buffer)
-// {
-//     buffer.erase(0, 2);
-//     _width = std::stoi(buffer, nullptr, 10);
-//     buffer.erase(0, 2);
-//     _height = std::stoi(buffer, nullptr, 10);
-//     buffer.erase(0, 3);
-//     _isSound = std::stoi(buffer, nullptr, 10);
-// }
-
-// // Read game data then draw
-// // Format received is "pid+1:x y|x y|x y|\n(pid-1:x y|x y|x y|)\nf:x y"
-// // i is player index, d is direction from -2 to 2 without 0
-// void Client::readGameData(std::string &buffer)
-// {
-//     bool isP0 = true;
-//     std::deque<point_t> vecPlayer0Body;
-//     int player0Dir;
-//     std::deque<point_t> vecPlayer1Body;
-//     int player1Dir;
-//     buffer.erase(0, 2);
-//     int i;
-//     for (i = 0; buffer[i]; i++)
-//     {
-//         if (buffer[i] == 'p')
-//         {
-//             isP0 = false;
-//             i += 2;
-//             if (i > (int)buffer.size())
-//                 break;
-//         }
-//         if (isP0 && buffer[i] == 'd' && buffer[i + 1])
-//         {
-//             player0Dir = std::stoi(&buffer[i + 1], 0, 10);
-//             i += 3;
-//             if (i > (int)buffer.size())
-//                 break;
-//         }
-
-//         if (!isP0 && buffer[i] == 'd' && buffer[i + 1])
-//         {
-//             player1Dir = std::stoi(&buffer[i + 1], 0, 10);
-//             i += 3;
-//             if (i > (int)buffer.size())
-//                 break;
-//         }
-
-//         if (isdigit(buffer[i]))
-//         {
-//             point_t bodyPart;
-//             bodyPart.x = std::stoi(&buffer[i], 0, 10);
-//             i += 2;
-//             if (i > (int)buffer.size())
-//                 break;
-//             bodyPart.y = std::stoi(&buffer[i], 0, 10);
-//             i += 2;
-//             if (isP0)
-//                 vecPlayer0Body.push_back(bodyPart);
-//             else
-//                 vecPlayer1Body.push_back(bodyPart);
-//             if (i > (int)buffer.size())
-//                 break;
-//         }
-
-//         if (buffer[i] == 'f')
-//             break;
-//     }
-//     buffer.erase(0, i + 2);
-//     point_t foodPoint;
-//     foodPoint.x = std::stoi(buffer, 0, 10);
-//     buffer.erase(0, 3);
-//     foodPoint.y = std::stoi(buffer, 0, 10);
-//     _graphicHandler->clearBoard();
-//     _graphicHandler->drawPlayer(Player(0, vecPlayer0Body, player0Dir));
-//     _graphicHandler->drawPlayer(Player(1, vecPlayer1Body, player1Dir));
-//     _graphicHandler->drawFood(foodPoint);
-// }
-
-// // Read Game Over message and print it in terminal
-// // Format is "m: xxx"
-// void Client::readMessage(std::string &buffer)
-// {
-//     buffer.erase(0, 2);
-//     std::cout << buffer << std::endl;
-// }
-
-// int Client::handleLibSwitch()
-// {
-//     try
-//     {
-//         // if (_graphicHandler->getPlayerInput(0) == SWAP_LIBNCURSES)
-//         //     _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBNCURSES, std::move(_graphicHandler));
-//         // else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBSDL)
-//         //     _graphicHandler = _libHandler->switchGraphicLib(LibHandler::LIBSDL, std::move(_graphicHandler));
-//         // else if (_graphicHandler->getPlayerInput(0) == SWAP_LIBRAYLIB)
-//         //     _graphicHandler = _libHandler->switchGraphicLib((LibHandler::lib_graphic_e)(SWAP_LIBRAYLIB - 3),
-//         //                                                     std::move(_graphicHandler));
-//         _graphicHandler->resetPlayerInput();
-//         return 0;
-//     }
-//     catch (const std::exception &e)
-//     {
-//         std::cerr << "In Game: handleLibSwitch(): " << std::endl;
-//         return 1;
-//     }
-// }
-
-// Client::~Client()
-// {
-//     close(_fd);
-//     // _libHandler->destroyGraphicLib(std::move(_graphicHandler));
-//     // if (_isSound)
-//     // _libHandler->destroySoundLib(std::move(_soundHandler));
-// }

@@ -5,6 +5,7 @@ ModeAcceleratingSpeed::ModeAcceleratingSpeed()
 {
     LOG_DEBUG("Constructor");
     _internalClock = std::chrono::high_resolution_clock::now();
+    _retValue = 0x4;
 }
 
 ModeAcceleratingSpeed::~ModeAcceleratingSpeed()
@@ -12,28 +13,16 @@ ModeAcceleratingSpeed::~ModeAcceleratingSpeed()
     LOG_DEBUG("Destructor");
 }
 
-ModeAcceleratingSpeed::ModeAcceleratingSpeed(const ModeAcceleratingSpeed &other)
-{
-    *this = other;
-}
-
-ModeAcceleratingSpeed &ModeAcceleratingSpeed::operator=(const ModeAcceleratingSpeed &other)
-{
-    if (&other == this)
-        return *this;
-    _internalClock = other._internalClock;
-    return *this;
-}
-
-bool ModeAcceleratingSpeed::check(const std::chrono::time_point<std::chrono::high_resolution_clock> &now) noexcept
+std::uint16_t ModeAcceleratingSpeed::check(
+    const std::chrono::time_point<std::chrono::high_resolution_clock> &now) noexcept
 {
     if (getElapsedTimeInMs(now, _internalClock) >= _ACCELERATING_INTERVAL_MS)
     {
         LOG_DEBUG("Accelerating speed by" << _GAME_SPEED_MODIFIER);
         _internalClock = now;
-        return true;
+        return _retValue;
     }
-    return false;
+    return 0;
 }
 
 void ModeAcceleratingSpeed::modifyGameSpeed(long int &gameSpeed) noexcept

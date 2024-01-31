@@ -1,16 +1,15 @@
 #pragma once
 
 #include <chrono> // std::chrono
-// Using an interface because all mods follow the same simple pattern where you only
-// have to check a value
 class IMode
 {
   public:
     virtual ~IMode() = default;
-    virtual bool check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept = 0;
+    virtual std::uint16_t check(const std::chrono::time_point<std::chrono::high_resolution_clock> &) noexcept = 0;
 
   protected:
     std::chrono::time_point<std::chrono::high_resolution_clock> _internalClock;
+    std::uint16_t _retValue;
 };
 
 inline auto getElapsedTimeInMs(const std::chrono::time_point<std::chrono::high_resolution_clock> &clock1,

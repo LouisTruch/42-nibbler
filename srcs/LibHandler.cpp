@@ -10,9 +10,9 @@ LibHandler::LibHandler(board_size_t boardSize)
       _deleterSoundFunc(nullptr)
 {
 #ifndef DEBUG
-    openGraphicLib(LIBSDL);
+    openGraphicLib(LIBRAYLIB);
 #else
-    openGraphicLib(LIBSDL);
+    openGraphicLib(LIBRAYLIB);
 #endif
     loadSymbolsGraphicLib();
 

@@ -10,17 +10,14 @@ class MenuItem
     typedef enum
     {
         CHANGING_SPEED = 0,
-        DISAPPEARING_FOOD,
+        MOVING_FOOD,
         HUNGER,
-        SCORE,
         SINGLE_PLAYER,
         MULTI_LOCAL,
         MULTI_NETWORK,
-        SOUND,
     } game_mode_idx_e;
-    static constexpr std::string_view GAME_MODE_STR[8] = {
-        "CHANGING SPEED", "DISAPPEARING FOOD", "HUNGER",        "SCORE",
-        "SINGLE PLAYER",  "MULTI LOCAL",       "MULTI NETWORK", "SOUND"};
+    static constexpr std::string_view GAME_MODE_STR[8] = {"CHANGING SPEED", "MOVING FOOD", "HUNGER",
+                                                          "SINGLE PLAYER",  "MULTI LOCAL", "MULTI NETWORK"};
 
   public:
     MenuItem(std::string_view, bool);

@@ -9,11 +9,11 @@ class ModeAcceleratingSpeed : public IMode
   public:
     ModeAcceleratingSpeed();
     ~ModeAcceleratingSpeed();
-    ModeAcceleratingSpeed(const ModeAcceleratingSpeed &);
-    ModeAcceleratingSpeed &operator=(const ModeAcceleratingSpeed &);
+    ModeAcceleratingSpeed(const ModeAcceleratingSpeed &) = delete;
+    ModeAcceleratingSpeed &operator=(const ModeAcceleratingSpeed &) = delete;
 
   public:
-    bool check(const std::chrono::time_point<std::chrono::high_resolution_clock> &now) noexcept override;
+    std::uint16_t check(const std::chrono::time_point<std::chrono::high_resolution_clock> &now) noexcept override;
     void modifyGameSpeed(long int &) noexcept;
 
   private:

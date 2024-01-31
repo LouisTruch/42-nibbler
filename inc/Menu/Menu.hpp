@@ -21,7 +21,7 @@ class Menu
     void printMenu(board_size_t);
     int handleHighlighting();
     void findItemCategoryIdx(int &, int &);
-    int_gameConfig_t exportGameConfig();
+    int_GameConfig_t exportGameConfig();
     bool checkSingleChoiceCategory() const;
 
   private:

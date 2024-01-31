@@ -195,7 +195,7 @@ const GameData_t PacketManager::getGameDataFromPacket(Packet &packet) const
     return gameData;
 }
 
-const player_input_t PacketManager::getPlayerInputFromPacket(Packet &packet) const
+player_input_t PacketManager::getPlayerInputFromPacket(Packet &packet) const
 {
     player_input_t playerInput;
     std::string data = packet.getBufferRecv();
