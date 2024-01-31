@@ -111,7 +111,7 @@ int Score::getCurrentScore() const
     return _currentScore;
 }
 
-int Score::getHighScoreFile() const
+int Score::getHighScore() const
 {
     return _highScore;
 }

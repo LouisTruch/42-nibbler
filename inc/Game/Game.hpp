@@ -37,6 +37,9 @@ class Game
     std::shared_ptr<Player> getP1();
     std::shared_ptr<Food> getFood();
     const GameData_t exportData() const;
+    bool isScore() const noexcept;
+    int getCurrentScore() const noexcept;
+    int getHighScore() const noexcept;
 
   public:
     class GameOverException : public std::exception
@@ -69,6 +72,7 @@ class Game
     const point_t generateRandomPoint() noexcept;
     bool isPointOccupied(const point_t &point) const noexcept;
     void updateScore() noexcept;
+
     std::string getInfo() const noexcept;
     const std::string collisionToString(collision_type) const noexcept;
 
@@ -89,7 +93,7 @@ class Game
 
   private:
     static inline constexpr int _DEFAULT_PLAYER_SIZE = 4;
-    static inline constexpr long int _DEFAULT_GAME_SPEED_MS = 500000;
+    static inline constexpr long int _DEFAULT_GAME_SPEED_MS = 5000000;
 };
 
 void checkArgs(int, char **);

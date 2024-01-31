@@ -122,22 +122,6 @@ void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current, Co
                             playerColor);
 }
 
-// void    draw_eeeeeeeeee(?? a b c d eeee)
-// {
-//     if (a > b && b < c)
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMRIGHT].getTexture(), it_body->x * _TILE_SIZE,
-//                     it_body->y * _TILE_SIZE, WHITE);
-//     else if (a < b && b > c)
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPLEFT].getTexture(), it_body->x * _TILE_SIZE,
-//                     it_body->y * _TILE_SIZE, WHITE);
-//     else if (a < b && b < c || a > b && b > c && eeee = 0)
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_TOPRIGHT].getTexture(), it_body->x * _TILE_SIZE,
-//                     it_body->y * _TILE_SIZE, WHITE);
-//     else
-//         DrawTexture(_vecTexture[RaylibTexture::BODY_BOTTOMLEFT].getTexture(), it_body->x * _TILE_SIZE,
-//                     it_body->y * _TILE_SIZE, WHITE);
-// }
-
 void RaylibGraphicLib::drawFood(const point_t &point)
 {
     drawTextureTileSize(_vecTexture[RaylibTexture::FOOD].getTexture(), point.x, point.y, WHITE);
@@ -149,7 +133,6 @@ void RaylibGraphicLib::drawScores(int score, int highScore)
     BeginDrawing();
     DrawText(TextFormat("Score: %i", score), _TILE_SIZE, 0, 16, RED);
     DrawText(TextFormat("HiScore: %i", highScore), _TILE_SIZE, 18, 16, GREEN);
-    EndDrawing();
 }
 
 void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Color color) const

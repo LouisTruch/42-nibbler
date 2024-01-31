@@ -12,7 +12,7 @@ class Score
     void updateScoreFile();
     void setCurrentScore(size_t);
     int getCurrentScore() const;
-    int getHighScoreFile() const;
+    int getHighScore() const;
 
   private:
     std::ifstream _inFile;

@@ -187,7 +187,21 @@ const GameData_t PacketManager::getGameDataFromPacket(Packet &packet) const
             gameData.food.x = std::stoi(token.substr(0, token.find(":")));
             gameData.food.y = std::stoi(token.substr(token.find(":") + 1));
         }
-        else if (i > 3)
+        else if (i == 4)
+        {
+            size_t posColon = token.find(":");
+            if (posColon == std::string::npos)
+                throw std::runtime_error("PacketManager::getGameDataFromPacket: Invalid packet");
+            std::string lineBegin = token.substr(0, posColon + 1);
+            if (lineBegin != Packet::_HEADERS_GAMEDATA[i])
+                throw std::runtime_error("PacketManager::getGameDataFromPacket: Invalid packet");
+            token = token.substr(token.find(":") + 1);
+            gameData.playEatingSound = std::stoi(token);
+            return gameData;
+        }
+        else if (i > 4)
+            throw std::runtime_error("PacketManager::getGameDataFromPacket: Invalid packet");
+        else if (i > 4)
             break;
         data.erase(0, pos + delimiter.length());
         i++;

@@ -46,6 +46,8 @@ Packet::Packet(const GameData_t &gameData)
     _dataToSend += "\n";
     _dataToSend += _HEADERS_GAMEDATA[3];
     _dataToSend += std::to_string(gameData.food.x) + ":" + std::to_string(gameData.food.y) + "\n";
+    _dataToSend += _HEADERS_GAMEDATA[4];
+    _dataToSend += std::to_string(gameData.playEatingSound) + "\n";
 }
 
 Packet::Packet(const player_input_t &playerInput)

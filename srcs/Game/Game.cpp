@@ -23,6 +23,7 @@ Game::Game(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, boo
     {
         _p0 = std::make_shared<Player>(0, 1, _height / 2, _DEFAULT_PLAYER_SIZE);
         _p1 = std::make_shared<Player>(1, _width - 2, _height / 2, _DEFAULT_PLAYER_SIZE);
+        _scoreHandler = nullptr;
     }
     _food = generateFood();
     LOG_DEBUG("Game successfully constructed:" + getInfo());
@@ -325,14 +326,14 @@ const GameData_t Game::exportData() const
     {
         gameData.p0.idx = _p0->_idx;
         gameData.p0.body = _p0->_body._deque;
-        gameData.p0.dir = _p0->_nextDirection;
+        gameData.p0.dir = _p0->_prevDirection;
     }
     if (_p1 != nullptr)
     {
         gameData.p1 = std::make_optional(Snake_t());
         gameData.p1->idx = _p1->_idx;
         gameData.p1->body = _p1->_body._deque;
-        gameData.p1->dir = _p1->_nextDirection;
+        gameData.p1->dir = _p1->_prevDirection;
     }
     else
     {
@@ -352,8 +353,6 @@ const std::string Game::collisionToString(collision_type collision) const noexce
     {
     case COLLISION_WALL:
         return "colliding with wall";
-    case COLLISION_FOOD:
-        return "COLLISION_FOOD";
     case COLLISION_ITSELF:
         return "colliding with itself";
     case COLLISION_OTHERPLAYER:
@@ -361,6 +360,27 @@ const std::string Game::collisionToString(collision_type collision) const noexce
     default:
         return "UNKNOWN";
     }
+}
+
+bool Game::isScore() const noexcept
+{
+    if (_scoreHandler == nullptr)
+        return false;
+    return true;
+}
+
+int Game::getCurrentScore() const noexcept
+{
+    if (_scoreHandler == nullptr)
+        return 0;
+    return _scoreHandler->getCurrentScore();
+}
+
+int Game::getHighScore() const noexcept
+{
+    if (_scoreHandler == nullptr)
+        return 0;
+    return _scoreHandler->getHighScore();
 }
 
 Game::GameOverException::GameOverException(const std::string msg) noexcept : msg(msg)

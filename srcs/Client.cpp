@@ -62,11 +62,6 @@ void Client::startGameLoop()
         }
         catch (const Game::GameOverException &e)
         {
-            if (_server != nullptr)
-            {
-                // TODO :
-                // _server->sendEndGame();
-            }
             std::cout << e.what() << std::endl;
             break;
         }
@@ -79,7 +74,6 @@ void Client::startGameLoop()
         //     nbIterationPerSec = 0;
         // }
     }
-
     LOG_DEBUG("Exiting Client::startGame()");
 }
 
@@ -88,10 +82,25 @@ void Client::joinGame()
     while (1)
     {
         _graphicLib->registerPlayerInput();
-        _socketClient->sendPlayerInput(_graphicLib->getPlayerInput(0));
+        player_input_t input = _graphicLib->getPlayerInput(0);
+        input_type_e inputType = checkPlayerInput(input);
+        if (inputType == QUIT)
+            throw std::runtime_error("In Client:: INPUT_QUIT received");
+        else if (inputType == SWAP_LIB)
+        {
+            handleLibSwitch(input);
+        }
+        else if (inputType == MUTE)
+        {
+            if (_soundLib != nullptr)
+                _soundLib->inverseMute();
+        }
+        _socketClient->sendPlayerInput(input);
+        _graphicLib->resetPlayerInput();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
         GameData_t gameData = _socketClient->recvGameData();
         render(gameData);
+        handleSound(gameData);
     }
 }
 
@@ -121,7 +130,7 @@ void Client::consumePlayerInput(const player_input_t playerInput, const std::siz
     input_type_e inputType = checkPlayerInput(playerInput);
     if (inputType == QUIT)
         throw std::runtime_error("In Client:: INPUT_QUIT received");
-    else if (inputType == SWAP_LIB)
+    else if (inputType == SWAP_LIB && playerIdx == 0)
     {
         handleLibSwitch(playerInput);
     }
@@ -130,7 +139,7 @@ void Client::consumePlayerInput(const player_input_t playerInput, const std::siz
         if (!checkIfOppositeDirection(playerInput, playerIdx))
             _game->getP(playerIdx)->setNextDirection(playerInput);
     }
-    else if (inputType == MUTE)
+    else if (inputType == MUTE && playerIdx == 0)
     {
         if (_soundLib != nullptr)
             _soundLib->inverseMute();
@@ -215,6 +224,8 @@ void Client::render(const GameData_t &gameData) const
     if (gameData.p1.has_value())
         _graphicLib->drawPlayer(gameData.p1.value());
     _graphicLib->drawFood(gameData.food);
+    if (_game != nullptr && _game->getP1() == nullptr)
+        _graphicLib->drawScores(_game->getCurrentScore(), _game->getHighScore());
 }
 
 void Client::handleSound(const GameData_t &gameData) const

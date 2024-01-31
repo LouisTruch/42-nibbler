@@ -22,11 +22,8 @@ class Packet
         "width:",
         "height:",
     };
-    static inline const std::string_view _HEADERS_GAMEDATA[4] = {
-        "game_data",
-        "player0:",
-        "player1:",
-        "food:",
+    static inline const std::string_view _HEADERS_GAMEDATA[5] = {
+        "game_data", "player0:", "player1:", "food:", "play_eating_sound:",
     };
     static inline const std::string_view _HEADERS_INPUT[2] = {
         "player_input",

@@ -10,23 +10,23 @@ LibHandler::LibHandler(board_size_t boardSize)
       _deleterSoundFunc(nullptr)
 {
 #ifndef DEBUG
-    openGraphicLib(LIBRAYLIB);
+    openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBRAYLIB);
+    openGraphicLib(LIBSDL);
 #endif
     loadSymbolsGraphicLib();
 
     //     // TODO : Fix leak coming from here (from dlopen()) maybe try closing other .so first idk
-    // try
-    // {
-    //     openSoundLib(SOUNDRAYLIB);
-    //     loadSymbolsSoundLib();
-    // }
-    // catch (const std::exception &e)
-    // {
-    //     std::cerr << "In LibHandler(): " << e.what() << std::endl;
-    //     std::cerr << "Sound will not be enabled" << std::endl;
-    // }
+    try
+    {
+        openSoundLib(SOUNDRAYLIB);
+        loadSymbolsSoundLib();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "In LibHandler(): " << e.what() << std::endl;
+        std::cerr << "Sound will not be enabled" << std::endl;
+    }
 }
 
 LibHandler::~LibHandler()
