@@ -12,28 +12,29 @@ LibHandler::LibHandler(board_size_t boardSize)
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBSDL);
+    openGraphicLib(LIBRAYLIB);
 #endif
     loadSymbolsGraphicLib();
 
-    //     // TODO : Fix leak coming from here (from dlopen()) maybe try closing other .so first idk
-    try
-    {
-        openSoundLib(SOUNDRAYLIB);
-        loadSymbolsSoundLib();
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "In LibHandler(): " << e.what() << std::endl;
-        std::cerr << "Sound will not be enabled" << std::endl;
-    }
+    // TODO : FIX LEAKS FROM DLOPEN/DLCLOSE
+    // TODO : Fix leak coming from here (from dlopen()) maybe try closing other .so first idk
+    // try
+    // {
+    //     openSoundLib(SOUNDRAYLIB);
+    //     loadSymbolsSoundLib();
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "In LibHandler(): " << e.what() << std::endl;
+    //     std::cerr << "Sound will not be enabled" << std::endl;
+    // }
 }
 
 LibHandler::~LibHandler()
 {
     closeCurrentGraphicLib();
     closeCurrentSoundLib();
-    LOG_DEBUG("Destructing LibHandler");
+    LOG_DEBUG("Destructing");
 }
 
 void LibHandler::openGraphicLib(lib_graphic_e libChoice)
@@ -41,7 +42,7 @@ void LibHandler::openGraphicLib(lib_graphic_e libChoice)
     if (0 < libChoice && libChoice >= NB_GRAPHIC_LIBS)
         return;
     dlerror();
-    _graphicLibPtr = dlopen(GRAPHIC_LIB_PATH[libChoice].data(), RTLD_LAZY | RTLD_LOCAL);
+    _graphicLibPtr = dlopen(GRAPHIC_LIB_PATH[libChoice].data(), RTLD_LAZY);
     if (!_graphicLibPtr)
     {
         std::cerr << "Error LibHandler(): " << dlerror() << std::endl;

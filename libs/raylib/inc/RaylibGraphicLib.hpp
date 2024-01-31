@@ -3,11 +3,11 @@
 #include "../../../inc/Interface/IGraphicLib.hpp"
 #include "../raylib/src/raylib.h"
 #include "RaylibTexture.hpp"
-#include <algorithm> 
-#include <deque> // std::deque
+#include <algorithm>
+#include <deque>       // std::deque
+#include <memory>      // std::unique_ptr
 #include <string_view> // std::string_view
-#include <vector> // std::vector
-#include <memory> // std::unique_ptr
+#include <vector>      // std::vector
 
 class RaylibGraphicLib : public IGraphicLib
 {
@@ -29,7 +29,9 @@ class RaylibGraphicLib : public IGraphicLib
 
   private:
     void drawHead(int, int, int, Color);
-    void drawTail(std::deque<point_t>::const_iterator &, Color);
+    std::deque<point_t>::const_iterator getPrevDiffPos(const std::deque<point_t>::const_iterator,
+                                                       const std::deque<point_t>::const_iterator) const;
+    void drawTail(std::deque<point_t>::const_iterator &, std::deque<point_t>::const_iterator &, Color);
     void drawBody(std::deque<point_t>::const_iterator &, Color);
     // DrawTexture() wrapper to avoid having to add TILE_SIZE to every call;
     void drawTextureTileSize(Texture2D, int, int, Color) const;

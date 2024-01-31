@@ -14,7 +14,7 @@ void RaylibGraphicLib::clearBoard() const
 {
     ClearBackground(BLACK);
     BeginDrawing();
-    drawTextureTileSize(_background->getTexture(), 0, 0, WHITE);
+    DrawTexture(_background->getTexture(), _TILE_SIZE, _TILE_SIZE, WHITE);
 }
 
 void RaylibGraphicLib::drawPlayer(const Snake_t &player)
@@ -22,16 +22,25 @@ void RaylibGraphicLib::drawPlayer(const Snake_t &player)
     Color playerColor;
     if (player.idx == 0)
         playerColor = {255, 0, 0, 255};
-    else if (player.idx == 1)
+    else
         playerColor = {255, 255, 0, 255};
+
     for (auto current = player.body.begin(); current != player.body.end(); current++)
     {
         if (current == player.body.begin())
+        {
             drawHead(player.body.front().x, player.body.front().y, player.dir, playerColor);
+        }
         else if (current == player.body.end() - 1)
-            drawTail(current, playerColor);
+        {
+            auto oneBeforeTail = getPrevDiffPos(current, player.body.begin());
+            if (!(current->x == player.body.front().x && current->y == player.body.front().y))
+                drawTail(oneBeforeTail, current, playerColor);
+        }
         else
+        {
             drawBody(current, playerColor);
+        }
     }
 }
 
@@ -57,27 +66,41 @@ void RaylibGraphicLib::drawHead(int x, int y, int dir, Color playerColor)
     }
 }
 
-void RaylibGraphicLib::drawTail(std::deque<point_t>::const_iterator &current, Color playerColor)
+std::deque<point_t>::const_iterator RaylibGraphicLib::getPrevDiffPos(
+    const std::deque<point_t>::const_iterator current, const std::deque<point_t>::const_iterator first) const
 {
+    auto prev = current;
+    while (prev != first)
+    {
+        prev--;
+        if (prev->x != current->x || prev->y != current->y)
+            break;
+    }
+    return prev;
+}
+
+// TODO : REMOVE THIS INCLUDE
+#include <iostream>
+void RaylibGraphicLib::drawTail(std::deque<point_t>::const_iterator &oneBeforeTail,
+                                std::deque<point_t>::const_iterator &tail, Color playerColor)
+{
+    // if (oneBeforeTail->x == tail->x && oneBeforeTail->y == tail->y)
+    // return;
+    if (oneBeforeTail->x == tail->x)
+    {
+        if (oneBeforeTail->y < tail->y)
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_DOWN].getTexture(), tail->x, tail->y, playerColor);
+        else
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_UP].getTexture(), tail->x, tail->y, playerColor);
+    }
+    else if (oneBeforeTail->y == tail->y)
+    {
+        if (oneBeforeTail->x < tail->x)
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_RIGHT].getTexture(), tail->x, tail->y, playerColor);
+        else
+            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_LEFT].getTexture(), tail->x, tail->y, playerColor);
+    }
     // Useful when snake is spawning or eating to avoid printing wrong texture
-    auto last = current;
-    while (*last == *current)
-        last--;
-    last++;
-    if (last->x == (last - 1)->x)
-    {
-        if (last->y > (last - 1)->y)
-            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_DOWN].getTexture(), last->x, last->y, playerColor);
-        else
-            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_UP].getTexture(), last->x, last->y, playerColor);
-    }
-    else
-    {
-        if (last->x > (last - 1)->x)
-            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_RIGHT].getTexture(), last->x, last->y, playerColor);
-        else
-            drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_LEFT].getTexture(), last->x, last->y, playerColor);
-    }
 }
 
 void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current, Color playerColor)
@@ -137,7 +160,7 @@ void RaylibGraphicLib::drawScores(int score, int highScore)
 
 void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Color color) const
 {
-    DrawTexture(texture, x * _TILE_SIZE + _TILE_SIZE, y * _TILE_SIZE + _TILE_SIZE, color);
+    DrawTexture(texture, x * _TILE_SIZE, y * _TILE_SIZE, color);
 }
 
 void RaylibGraphicLib::registerPlayerInput() noexcept
