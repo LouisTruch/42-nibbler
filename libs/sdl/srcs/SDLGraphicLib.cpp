@@ -1,8 +1,13 @@
 #include "../inc/SDLGraphicLib.hpp"
-#include <SDL2/SDL.h>
 #include <iostream>
 #include <ranges>
 #include <stdexcept>
+
+#ifndef MANUAL_INSTALL
+#include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 SDLGraphicLib::SDLGraphicLib(int width, int height) : _width(width * _TILE_SIZE), _height(height * _TILE_SIZE)
 {

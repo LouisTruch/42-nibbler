@@ -1,7 +1,12 @@
 #pragma once
 
 #include "../../../inc/Interface/IGraphicLib.hpp"
+
+#ifndef MANUAL_INSTALL
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 
 class SDLGraphicLib : public IGraphicLib
 {

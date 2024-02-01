@@ -1,7 +1,9 @@
 CC = g++
 CXXFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
-LDFLAGS := -lSDL2
-INCLUDES = -Iinc
+
+LDFLAGS := -LSDL/build/build/.libs -lSDL2 -D_REENTRANT
+INCLUDES = -ISDL
+
 SRCS = $(wildcard srcs/*.cpp)
 OBJS := $(patsubst %.cpp, %.o, $(SRCS))
 DEPENDS := $(patsubst %.cpp, %.d, $(SRCS))
@@ -11,6 +13,10 @@ ifeq ($(DEBUG), 1)
 	CXXFLAGS += -g
 	CXXFLAGS += -DDEBUG
 endif
+
+ifeq ($(MANUAL_INSTALL), 1)
+	CXXFLAGS += -DMANUAL_INSTALL
+endif 
 
 .PHONY: clean fclean re
 
