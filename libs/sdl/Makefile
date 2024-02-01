@@ -1,7 +1,7 @@
 CC = g++
-CXXFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20
+CXXFLAGS = -Wall -Werror -Wextra -fPIC -std=c++20 -D_REENTRANT 
 
-LDFLAGS := -LSDL/build/build/.libs -lSDL2 -D_REENTRANT
+LDFLAGS := -LSDL/build/build/.libs -lSDL2 
 INCLUDES = -ISDL
 
 SRCS = $(wildcard srcs/*.cpp)

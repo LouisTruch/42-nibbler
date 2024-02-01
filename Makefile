@@ -86,12 +86,13 @@ r 	:	all
 			$(DEBUG_ENV) $(MAKE) -C libs/raylib
 			$(DEBUG_ENV) $(MAKE) -C libs/raylib/sound
 
-#make raylib.a
-raylib:
-			make -C  libs/raylib/raylib/src/
-
+cleanlibs: cleanraylib cleansdl
 #clean raylib.a and objects
 cleanraylib:
-			make -C  libs/raylib/raylib/src/ clean
+			$(RM) ./libs/raylib/raylib
+
+cleansdl:
+			$(RM) ./libs/sdl/SDL
+
 
 .PHONY : all clean fclean re lib raylib cleanraylib install uninstall

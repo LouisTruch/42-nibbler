@@ -2,7 +2,7 @@
 
 #include "../../../inc/Interface/IGraphicLib.hpp"
 
-#ifndef MANUAL_INSTALL
+#ifndef MANUAL_INSTALLSDL
 #include <SDL2/SDL.h>
 #else
 #include <SDL.h>

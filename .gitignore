@@ -33,4 +33,5 @@
 
 nibbler
 libs/raylib/raylib/
+libs/raylib/SDL
 highscore.txt
