@@ -21,7 +21,7 @@ class SocketClient
 
   private:
     void setupFdSocket();
-    bool askIfConnectLocalIp() const noexcept;
+    bool askIfConnectLocalIp() const;
     const std::string askForDesiredIp() const;
     void tryConnectingToIp(const std::string &ip);
 

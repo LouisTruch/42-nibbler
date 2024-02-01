@@ -12,22 +12,20 @@ LibHandler::LibHandler(board_size_t boardSize)
 #ifndef DEBUG
     openGraphicLib(LIBSDL);
 #else
-    openGraphicLib(LIBRAYLIB);
+    openGraphicLib(LIBDEBUG);
 #endif
     loadSymbolsGraphicLib();
 
-    // TODO : FIX LEAKS FROM DLOPEN/DLCLOSE
-    // TODO : Fix leak coming from here (from dlopen()) maybe try closing other .so first idk
-    // try
-    // {
-    //     openSoundLib(SOUNDRAYLIB);
-    //     loadSymbolsSoundLib();
-    // }
-    // catch (const std::exception &e)
-    // {
-    //     std::cerr << "In LibHandler(): " << e.what() << std::endl;
-    //     std::cerr << "Sound will not be enabled" << std::endl;
-    // }
+    try
+    {
+        openSoundLib(SOUNDRAYLIB);
+        loadSymbolsSoundLib();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "In LibHandler(): " << e.what() << std::endl;
+        std::cerr << "Sound will not be enabled" << std::endl;
+    }
 }
 
 LibHandler::~LibHandler()
@@ -48,9 +46,9 @@ void LibHandler::openGraphicLib(lib_graphic_e libChoice)
         std::cerr << "Error LibHandler(): " << dlerror() << std::endl;
         throw std::runtime_error("Error LibHandler(): could not load .so object");
     }
-
     _currentGraphicLib = libChoice;
 
+#ifdef DEBUG
     std::string info;
     switch (libChoice)
     {
@@ -63,16 +61,15 @@ void LibHandler::openGraphicLib(lib_graphic_e libChoice)
     case LIBRAYLIB:
         info = "RAYLIB";
         break;
-#ifdef DEBUG
     case LIBDEBUG:
         info = "DEBUG";
         break;
-#endif
     default:
         info = "NO_LIB";
         break;
     }
     LOG_DEBUG("Successfully loaded " + info + ".so object");
+#endif
 }
 
 void LibHandler::closeCurrentGraphicLib()

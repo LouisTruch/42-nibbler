@@ -3,7 +3,7 @@
 
 #include <memory> // std::unique_ptr
 
-// Constructor for multiplayer local and multiplayer online when hosting
+// Constructor for multiplayer local and multiplayer online when hosting and singleplayer
 Client::Client(std::unique_ptr<LibHandler> libHandler, std::unique_ptr<Server> server)
     : _libHandler(std::move(libHandler)), _graphicLib(_libHandler->makeGraphicLib()), _game(nullptr),
       _soundLib(_libHandler->makeSoundLib()), _server(std::move(server)), _socketClient(nullptr)
@@ -45,6 +45,8 @@ void Client::startGameLoop()
 {
     // auto test1 = std::chrono::high_resolution_clock::now();
     // size_t nbIterationPerSec = 0;
+    if (_graphicLib == nullptr)
+        throw std::runtime_error("In Client::startGame(): _graphicLib is nullptr");
     while (1)
     {
         try
@@ -79,6 +81,8 @@ void Client::startGameLoop()
 
 void Client::joinGame()
 {
+    if (_graphicLib == nullptr)
+        throw std::runtime_error("In Client::joinGame(): _graphicLib is nullptr");
     while (1)
     {
         _graphicLib->registerPlayerInput();

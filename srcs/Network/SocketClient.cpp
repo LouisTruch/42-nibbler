@@ -38,14 +38,17 @@ void SocketClient::setupFdSocket()
         throw std::runtime_error("socket() failed");
 }
 
-bool SocketClient::askIfConnectLocalIp() const noexcept
+bool SocketClient::askIfConnectLocalIp() const
 {
     char answer;
     std::cout << "Do you want to connect to your local IP (" << _localIp << ") ? (y/n)" << std::endl;
     std::cin >> answer;
     if (answer == 'y')
         return true;
-    return false;
+    else if (answer == 'n')
+        return false;
+    else
+        throw std::runtime_error("Invalid answer");
 }
 
 const std::string SocketClient::askForDesiredIp() const
