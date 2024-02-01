@@ -15,15 +15,13 @@ class Client
     Client(std::unique_ptr<LibHandler>, std::unique_ptr<Server>);
     Client(std::unique_ptr<LibHandler>, std::unique_ptr<SocketClient>);
     ~Client();
-    void createGame(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, bool multipayer);
-    void startGameLoop();
-    void joinGame();
-
-  private:
     Client() = delete;
     // Delete those because of unique_ptr
     Client(const Client &) = delete;
     Client &operator=(const Client &) = delete;
+    void createGame(board_size_t boardSize, std::unique_ptr<ModeHandler> modeHandler, bool multipayer);
+    void startGameLoop();
+    void joinGame();
 
     typedef enum
     {
@@ -52,31 +50,4 @@ class Client
     std::unique_ptr<ISoundLib> _soundLib;
     std::unique_ptr<Server> _server;
     std::unique_ptr<SocketClient> _socketClient;
-
-    // Old Client class
-    // public:
-    //   Client(std::string_view);
-    //   ~Client();
-    //   void instantiatePtrs();
-    //   void readData();
-    //   void readInitData(std::string &);
-    //   void readGameData(std::string &);
-    //   void readMessage(std::string &);
-    //   int handleLibSwitch();
-
-    // private:
-    //   int _fd;
-    //   int _width;
-    //   int _height;
-    //   bool _isSound;
-    //   std::unique_ptr<LibHandler> _libHandler;
-    //   std::unique_ptr<IGraphicLib> _graphicHandler;
-    //   std::unique_ptr<ISoundLib> _soundHandler;
-    //   player_input_t _playerInput;
-    //   Client() = delete;
-    //   Client(const Client &) = delete;
-    //   Client &operator=(const Client &) = delete;
-
-    // private:
-    //   static constexpr int PORT = 7777;
 };

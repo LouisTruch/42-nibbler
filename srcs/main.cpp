@@ -69,13 +69,12 @@ int main(int argc, char **argv)
         {
             board_size_t boardSize = parseInput(argv[1], argv[2]);
             int_GameConfig_t config;
-            bool multiplayer = false;
-
             {
                 Menu menu;
                 menu.printMenu(boardSize);
                 config = menu.exportGameConfig();
             }
+            bool multiplayer = false;
             if (!(config & 0x8))
                 multiplayer = true;
 

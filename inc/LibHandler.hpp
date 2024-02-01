@@ -33,6 +33,9 @@ class LibHandler
   public:
     LibHandler(board_size_t);
     ~LibHandler();
+    LibHandler() = delete;
+    LibHandler(const LibHandler &) = delete;
+    LibHandler &operator=(const LibHandler &) = delete;
 
   public:
     void openGraphicLib(lib_graphic_e);
@@ -49,9 +52,6 @@ class LibHandler
     board_size_t getBoardSize() const;
 
   private:
-    LibHandler() = delete;
-    LibHandler(const LibHandler &) = delete;
-    LibHandler &operator=(const LibHandler &) = delete;
     void loadSymbolsGraphicLib();
     void loadSymbolsSoundLib();
 

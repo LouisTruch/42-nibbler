@@ -16,6 +16,4 @@ class PacketManager
     const board_size_t getBoardSizeFromPacket(Packet &packet) const;
     const GameData_t getGameDataFromPacket(Packet &packet) const;
     player_input_t getPlayerInputFromPacket(Packet &packet) const;
-
-  private:
 };

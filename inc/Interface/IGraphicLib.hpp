@@ -15,7 +15,6 @@ class IGraphicLib
     virtual player_input_t getPlayerInput(int) const = 0;
     virtual void resetPlayerInput() = 0;
     virtual void registerPlayerInput() noexcept = 0;
-    // Can't pass unique_ptr to .so loaded functions ?
     virtual void drawPlayer(const Snake_t &snake) = 0;
     virtual void drawFood(const point_t &point) = 0;
     virtual void drawScores(int, int) = 0;

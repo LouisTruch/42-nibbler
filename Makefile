@@ -70,7 +70,7 @@ fclean	:	clean
 			$(MAKE) -C libs/raylib/sound/ fclean
 			${RM} ${NAME}
 
-re		:	fclean all
+re		:	fclean all ${NAME}
 
 r 	:	all
 			${VALGRIND} ./nibbler 10 10

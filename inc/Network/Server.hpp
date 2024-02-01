@@ -11,6 +11,8 @@ class Server
   public:
     Server();
     ~Server();
+    Server(const Server &) = delete;
+    Server &operator=(const Server &) = delete;
 
   public:
     void waitConnection();
@@ -34,10 +36,6 @@ class Server
     int _byteRead;
     int _maxFds;
     std::unique_ptr<PacketManager> _packetManager;
-
-  private:
-    Server(const Server &) = delete;
-    Server &operator=(const Server &) = delete;
 };
 
 // Old Class Server

@@ -40,9 +40,11 @@ void SocketClient::setupFdSocket()
 
 bool SocketClient::askIfConnectLocalIp() const
 {
-    char answer;
+    char answer = '0';
     std::cout << "Do you want to connect to your local IP (" << _localIp << ") ? (y/n)" << std::endl;
     std::cin >> answer;
+    if (!answer)
+        throw std::runtime_error("Invalid answer");
     if (answer == 'y')
         return true;
     else if (answer == 'n')
