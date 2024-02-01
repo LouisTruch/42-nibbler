@@ -40,7 +40,6 @@ Server::~Server()
         close(_clientFd);
 }
 
-// TODO : Find a way to wake from a select call without using a timeout ()
 #include <iostream> // std::cout
 const std::string getLocalIp();
 void Server::waitConnection()

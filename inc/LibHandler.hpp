@@ -25,6 +25,9 @@ class LibHandler
     {
         NO_SOUND = -1,
         SOUNDRAYLIB,
+#ifdef DEBUG
+        SOUNDDEBUG,
+#endif
     } lib_sound_e;
 
   public:
@@ -42,8 +45,7 @@ class LibHandler
     void closeCurrentSoundLib();
     std::unique_ptr<ISoundLib> makeSoundLib();
     void destroySoundLib(ISoundLib *);
-    // TODO :
-    // std::unique_ptr<ISoundLib> switchSoundLib(lib_graphic_e, std::unique_ptr<IGraphicLib>);
+    std::unique_ptr<ISoundLib> switchSoundLib(lib_sound_e, std::unique_ptr<ISoundLib>);
     board_size_t getBoardSize() const;
 
   private:
@@ -80,6 +82,10 @@ class LibHandler
         "./libs/sdl/libsdl.so",
         "./libs/raylib/libraylib.so",
     };
+    static constexpr int NB_SOUND_LIBS = 1;
+    static constexpr std::string_view SOUND_LIB_PATH[1] = {
+        "./libs/raylib/sound/libsoundraylib.so",
+    };
 #else
     static constexpr int NB_GRAPHIC_LIBS = 4;
     static constexpr std::string_view GRAPHIC_LIB_PATH[4] = {
@@ -88,22 +94,10 @@ class LibHandler
         "./libs/raylib/libraylib.so",
         "./libs/debug/libdebug.so",
     };
-#endif
-
-    static constexpr int NB_SOUND_LIBS = 1;
-    static constexpr std::string_view SOUND_LIB_PATH[1] = {
+    static constexpr int NB_SOUND_LIBS = 2;
+    static constexpr std::string_view SOUND_LIB_PATH[2] = {
         "./libs/raylib/sound/libsoundraylib.so",
+        "./libs/debug/sound/libsounddebug.so",
     };
-
-    // public:
-    //   class LibException : public std::exception
-    //   {
-    //     private:
-    //       std::string _msg;
-
-    //     public:
-    //       LibException(std::string_view);
-    //       virtual const char *what() const throw();
-    //       ~LibException() throw() = default;
-    //   };
+#endif
 };

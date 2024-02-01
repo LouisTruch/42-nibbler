@@ -18,7 +18,11 @@ LibHandler::LibHandler(board_size_t boardSize)
 
     try
     {
+#ifndef DEBUG
         openSoundLib(SOUNDRAYLIB);
+#else
+        openSoundLib(SOUNDDEBUG);
+#endif
         loadSymbolsSoundLib();
     }
     catch (const std::exception &e)
@@ -156,6 +160,23 @@ void LibHandler::closeCurrentSoundLib()
     }
     _soundLibPtr = nullptr;
     _currentSoundLib = NO_SOUND;
+}
+
+std::unique_ptr<ISoundLib> LibHandler::switchSoundLib(lib_sound_e libChoice, std::unique_ptr<ISoundLib> sLib)
+{
+    LOG_DEBUG("Switching sound lib to " + std::string(SOUND_LIB_PATH[libChoice].data()) + ".so");
+    if (libChoice == _currentSoundLib)
+        return sLib;
+    if (libChoice < 0 || libChoice >= NB_SOUND_LIBS)
+        return sLib;
+
+    sLib.reset();
+    // Probably not needed
+    _deleterSoundFunc(sLib.get());
+    closeCurrentSoundLib();
+    openSoundLib(libChoice);
+    loadSymbolsSoundLib();
+    return makeSoundLib();
 }
 
 void LibHandler::loadSymbolsSoundLib(void)

@@ -140,7 +140,13 @@ void SDLGraphicLib::registerPlayerInput() noexcept
             case SDL_SCANCODE_4:
                 _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
                 break;
+            case SDL_SCANCODE_F2:
+                _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDDEBUG;
+                break;
 #endif
+            case SDL_SCANCODE_F1:
+                _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDRAYLIB;
+                break;
             default:
                 // Unutilized key
                 break;

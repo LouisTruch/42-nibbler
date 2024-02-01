@@ -138,6 +138,10 @@ void Client::consumePlayerInput(const player_input_t playerInput, const std::siz
     {
         handleLibSwitch(playerInput);
     }
+    else if (inputType == SWAP_LIB_SOUND && playerIdx == 0)
+    {
+        handleLibSoundSwitch(playerInput);
+    }
     else if (inputType == DIRECTION)
     {
         if (!checkIfOppositeDirection(playerInput, playerIdx))
@@ -167,6 +171,13 @@ Client::input_type_e Client::checkPlayerInput(const player_input_t playerInput) 
         [[fallthrough]];
     case INPUT_SWAP_LIBRAYLIB:
         return SWAP_LIB;
+
+#ifdef DEBUG
+    case INPUT_SWAP_LIBSOUNDDEBUG:
+        [[fallthrough]];
+#endif
+    case INPUT_SWAP_LIBSOUNDRAYLIB:
+        return SWAP_LIB_SOUND;
 
     case INPUT_LEFT:
         [[fallthrough]];
@@ -211,6 +222,28 @@ void Client::handleLibSwitch(const player_input_t playerInput)
 {
     LibHandler::lib_graphic_e libNum = inputToLibNum(playerInput);
     _graphicLib = _libHandler->switchGraphicLib(libNum, std::move(_graphicLib));
+}
+
+void Client::handleLibSoundSwitch(const player_input_t playerInput)
+{
+    std::cout << "HERE\n\n\n";
+    LibHandler::lib_sound_e libNum = inputToLibSoundNum(playerInput);
+    _soundLib = _libHandler->switchSoundLib(libNum, std::move(_soundLib));
+}
+
+LibHandler::lib_sound_e Client::inputToLibSoundNum(const player_input_t input) noexcept
+{
+    switch (input)
+    {
+    case INPUT_SWAP_LIBSOUNDRAYLIB:
+        return LibHandler::SOUNDRAYLIB;
+#ifdef DEBUG
+    case INPUT_SWAP_LIBSOUNDDEBUG:
+        return LibHandler::SOUNDDEBUG;
+#endif
+    default:
+        return LibHandler::NO_SOUND;
+    }
 }
 
 bool Client::checkIfOppositeDirection(const player_input_t playerInput, const std::size_t playerIdx) const noexcept

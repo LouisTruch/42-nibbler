@@ -4,6 +4,8 @@ NAME = nibbler
 CXXFLAGS	:=	-Wall -Wextra -Werror -std=c++20 -DNDEBUG
 LDFLAGS		:=	-lncurses
 
+ENV :=
+
 ifeq ($(VALGRIND), 1)
 	VALGRIND := valgrind --leak-check=full --show-leak-kinds=all
 else
@@ -14,9 +16,13 @@ ifeq ($(DEBUG), 1)
 	CXXFLAGS := $(filter-out -DNDEBUG, $(CXXFLAGS))
 	CXXFLAGS := $(filter-out -Werror, $(CXXFLAGS))
 	CXXFLAGS += -DDEBUG -g
-	DEBUG_ENV := DEBUG=1
+	ENV += DEBUG=1
 else
-	DEBUG_ENV := DEBUG=0
+	ENV += DEBUG=0
+endif
+
+ifeq ($(MANUAL_INSTALLSDL), 1)
+	ENV += MANUAL_INSTALLSDL=1
 endif
 
 SRCS := $(wildcard srcs/*.cpp)
@@ -46,19 +52,9 @@ ${NAME}	:	${OBJS}
 
 -include $(DEPENDS)
 
-#Should probably use a cmake..
-#Download libs and make everything
-install: 
-			bash ./script.sh
-			make -C . lib
-			make -C .
-
-#delete lib and cleans everything
-uninstall: fclean
-			rm -rf ./libs/raylib/raylib/
-
 clean	:	
 			$(MAKE) -C libs/debug/ clean
+			$(MAKE) -C libs/debug/sound clean
 			$(MAKE) -C libs/sdl/ clean
 			$(MAKE) -C libs/ncurses/ clean
 			$(MAKE) -C libs/raylib/ clean
@@ -67,6 +63,7 @@ clean	:
 
 fclean	:	clean
 			$(MAKE) -C libs/debug/ fclean
+			$(MAKE) -C libs/debug/sound/ fclean
 			$(MAKE) -C libs/sdl/ fclean
 			$(MAKE) -C libs/ncurses/ fclean
 			$(MAKE) -C libs/raylib/ fclean
@@ -80,19 +77,20 @@ r 	:	all
 
 +subtargets: 
 			@$(call green,"Compiling subtargets")
-			$(DEBUG_ENV) $(MAKE) -C libs/debug
-			$(DEBUG_ENV) $(MAKE) -C libs/sdl
-			$(DEBUG_ENV) $(MAKE) -C libs/ncurses
-			$(DEBUG_ENV) $(MAKE) -C libs/raylib
-			$(DEBUG_ENV) $(MAKE) -C libs/raylib/sound
+			$(ENV) $(MAKE) -C libs/debug
+			$(ENV) $(MAKE) -C libs/debug/sound
+			$(ENV) $(MAKE) -C libs/sdl
+			$(ENV) $(MAKE) -C libs/ncurses
+			$(ENV) $(MAKE) -C libs/raylib
+			$(ENV) $(MAKE) -C libs/raylib/sound
 
 cleanlibs: cleanraylib cleansdl
-#clean raylib.a and objects
+
 cleanraylib:
-			$(RM) ./libs/raylib/raylib
+			rm -rf ./libs/raylib/raylib
 
 cleansdl:
-			$(RM) ./libs/sdl/SDL
+			rm -rf ./libs/sdl/SDL
 
 
 .PHONY : all clean fclean re lib raylib cleanraylib install uninstall

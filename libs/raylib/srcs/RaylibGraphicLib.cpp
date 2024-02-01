@@ -79,8 +79,6 @@ std::deque<point_t>::const_iterator RaylibGraphicLib::getPrevDiffPos(
     return prev;
 }
 
-// TODO : REMOVE THIS INCLUDE
-#include <iostream>
 void RaylibGraphicLib::drawTail(std::deque<point_t>::const_iterator &oneBeforeTail,
                                 std::deque<point_t>::const_iterator &tail, Color playerColor)
 {

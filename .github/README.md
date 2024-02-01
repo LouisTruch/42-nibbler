@@ -26,8 +26,9 @@ Bonus I made are :
 ## **Run**
 **You need glfw3 installed**<br />
 Git clone the repo <br />
-Use "make install" <br />
-Use "./nibbler" <br />
+Use the script.sh <br />
+If SDL2 needs to be installed you need to export MANUAL_INSTALLSDL=1 before doing make<br />
+Use ./nibbler <br />
 
 ## Assets
 The assets used in Raylib are from [**here**](https://opengameart.org/content/snake-game-assets).

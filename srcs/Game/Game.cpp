@@ -317,7 +317,6 @@ std::string Game::getInfo() const noexcept
 #endif
 }
 
-// TODO : Add sound somehow
 const GameData_t Game::exportData() const
 {
     GameData_t gameData;
