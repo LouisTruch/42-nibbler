@@ -93,4 +93,4 @@ cleanraylib:
 cleansdl:
 			rm -rf ./libs/sdl/SDL
 
-.PHONY : all clean fclean re lib raylib cleanraylib install uninstall
+.PHONY : all clean fclean re r +subtargets cleanlibs cleanraylib cleansdl
