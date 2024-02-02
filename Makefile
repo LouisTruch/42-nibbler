@@ -70,8 +70,6 @@ fclean	:	clean
 			$(MAKE) -C libs/raylib/sound/ fclean
 			${RM} ${NAME}
 
-re		:	fclean +subtargets ${NAME}
-
 r 	:	all
 			${VALGRIND} ./nibbler 10 10
 
@@ -83,6 +81,9 @@ r 	:	all
 			$(ENV) $(MAKE) -C libs/ncurses
 			$(ENV) $(MAKE) -C libs/raylib
 			$(ENV) $(MAKE) -C libs/raylib/sound
+
+re		:	fclean +subtargets
+			$(MAKE) all
 
 cleanlibs: cleanraylib cleansdl
 

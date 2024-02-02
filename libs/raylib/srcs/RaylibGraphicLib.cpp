@@ -163,41 +163,63 @@ void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Colo
 
 void RaylibGraphicLib::registerPlayerInput() noexcept
 {
-    if (IsKeyPressed(KEY_W))
-        _arrayPlayerInput[0] = INPUT_UP;
-    else if (IsKeyPressed(KEY_S))
-        _arrayPlayerInput[0] = INPUT_DOWN;
-    else if (IsKeyPressed(KEY_A))
-        _arrayPlayerInput[0] = INPUT_LEFT;
-    else if (IsKeyPressed(KEY_D))
-        _arrayPlayerInput[0] = INPUT_RIGHT;
-    else if (IsKeyPressed(KEY_UP))
-        _arrayPlayerInput[1] = INPUT_UP;
-    else if (IsKeyPressed(KEY_DOWN))
-        _arrayPlayerInput[1] = INPUT_DOWN;
-    else if (IsKeyPressed(KEY_LEFT))
-        _arrayPlayerInput[1] = INPUT_LEFT;
-    else if (IsKeyPressed(KEY_RIGHT))
-        _arrayPlayerInput[1] = INPUT_RIGHT;
-    else if (IsKeyPressed(KEY_ESCAPE))
-        _arrayPlayerInput[0] = INPUT_QUIT;
-    else if (IsKeyPressed(KEY_ONE))
-        _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
-    else if (IsKeyPressed(KEY_TWO))
-        _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
-    else if (IsKeyPressed(KEY_F1))
-        _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDRAYLIB;
-    else if (IsKeyPressed(KEY_M))
-        _arrayPlayerInput[0] = INPUT_MUTE;
+    int key = GetKeyPressed();
 
+    switch (key)
+    {
+    case KEY_W:
+        _arrayPlayerInput[0] = INPUT_UP;
+        break;
+    case KEY_S:
+        _arrayPlayerInput[0] = INPUT_DOWN;
+        break;
+    case KEY_A:
+        _arrayPlayerInput[0] = INPUT_LEFT;
+        break;
+    case KEY_D:
+        _arrayPlayerInput[0] = INPUT_RIGHT;
+        break;
+    case KEY_UP:
+        _arrayPlayerInput[1] = INPUT_UP;
+        break;
+    case KEY_DOWN:
+        _arrayPlayerInput[1] = INPUT_DOWN;
+        break;
+    case KEY_LEFT:
+        _arrayPlayerInput[1] = INPUT_LEFT;
+        break;
+    case KEY_RIGHT:
+        _arrayPlayerInput[1] = INPUT_RIGHT;
+        break;
+    case KEY_ESCAPE:
+        _arrayPlayerInput[0] = INPUT_QUIT;
+        break;
+    case KEY_ONE:
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
+        break;
+    case KEY_TWO:
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
+        break;
+    case KEY_F1:
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDRAYLIB;
+        break;
+    case KEY_M:
+        _arrayPlayerInput[0] = INPUT_MUTE;
+        break;
 #ifdef DEBUG
-    else if (IsKeyPressed(KEY_THREE))
+    case KEY_THREE:
         _arrayPlayerInput[0] = INPUT_SWAP_LIBRAYLIB;
-    else if (IsKeyPressed(KEY_FOUR))
+        break;
+    case KEY_FOUR:
         _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
-    else if (IsKeyPressed(KEY_F2))
+        break;
+    case KEY_F2:
         _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDDEBUG;
+        break;
 #endif
+    default:
+        break;
+    }
 }
 
 player_input_t RaylibGraphicLib::getPlayerInput(int playerIdx) const
