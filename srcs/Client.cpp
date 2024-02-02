@@ -226,7 +226,6 @@ void Client::handleLibSwitch(const player_input_t playerInput)
 
 void Client::handleLibSoundSwitch(const player_input_t playerInput)
 {
-    std::cout << "HERE\n\n\n";
     LibHandler::lib_sound_e libNum = inputToLibSoundNum(playerInput);
     _soundLib = _libHandler->switchSoundLib(libNum, std::move(_soundLib));
 }

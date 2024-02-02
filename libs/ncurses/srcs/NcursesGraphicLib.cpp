@@ -35,6 +35,7 @@ void NcursesGraphicLib::clearBoard() const
     box(_board, _boxIcon, _boxIcon);
 }
 
+#include <iostream>
 void NcursesGraphicLib::registerPlayerInput() noexcept
 {
     chtype input = wgetch(_board);
@@ -81,7 +82,16 @@ void NcursesGraphicLib::registerPlayerInput() noexcept
     case '4':
         _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
         break;
+    case KEY_F(2):
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDDEBUG;
+        break;
+
 #endif
+    case KEY_F(1):
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDRAYLIB;
+        break;
+    default:
+        break;
     }
 }
 

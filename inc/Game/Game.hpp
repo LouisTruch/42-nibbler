@@ -93,7 +93,7 @@ class Game
 
   private:
     static inline constexpr int _DEFAULT_PLAYER_SIZE = 4;
-    static inline constexpr long int _DEFAULT_GAME_SPEED_MS = 500000;
+    static inline constexpr long int _DEFAULT_GAME_SPEED_MS = 350000;
 };
 
 void checkArgs(int, char **);

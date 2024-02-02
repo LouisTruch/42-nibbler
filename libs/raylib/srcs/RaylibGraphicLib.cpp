@@ -165,31 +165,38 @@ void RaylibGraphicLib::registerPlayerInput() noexcept
 {
     if (IsKeyDown(KEY_W))
         _arrayPlayerInput[0] = INPUT_UP;
-    if (IsKeyDown(KEY_S))
+    else if (IsKeyDown(KEY_S))
         _arrayPlayerInput[0] = INPUT_DOWN;
-    if (IsKeyDown(KEY_A))
+    else if (IsKeyDown(KEY_A))
         _arrayPlayerInput[0] = INPUT_LEFT;
-    if (IsKeyDown(KEY_D))
+    else if (IsKeyDown(KEY_D))
         _arrayPlayerInput[0] = INPUT_RIGHT;
-    if (IsKeyDown(KEY_UP))
+    else if (IsKeyDown(KEY_UP))
         _arrayPlayerInput[1] = INPUT_UP;
-    if (IsKeyDown(KEY_DOWN))
+    else if (IsKeyDown(KEY_DOWN))
         _arrayPlayerInput[1] = INPUT_DOWN;
-    if (IsKeyDown(KEY_LEFT))
+    else if (IsKeyDown(KEY_LEFT))
         _arrayPlayerInput[1] = INPUT_LEFT;
-    if (IsKeyDown(KEY_RIGHT))
+    else if (IsKeyDown(KEY_RIGHT))
         _arrayPlayerInput[1] = INPUT_RIGHT;
-    if (IsKeyDown(KEY_ESCAPE))
+    else if (IsKeyDown(KEY_ESCAPE))
         _arrayPlayerInput[0] = INPUT_QUIT;
     else if (IsKeyDown(KEY_ONE))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
     else if (IsKeyDown(KEY_TWO))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
+    else if (IsKeyDown(KEY_F1))
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDRAYLIB;
+    else if (IsKeyDown(KEY_M))
+        _arrayPlayerInput[0] = INPUT_MUTE;
+
 #ifdef DEBUG
     else if (IsKeyDown(KEY_THREE))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBRAYLIB;
     else if (IsKeyDown(KEY_FOUR))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
+    else if (IsKeyDown(KEY_F2))
+        _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDDEBUG;
 #endif
 }
 
