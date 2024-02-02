@@ -163,39 +163,39 @@ void RaylibGraphicLib::drawTextureTileSize(Texture2D texture, int x, int y, Colo
 
 void RaylibGraphicLib::registerPlayerInput() noexcept
 {
-    if (IsKeyDown(KEY_W))
+    if (IsKeyPressed(KEY_W))
         _arrayPlayerInput[0] = INPUT_UP;
-    else if (IsKeyDown(KEY_S))
+    else if (IsKeyPressed(KEY_S))
         _arrayPlayerInput[0] = INPUT_DOWN;
-    else if (IsKeyDown(KEY_A))
+    else if (IsKeyPressed(KEY_A))
         _arrayPlayerInput[0] = INPUT_LEFT;
-    else if (IsKeyDown(KEY_D))
+    else if (IsKeyPressed(KEY_D))
         _arrayPlayerInput[0] = INPUT_RIGHT;
-    else if (IsKeyDown(KEY_UP))
+    else if (IsKeyPressed(KEY_UP))
         _arrayPlayerInput[1] = INPUT_UP;
-    else if (IsKeyDown(KEY_DOWN))
+    else if (IsKeyPressed(KEY_DOWN))
         _arrayPlayerInput[1] = INPUT_DOWN;
-    else if (IsKeyDown(KEY_LEFT))
+    else if (IsKeyPressed(KEY_LEFT))
         _arrayPlayerInput[1] = INPUT_LEFT;
-    else if (IsKeyDown(KEY_RIGHT))
+    else if (IsKeyPressed(KEY_RIGHT))
         _arrayPlayerInput[1] = INPUT_RIGHT;
-    else if (IsKeyDown(KEY_ESCAPE))
+    else if (IsKeyPressed(KEY_ESCAPE))
         _arrayPlayerInput[0] = INPUT_QUIT;
-    else if (IsKeyDown(KEY_ONE))
+    else if (IsKeyPressed(KEY_ONE))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBNCURSES;
-    else if (IsKeyDown(KEY_TWO))
+    else if (IsKeyPressed(KEY_TWO))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBSDL;
-    else if (IsKeyDown(KEY_F1))
+    else if (IsKeyPressed(KEY_F1))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDRAYLIB;
-    else if (IsKeyDown(KEY_M))
+    else if (IsKeyPressed(KEY_M))
         _arrayPlayerInput[0] = INPUT_MUTE;
 
 #ifdef DEBUG
-    else if (IsKeyDown(KEY_THREE))
+    else if (IsKeyPressed(KEY_THREE))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBRAYLIB;
-    else if (IsKeyDown(KEY_FOUR))
+    else if (IsKeyPressed(KEY_FOUR))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBDEBUG;
-    else if (IsKeyDown(KEY_F2))
+    else if (IsKeyPressed(KEY_F2))
         _arrayPlayerInput[0] = INPUT_SWAP_LIBSOUNDDEBUG;
 #endif
 }

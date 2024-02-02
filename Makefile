@@ -70,7 +70,7 @@ fclean	:	clean
 			$(MAKE) -C libs/raylib/sound/ fclean
 			${RM} ${NAME}
 
-+re		:	fclean all
+re		:	fclean +subtargets ${NAME}
 
 r 	:	all
 			${VALGRIND} ./nibbler 10 10
@@ -91,6 +91,5 @@ cleanraylib:
 
 cleansdl:
 			rm -rf ./libs/sdl/SDL
-
 
 .PHONY : all clean fclean re lib raylib cleanraylib install uninstall
