@@ -82,8 +82,6 @@ std::deque<point_t>::const_iterator RaylibGraphicLib::getPrevDiffPos(
 void RaylibGraphicLib::drawTail(std::deque<point_t>::const_iterator &oneBeforeTail,
                                 std::deque<point_t>::const_iterator &tail, Color playerColor)
 {
-    // if (oneBeforeTail->x == tail->x && oneBeforeTail->y == tail->y)
-    // return;
     if (oneBeforeTail->x == tail->x)
     {
         if (oneBeforeTail->y < tail->y)
@@ -98,7 +96,6 @@ void RaylibGraphicLib::drawTail(std::deque<point_t>::const_iterator &oneBeforeTa
         else
             drawTextureTileSize(_vecTexture[RaylibTexture::TAIL_LEFT].getTexture(), tail->x, tail->y, playerColor);
     }
-    // Useful when snake is spawning or eating to avoid printing wrong texture
 }
 
 void RaylibGraphicLib::drawBody(std::deque<point_t>::const_iterator &current, Color playerColor)
