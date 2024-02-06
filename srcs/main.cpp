@@ -14,13 +14,13 @@ void launchDebug()
     {
         int_GameConfig_t config = 0;
         board_size_t boardSize = {10, 10};
-        bool multiplayer = false;
+        bool multiplayer = true;
 
         std::unique_ptr<ModeHandler> modeHandler = std::make_unique<ModeHandler>(config);
         std::unique_ptr<LibHandler> libHandler = std::make_unique<LibHandler>(boardSize);
         std::unique_ptr<Server> server = nullptr;
-        if (config & 0x20)
-            server = std::make_unique<Server>();
+        // if (config & 0x20)
+        server = std::make_unique<Server>();
 
         Client client(std::move(libHandler), std::move(server));
         client.createGame(boardSize, std::move(modeHandler), multiplayer);

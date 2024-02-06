@@ -36,5 +36,5 @@ void printFormat()
     std::cerr << "Correct format is :\n"
               << "./nibbler [WIDTH] [HEIGHT]\n"
               << "or\n"
-              << "./nibbler [ipv4 to join]" << std::endl;
+              << "./nibbler" << std::endl;
 }

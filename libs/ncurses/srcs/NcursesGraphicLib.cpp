@@ -1,5 +1,6 @@
 #include "../inc/NcursesGraphicLib.hpp"
 #include <curses.h>
+#include <stdexcept> // std::runtime_error
 #include <string>
 
 #define PLAYER_0_PAIR 1
@@ -7,12 +8,28 @@
 #define FOOD_PAIR 2
 NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _height(height)
 {
-    initscr();
-    refresh();   // Clear Screen
-    noecho();    // Prevent keypress being printed on screen
-    curs_set(0); // Remove cursor from screen
+    initscr();            // This function does not return when it fails
+    if (refresh() == ERR) // Clear Screen
+    {
+        endwin();
+        throw std::runtime_error("Error: initscr() failed");
+    }
+    if (noecho() == ERR) // Prevent keypress being printed on screen
+    {
+        endwin();
+        throw std::runtime_error("Error: noecho() failed");
+    }
+    if (curs_set(0) == ERR) // Remove cursor from screen
+    {
+        endwin();
+        throw std::runtime_error("Error: curs_set() failed");
+    }
     timeout(0);
-    start_color();
+    if (start_color() == ERR)
+    {
+        endwin();
+        throw std::runtime_error("Error: start_color() failed");
+    }
     if (has_colors())
     {
         init_pair(PLAYER_0_PAIR, COLOR_RED, 0);
@@ -21,12 +38,34 @@ NcursesGraphicLib::NcursesGraphicLib(int width, int height) : _width(width), _he
     }
 
     _board = newwin(_height, _width, 0, 0);
+    if (_board == nullptr)
+    {
+        endwin();
+        throw std::runtime_error("Error: newwin() failed");
+    }
     _scoreBoard = newwin(3, 30, 1, _width + 1);
-    keypad(_board, true);
-    // nodelay(_board, TRUE);
-    wtimeout(_board, 0); // Set non blocking call of user input
-    box(_board, _boxIcon, _boxIcon);
-    wrefresh(_board);
+    if (_scoreBoard == nullptr)
+    {
+        delwin(_board);
+        endwin();
+        throw std::runtime_error("Error: newwin() failed");
+    }
+    if (keypad(_board, true) == ERR)
+    {
+        delwin(_board);
+        delwin(_scoreBoard);
+        endwin();
+        throw std::runtime_error("Error: keypad() failed");
+    }
+    wtimeout(_board, 0);             // Set non blocking call of user input
+    box(_board, _boxIcon, _boxIcon); // This only can fail if the win ptr is NULL
+    if (wrefresh(_board) == ERR)
+    {
+        delwin(_board);
+        delwin(_scoreBoard);
+        endwin();
+        throw std::runtime_error("Error: wrefresh() failed");
+    }
 }
 
 void NcursesGraphicLib::clearBoard() const

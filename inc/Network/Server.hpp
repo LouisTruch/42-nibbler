@@ -25,7 +25,7 @@ class Server
 
   private:
     static constexpr u_int16_t _PORT = 7777;
-    static constexpr long _TIMEOUT_SEC = 100;
+    static constexpr long _TIMEOUT_SEC = 20;
     static constexpr long _TIMEOUT_USEC = 0;
 
   private:
